@@ -10,7 +10,15 @@ Add-Type -AssemblyName System.Drawing
 $root = Split-Path $PSScriptRoot -Parent
 . "$root\tools\deco-extract.ps1"
 
-$LP = "C:\Users\yushi.hoshiyama\Desktop\ＬＴＳ\公共\広島県\広島県DX協働モデル事例創出プロジェクト実施業務\LP\全体\完成イメージ"
+# 切り出し元のパスは tools/config.local.ps1 から読み込む
+# （公開リポジトリに個人のフォルダ構成を含めないため）。
+# ひな形は tools/config.example.ps1 です。
+$cfg = Join-Path $PSScriptRoot 'config.local.ps1'
+if (-not (Test-Path $cfg)) {
+  throw "tools/config.local.ps1 がありません。tools/config.example.ps1 をコピーして、LP_ROOT にご自身の LP フォルダのパスを設定してください。"
+}
+. $cfg
+$LP = Join-Path $LP_ROOT (Join-Path '全体' '完成イメージ')
 $WHAT    = "$LP\ChatGPT Image 2026年8月26日 14_01_10 (3).png"   # 本プロジェクトでできること
 $BENEFIT = "$LP\ChatGPT Image 2026年8月26日 14_01_11 (4).png"   # 参加事業者にとってのメリット
 $FLOW    = "$LP\ChatGPT Image 2026年8月26日 14_01_13 (6).png"   # 進め方

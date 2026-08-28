@@ -15,7 +15,8 @@
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 
-$S    = "C:\Users\YUSHI~1.HOS\AppData\Local\Temp\claude\C--Users-yushi-hoshiyama-Desktop-Claud--\0069ab21-c354-4d6d-a1bc-6d68b2e2430a\scratchpad"
+$S = Join-Path (Split-Path $PSScriptRoot -Parent) '.preview'
+if (-not (Test-Path $S)) { New-Item -ItemType Directory -Force -Path $S | Out-Null }
 $root = Split-Path $PSScriptRoot -Parent
 $deco = "$root\assets\img\deco"
 

@@ -36,7 +36,8 @@ function New-MultiplySheet {
   "sheet: $Out"
 }
 
-$deco = "C:\Users\yushi.hoshiyama\Desktop\Claud連携\hiroshiyama_DX_PJ\assets\img\deco"
-$S = "C:\Users\YUSHI~1.HOS\AppData\Local\Temp\claude\C--Users-yushi-hoshiyama-Desktop-Claud--\0069ab21-c354-4d6d-a1bc-6d68b2e2430a\scratchpad"
+$deco = Join-Path (Split-Path $PSScriptRoot -Parent) 'assetsimgdeco'
+$S = Join-Path (Split-Path $PSScriptRoot -Parent) '.preview'
+if (-not (Test-Path $S)) { New-Item -ItemType Directory -Force -Path $S | Out-Null }
 $files = Get-ChildItem $deco -Filter *.png | Sort-Object Name | Select-Object -ExpandProperty FullName
 New-MultiplySheet -Files $files -Out "$S\sheet-deco.png" -Cols 4 -Cell 300
