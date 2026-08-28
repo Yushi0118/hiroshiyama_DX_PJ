@@ -20,6 +20,48 @@
   var isMobile = window.matchMedia && window.matchMedia("(max-width: 767px)").matches;
 
   /* ------------------------------------------------------------
+     -1. 船団フレームのカバーフィット配置
+     .fleet-viewport（= セクションいっぱいの窓）の中で、.fleet フレームを
+     背景画像の background-size:cover と全く同じ計算式でサイズ・位置決めする。
+     これにより、各船の left/top/width（%指定、元画像基準で配置）は
+     ビューポートの縦横比が変わっても常に元画像の同じ場所を指し続ける
+     （= 船が背景の陸地に乗り上げたり水平線からズレたりしない）。
+     reduced-motion でも常に実行する必要がある（実行しないと .fleet が
+     0×0 に潰れて船が消えてしまうため）。
+     ------------------------------------------------------------ */
+  function sizeFleetFrame(frame) {
+    var viewport = frame.parentElement;
+    if (!viewport) return;
+    var vw = viewport.clientWidth;
+    var vh = viewport.clientHeight;
+    if (!vw || !vh) return;
+    var imgW = parseFloat(frame.getAttribute("data-img-w")) || 1600;
+    var imgH = parseFloat(frame.getAttribute("data-img-h")) || 900;
+    var imgRatio = imgW / imgH;
+    var viewRatio = vw / vh;
+    var w, h;
+    if (viewRatio > imgRatio) {
+      w = vw;
+      h = w / imgRatio;
+    } else {
+      h = vh;
+      w = h * imgRatio;
+    }
+    frame.style.width = w + "px";
+    frame.style.height = h + "px";
+    frame.style.left = (vw - w) / 2 + "px";
+    frame.style.top = (vh - h) / 2 + "px";
+  }
+  function sizeAllFleetFrames() {
+    document.querySelectorAll(".fleet").forEach(sizeFleetFrame);
+  }
+  sizeAllFleetFrames();
+  window.addEventListener("resize", debounce(sizeAllFleetFrames, 120));
+  window.addEventListener("orientationchange", sizeAllFleetFrames);
+  // フォント読み込み等による遅延レイアウト変化を拾うための保険再計算
+  window.setTimeout(sizeAllFleetFrames, 300);
+
+  /* ------------------------------------------------------------
      0. reduced-motion の場合はすべて即表示にして終了
      ------------------------------------------------------------ */
   if (reduceMotion) {

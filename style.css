@@ -232,21 +232,14 @@ a{color:inherit;text-decoration:none;}
 .hero-title{
   font-size:clamp(28px,4.6vw,52px);color:var(--navy);margin:0 0 .5em;font-weight:800;line-height:1.4;
 }
-.hero-brand{display:flex;align-items:center;gap:.6em;margin:0 0 .5em;}
-.hero-brand-mark{
-  width:1.9em;height:1.9em;border-radius:50%;background:var(--navy);flex:none;
-  display:flex;align-items:center;justify-content:center;
-}
-.hero-brand-mark svg{width:62%;height:62%;}
+.hero-brand{display:flex;align-items:center;gap:.55em;margin:0 0 .35em;}
+.hero-brand-mark{width:1.9em;height:auto;flex:none;display:flex;align-items:center;justify-content:center;}
+.hero-brand-mark img{width:100%;height:auto;display:block;}
 .hero-brand-name{font-size:clamp(16px,1.8vw,23px);color:var(--navy);font-weight:800;letter-spacing:.02em;}
+.hero-brand-name .accent-dx{color:var(--gold);}
 .hero-sub{font-size:13.5px;color:var(--gold);font-weight:700;letter-spacing:.04em;margin:0 0 1.2em;}
 .hero-lead{color:var(--ink-soft);font-size:16px;line-height:1.9;margin:0 0 2em;max-width:34em;}
-.hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:2.2em;}
-.hero-industries{display:flex;flex-wrap:wrap;gap:10px;}
-.hex-tag{
-  display:inline-flex;align-items:center;font-size:12px;font-weight:700;color:var(--navy);
-  background:rgba(255,255,255,.6);border:1px solid var(--line);padding:6px 14px;border-radius:999px;
-}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:0;}
 
 .scroll-cue{
   position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:3;
@@ -261,9 +254,16 @@ a{color:inherit;text-decoration:none;}
 }
 @keyframes scrollCue{0%{transform:translateY(0);opacity:1;}70%{opacity:0;}100%{transform:translateY(10px);opacity:0;}}
 
-/* ---------- Fleet / floating ships ---------- */
-.fleet{position:absolute;inset:0;z-index:1;pointer-events:none;}
-.fleet-mobile{display:none;}
+/* ---------- Fleet / floating ships ----------
+   .fleet-viewport clips to the section; .fleet is the "cover-fit" frame whose
+   exact left/top/width/height is computed by script.js to match the same
+   box background-size:cover would use for the section's background image at
+   the current viewport size, so the ships' left/top percentages (set below,
+   authored against the source artwork) always line up with the water no
+   matter how the section's aspect ratio changes. */
+.fleet-viewport{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none;}
+.fleet{position:absolute;top:0;left:0;width:100%;height:100%;}
+.fleet-viewport-mobile{display:none;}
 .ship{position:absolute;display:block;filter:drop-shadow(0 6px 10px rgba(10,26,58,.28));will-change:transform;}
 .float-slow{animation:shipFloat 5.6s ease-in-out infinite;}
 .float-med{animation:shipFloat 4.8s ease-in-out infinite;}
@@ -395,8 +395,9 @@ a{color:inherit;text-decoration:none;}
   .hero-section{padding-top:calc(56px + 24px);}
   .hero-panel{max-width:none;}
   .hero-scrim{background:rgba(250,245,234,.82);}
-  .fleet-desktop{display:none;}
-  .fleet-mobile{display:block;}
+  .fleet-viewport-desktop{display:none;}
+  .fleet-viewport-mobile{display:block;}
+  #hero .section-bg{background-image:url('assets/img/backgrounds/hero-bg-mobile.jpg') !important;}
   .pain-grid,.step-grid,.theme-grid,.benefit-grid{grid-template-columns:1fr;}
   .card-icon{max-width:84px;}
   .hub{grid-template-columns:1fr;grid-template-rows:none;max-width:320px;margin:0 auto;}
