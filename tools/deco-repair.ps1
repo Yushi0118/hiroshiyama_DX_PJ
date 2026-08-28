@@ -134,3 +134,78 @@ function Save-Repaired {
     $bmp.Dispose()
   } finally { $img.Dispose() }
 }
+
+function New-PaperTile {
+  <#
+    紙テクスチャのタイルを作る。
+
+    単に切り出して4方向ミラーにすると、元パッチに残った大域的な明暗ムラが
+    ミラー対称を可視化して、画面に格子状の継ぎ目が見えてしまう（実際に一度
+    その状態になった）。そこで「元パッチ ÷ 大きくぼかした自分自身」を取って
+    大域的なムラを除き、細かい紙の粒だけを 255（multiplyの中性色）まわりに
+    残してから4方向ミラーにする。
+  #>
+  param([string]$Src, [double[]]$Rect, [string]$Out, [int]$Size = 300, [double]$Strength = 1.0)
+  $img = [System.Drawing.Bitmap]::FromFile($Src)
+  try {
+    $x = [int]($Rect[0]*$img.Width); $y = [int]($Rect[1]*$img.Height)
+    $w = [int]($Rect[2]*$img.Width); $h = [int]($Rect[3]*$img.Height)
+
+    # 等倍で切り出す（拡大すると粒が眠くなるため）
+    $patch = New-Object System.Drawing.Bitmap($Size, $Size, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+    $g = [System.Drawing.Graphics]::FromImage($patch)
+    $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+    $g.DrawImage($img, (New-Object System.Drawing.Rectangle(0,0,$Size,$Size)), (New-Object System.Drawing.Rectangle($x,$y,$w,$h)), [System.Drawing.GraphicsUnit]::Pixel)
+    $g.Dispose()
+
+    # 大域的な明暗＝1/12まで縮めてから戻したもの
+    $small = [int][math]::Max(2, $Size/12)
+    $lowA = New-Object System.Drawing.Bitmap($small, $small, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+    $g1 = [System.Drawing.Graphics]::FromImage($lowA)
+    $g1.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+    $g1.DrawImage($patch, 0, 0, $small, $small); $g1.Dispose()
+    $low = New-Object System.Drawing.Bitmap($Size, $Size, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+    $g2 = [System.Drawing.Graphics]::FromImage($low)
+    $g2.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+    $g2.DrawImage($lowA, 0, 0, $Size, $Size); $g2.Dispose(); $lowA.Dispose()
+
+    $lockRect = New-Object System.Drawing.Rectangle(0,0,$Size,$Size)
+    $dp = $patch.LockBits($lockRect, [System.Drawing.Imaging.ImageLockMode]::ReadWrite, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+    $dl = $low.LockBits($lockRect, [System.Drawing.Imaging.ImageLockMode]::ReadOnly, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+    $len = $dp.Stride * $Size
+    $bp = New-Object byte[] $len; $bl = New-Object byte[] $len
+    [System.Runtime.InteropServices.Marshal]::Copy($dp.Scan0, $bp, 0, $len)
+    [System.Runtime.InteropServices.Marshal]::Copy($dl.Scan0, $bl, 0, $len)
+    for ($i = 0; $i -lt $len; $i += 4) {
+      for ($c = 0; $c -lt 3; $c++) {
+        $lo = [double]$bl[$i+$c]; if ($lo -lt 1) { $lo = 1 }
+        $ratio = [double]$bp[$i+$c] / $lo
+        $ratio = 1.0 + ($ratio - 1.0) * $Strength     # 粒の強さ
+        $bp[$i+$c] = [byte][math]::Max(0, [math]::Min(255, [math]::Round($ratio * 255)))
+      }
+      $bp[$i+3] = 255
+    }
+    [System.Runtime.InteropServices.Marshal]::Copy($bp, 0, $dp.Scan0, $len)
+    $patch.UnlockBits($dp); $low.UnlockBits($dl); $low.Dispose()
+
+    # 4方向ミラーで継ぎ目をなくす
+    $full = New-Object System.Drawing.Bitmap(($Size*2), ($Size*2), [System.Drawing.Imaging.PixelFormat]::Format24bppRgb)
+    $g3 = [System.Drawing.Graphics]::FromImage($full)
+    $a = $patch.Clone()
+    $b = $patch.Clone(); $b.RotateFlip([System.Drawing.RotateFlipType]::RotateNoneFlipX)
+    $c2 = $patch.Clone(); $c2.RotateFlip([System.Drawing.RotateFlipType]::RotateNoneFlipY)
+    $d2 = $patch.Clone(); $d2.RotateFlip([System.Drawing.RotateFlipType]::RotateNoneFlipXY)
+    $g3.DrawImage($a, 0, 0, $Size, $Size)
+    $g3.DrawImage($b, $Size, 0, $Size, $Size)
+    $g3.DrawImage($c2, 0, $Size, $Size, $Size)
+    $g3.DrawImage($d2, $Size, $Size, $Size, $Size)
+    $g3.Dispose(); $a.Dispose(); $b.Dispose(); $c2.Dispose(); $d2.Dispose(); $patch.Dispose()
+
+    $enc = [System.Drawing.Imaging.ImageCodecInfo]::GetImageEncoders() | Where-Object { $_.MimeType -eq 'image/jpeg' }
+    $ps = New-Object System.Drawing.Imaging.EncoderParameters(1)
+    $ps.Param[0] = New-Object System.Drawing.Imaging.EncoderParameter([System.Drawing.Imaging.Encoder]::Quality, 94L)
+    $full.Save($Out, $enc, $ps)
+    "{0,-30} {1}x{2} (high-pass mirror tile)" -f (Split-Path $Out -Leaf), $full.Width, $full.Height
+    $full.Dispose()
+  } finally { $img.Dispose() }
+}

@@ -31,36 +31,35 @@ $cT = @(0.150, 0.300, 0.120, 0.060)
 Write-Output "=== 装飾部品 ==="
 
 # --- メリット(4) 由来 ---
-Export-Deco -Src $S4 -Rect @(0.55,0.00,0.45,0.31)  -CreamRect $c4 -Out "$out\deco-sea-bridge.png"    -MaxWidth 900
-Export-Deco -Src $S4 -Rect @(0.00,0.775,1.00,0.225) -CreamRect $c4 -Out "$out\deco-band-bottom.png"   -MaxWidth 1400
-Export-Deco -Src $S4 -Rect @(0.00,0.750,0.17,0.250) -CreamRect $c4 -Out "$out\deco-lighthouse-sm.png" -MaxWidth 420
-Export-Deco -Src $S4 -Rect @(0.855,0.830,0.145,0.170) -CreamRect $c4 -Out "$out\deco-leaves-a.png"    -MaxWidth 420
-Export-Deco -Src $S4 -Rect @(0.578,0.088,0.095,0.145) -CreamRect $c4 -Out "$out\deco-sailboat.png"    -MaxWidth 320
+Export-Deco -Src $S4 -Rect @(0.55,0.00,0.45,0.31)  -CreamRect $c4 -Out "$out\deco-sea-bridge.jpg"    -MaxWidth 900
+Export-Deco -Src $S4 -Rect @(0.00,0.775,1.00,0.225) -CreamRect $c4 -Out "$out\deco-band-bottom.jpg"   -MaxWidth 1400
+Export-Deco -Src $S4 -Rect @(0.00,0.750,0.17,0.250) -CreamRect $c4 -Out "$out\deco-lighthouse-sm.jpg" -MaxWidth 420
+Export-Deco -Src $S4 -Rect @(0.855,0.830,0.145,0.170) -CreamRect $c4 -Out "$out\deco-leaves-a.jpg"    -MaxWidth 420
+Export-Deco -Src $S4 -Rect @(0.578,0.088,0.095,0.145) -CreamRect $c4 -Out "$out\deco-sailboat.jpg"    -MaxWidth 320
 
 # --- 進め方(6) 由来 ---
-Export-Deco -Src $S6 -Rect @(0.745,0.030,0.220,0.280) -CreamRect $c6 -Out "$out\deco-compass.png"     -MaxWidth 460
-Export-Deco -Src $S6 -Rect @(0.505,0.000,0.240,0.450) -CreamRect $c6 -Out "$out\deco-wave-diag.png"   -MaxWidth 560
-Export-Deco -Src $S6 -Rect @(0.000,0.895,1.000,0.105) -CreamRect $c6 -Out "$out\deco-band-wave.png"   -MaxWidth 1400
+Export-Deco -Src $S6 -Rect @(0.745,0.030,0.220,0.280) -CreamRect $c6 -Out "$out\deco-compass.jpg"     -MaxWidth 460
+Export-Deco -Src $S6 -Rect @(0.505,0.000,0.240,0.450) -CreamRect $c6 -Out "$out\deco-wave-diag.jpg"   -MaxWidth 560
+Export-Deco -Src $S6 -Rect @(0.000,0.895,1.000,0.105) -CreamRect $c6 -Out "$out\deco-band-wave.jpg"   -MaxWidth 1400
 
 # --- 募集テーマ(5) 由来 ---
-Export-Deco -Src $S5 -Rect @(0.550,0.000,0.450,0.340) -CreamRect $c4 -Out "$out\deco-wave-sweep.png"  -MaxWidth 900
+Export-Deco -Src $S5 -Rect @(0.550,0.000,0.450,0.340) -CreamRect $c4 -Out "$out\deco-wave-sweep.jpg"  -MaxWidth 900
 
 # --- 支援体制(7) 由来 ---
-Export-Deco -Src $S7 -Rect @(0.000,0.205,0.145,0.395) -CreamRect $c7 -Out "$out\deco-lighthouse-tall.png" -MaxWidth 340
-Export-Deco -Src $S7 -Rect @(0.700,0.085,0.300,0.225) -CreamRect $c7 -Out "$out\deco-bridge-coast.png"    -MaxWidth 560
-Export-Deco -Src $S7 -Rect @(0.898,0.755,0.062,0.170) -CreamRect $c7 -Out "$out\deco-leaves-vine.png"     -MaxWidth 260
-Export-Deco -Src $S7 -Rect @(0.045,0.695,0.160,0.200) -CreamRect $c7 -Out "$out\deco-lighthouse-lg.png"   -MaxWidth 400
-Export-Deco -Src $S7 -Rect @(0.120,0.195,0.190,0.058) -CreamRect $c7 -Out "$out\deco-seagulls.png"        -MaxWidth 320
-Export-Deco -Src $S7 -Rect @(0.000,0.935,1.000,0.065) -CreamRect $c7 -Out "$out\deco-band-sea.png"        -MaxWidth 1200
+Export-Deco -Src $S7 -Rect @(0.000,0.205,0.145,0.395) -CreamRect $c7 -Out "$out\deco-lighthouse-tall.jpg" -MaxWidth 340
+Export-Deco -Src $S7 -Rect @(0.700,0.085,0.300,0.225) -CreamRect $c7 -Out "$out\deco-bridge-coast.jpg"    -MaxWidth 560
+Export-Deco -Src $S7 -Rect @(0.898,0.755,0.062,0.170) -CreamRect $c7 -Out "$out\deco-leaves-vine.jpg"     -MaxWidth 260
+Export-Deco -Src $S7 -Rect @(0.045,0.695,0.160,0.200) -CreamRect $c7 -Out "$out\deco-lighthouse-lg.jpg"   -MaxWidth 400
+Export-Deco -Src $S7 -Rect @(0.120,0.195,0.190,0.058) -CreamRect $c7 -Out "$out\deco-seagulls.jpg"        -MaxWidth 320
+Export-Deco -Src $S7 -Rect @(0.000,0.935,1.000,0.065) -CreamRect $c7 -Out "$out\deco-band-sea.jpg"        -MaxWidth 1200
 
 # --- ヒーロー画像 由来 ---
-Export-Deco -Src $HW -Rect @(0.000,0.000,0.120,0.320) -CreamRect $cW -Out "$out\deco-leaves-b.png"    -MaxWidth 340
-Export-Deco -Src $HW -Rect @(0.540,0.000,0.420,0.170) -CreamRect $cW -Out "$out\deco-network.png"     -MaxWidth 800
-Export-Deco -Src $HT -Rect @(0.020,0.690,0.500,0.130) -CreamRect $cT -Out "$out\deco-landmarks.png"   -MaxWidth 700
+Export-Deco -Src $HW -Rect @(0.000,0.000,0.120,0.320) -CreamRect $cW -Out "$out\deco-leaves-b.jpg"    -MaxWidth 340
+Export-Deco -Src $HW -Rect @(0.540,0.000,0.420,0.170) -CreamRect $cW -Out "$out\deco-network.jpg"     -MaxWidth 800
+Export-Deco -Src $HT -Rect @(0.020,0.690,0.500,0.130) -CreamRect $cT -Out "$out\deco-landmarks.jpg"   -MaxWidth 700
 
-Write-Output ""
-Write-Output "=== 紙テクスチャ（4方向ミラーでシームレス化） ==="
-New-SeamlessTile -Src $HT -Rect @(0.150,0.280,0.220,0.130) -Out "$out\paper-tile.jpg" -Size 300
+# 紙の粒は style.css の --paper-grain（SVGのfeTurbulence）で描くため、
+# ラスタのタイルは生成しない（ミラータイルでは格子状の折り目が見えた）。
 
 Write-Output ""
 Write-Output "=== ヒーロー海景（焼き込みの業種ヘキサゴンを除去） ==="

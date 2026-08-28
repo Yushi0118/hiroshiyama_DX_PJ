@@ -103,7 +103,7 @@ function Export-Deco {
     if ($Out -match '\.jpe?g$') {
       $enc = [System.Drawing.Imaging.ImageCodecInfo]::GetImageEncoders() | Where-Object { $_.MimeType -eq 'image/jpeg' }
       $ps  = New-Object System.Drawing.Imaging.EncoderParameters(1)
-      $ps.Param[0] = New-Object System.Drawing.Imaging.EncoderParameter([System.Drawing.Imaging.Encoder]::Quality, 88L)
+      $ps.Param[0] = New-Object System.Drawing.Imaging.EncoderParameter([System.Drawing.Imaging.Encoder]::Quality, 92L)
       $final.Save($Out, $enc, $ps)
     } else {
       $final.Save($Out, [System.Drawing.Imaging.ImageFormat]::Png)
