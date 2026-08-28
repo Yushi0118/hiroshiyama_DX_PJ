@@ -86,6 +86,7 @@ a{color:inherit;text-decoration:none;}
   padding:96px 0;
   overflow:hidden;
   isolation:isolate;
+  scroll-margin-top:var(--header-h);
 }
 .section.alt-section{background:var(--cream-deep);}
 .section-bg{
@@ -191,6 +192,14 @@ a{color:inherit;text-decoration:none;}
 .card-photo{
   width:100%;border-radius:12px;margin-bottom:16px;aspect-ratio:4/3;object-fit:cover;
 }
+/* STEPイラスト（本プロジェクトでできること）は、素材そのものに薄いクリーム地が
+   焼き込まれているため、そのまま四角く配置すると"貼り付けた写真"のように見えて
+   しまう。マスクで縁をカードの地色へフェードさせ、挿絵としてなじませる。 */
+.step-grid .card-photo{
+  border-radius:0;aspect-ratio:1/1;object-fit:contain;max-width:78%;margin:0 auto 6px;
+  -webkit-mask-image:radial-gradient(ellipse at center,#000 55%,transparent 82%);
+  mask-image:radial-gradient(ellipse at center,#000 55%,transparent 82%);
+}
 .step-num{
   display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.1em;
   color:var(--gold);margin-bottom:.6em;transition:color .4s ease;
@@ -210,15 +219,29 @@ a{color:inherit;text-decoration:none;}
 .flip-card.small p{font-size:13px;}
 .flip-card.small .card-photo{aspect-ratio:1/1;}
 
-/* theme cards */
+/* theme cards ― 募集テーマは、他の白カードのセクションと並んでも埋もれないよう
+   紺×金の"認定証・バッジ"のようなトーンを常時まとわせて視覚的な差をつける */
+.theme-card .flip-card-face{
+  background:var(--navy);border:1.5px solid var(--gold);
+}
+.theme-card:hover .flip-card-face,
+.theme-card:focus-within .flip-card-face{
+  background:var(--navy-deep);border-color:var(--gold-light);
+}
+.theme-card h3{color:#fff;}
+.theme-card:hover h3,.theme-card:focus-within h3{color:var(--gold-light);}
+.theme-card p{color:rgba(255,255,255,.82);}
 .theme-card-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
-.card-icon-round{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:none;}
+.card-icon-round{
+  width:44px;height:44px;border-radius:50%;object-fit:cover;flex:none;
+  border:2px solid var(--gold-light);
+}
 .theme-card .label{
-  display:inline-block;font-size:11.5px;font-weight:700;color:var(--gold);
+  display:inline-block;font-size:11.5px;font-weight:700;color:var(--gold-light);
   letter-spacing:.06em;margin-bottom:.6em;transition:color .4s ease;
 }
 .theme-card .try{
-  margin-top:.9em;font-size:13.5px;color:var(--teal);font-weight:700;
+  margin-top:.9em;font-size:13.5px;color:var(--gold-light);font-weight:700;
   transition:color .4s ease;
 }
 
@@ -330,9 +353,11 @@ a{color:inherit;text-decoration:none;}
 .checklist li{display:flex;gap:10px;font-size:14px;color:var(--ink-soft);line-height:1.75;}
 .chk{color:var(--gold);font-weight:800;flex:none;}
 
-/* ---------- Timeline (schedule) ---------- */
-.timeline{max-width:1080px;margin:0 auto;overflow-x:auto;padding-bottom:8px;}
-.tl-track{display:grid;grid-auto-flow:column;grid-auto-columns:180px;gap:16px;}
+/* ---------- Timeline (schedule) ----------
+   6ステップ全てが必ず画面内で完結するよう、横スクロール前提のカルーセルは廃止。
+   PC/タブレットは折り返しグリッド、スマホは縦一列の"ステッパー"に組み替える。 */
+.timeline{max-width:1080px;margin:0 auto;}
+.tl-track{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
 .tl-item{
   background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
   padding:22px 16px;text-align:center;box-shadow:var(--shadow);
@@ -345,6 +370,7 @@ a{color:inherit;text-decoration:none;}
 .tl-dot{
   width:40px;height:40px;border-radius:50%;background:var(--navy);color:#fff;
   display:flex;align-items:center;justify-content:center;font-weight:800;margin:0 auto 12px;
+  flex:none;
 }
 .when{display:block;font-size:11.5px;color:var(--gold);font-weight:700;margin-bottom:.4em;transition:color .4s ease;}
 .tl-item h4{font-size:14.5px;color:var(--navy);margin:0 0 .5em;transition:color .4s ease;}
@@ -382,29 +408,81 @@ a{color:inherit;text-decoration:none;}
   .fnode-arrow{transform:rotate(90deg);}
   .cta-grid{grid-template-columns:1fr;}
   .hero-actions{width:100%;}
+  .tl-track{grid-template-columns:repeat(2,1fr);}
 }
 
+/* ============================================================
+   スマホ表示（〜767px）― PCレイアウトの縮小ではなく、1カラム前提で
+   組み直したスマホ専用スタイル。背景画像はあくまで装飾として縮小・
+   スクロール方式を変えるのみで、本文はすべてHTMLテキスト、アイコンは
+   個別画像のまま扱う（画像へのテキスト焼き込みは行わない）。
+   ============================================================ */
 @media (max-width:767px){
-  .section{padding:64px 0;}
+  .section{padding:56px 0;scroll-margin-top:56px;}
+  .wrap{padding:0 18px;}
   .site-header{height:56px;}
   .site-header-inner{padding:0 14px;}
   .site-brand{gap:.45em;min-width:0;}
   .site-brand-mark{width:28px;height:auto;}
   .site-brand-name{font-size:12.5px;letter-spacing:0;white-space:nowrap;}
   .btn-header{padding:8px 14px;font-size:12px;flex:none;}
+
+  /* ---- ヒーロー ---- */
   .hero-section{padding-top:calc(56px + 24px);}
   .hero-panel{max-width:none;}
   .hero-scrim{background:rgba(250,245,234,.82);}
   .fleet-viewport-desktop{display:none;}
   .fleet-viewport-mobile{display:block;}
   #hero .section-bg{background-image:url('assets/img/backgrounds/hero-bg-mobile.jpg') !important;}
-  .pain-grid,.step-grid,.theme-grid,.benefit-grid{grid-template-columns:1fr;}
+  .hero-title{font-size:clamp(26px,7.8vw,34px);}
+  .hero-actions{flex-direction:column;align-items:stretch;gap:12px;}
+  .hero-actions .btn{width:100%;}
+
+  /* ---- 共通見出し・ノート ---- */
+  .section-head{margin-bottom:2.2rem;}
+  .note-strip{font-size:12.5px;padding:12px 16px;}
+
+  /* ---- カード各種：1カラム、余白をスマホ幅向けに詰め直す ---- */
+  .pain-grid,.step-grid,.theme-grid,.benefit-grid{grid-template-columns:1fr;gap:16px;}
+  .flip-card-face{padding:22px 20px 20px;}
+  .flip-card.small .flip-card-face{padding:20px 18px 18px;}
   .card-icon{max-width:84px;}
-  .hub{grid-template-columns:1fr;grid-template-rows:none;max-width:320px;margin:0 auto;}
+  .step-grid .card-photo{max-width:56%;}
+
+  /* ---- 進め方（3ステップ） ---- */
+  .fnode{padding:18px 16px;}
+
+  /* ---- 支援体制ハブ図 ---- */
+  .hub{grid-template-columns:1fr;grid-template-rows:none;max-width:340px;margin:0 auto;}
   .hub-n1,.hub-n2,.hub-n3,.hub-n4,.hub-n5,.hub-center{grid-column:1;grid-row:auto;}
-  .hub-center{aspect-ratio:auto;padding:20px;order:3;}
+  .hub-center{aspect-ratio:auto;padding:18px;order:3;border-radius:20px;}
   .hub-n1{order:1;} .hub-n2{order:2;} .hub-n3{order:4;} .hub-n4{order:5;} .hub-n5{order:6;}
-  .tl-track{grid-auto-columns:72vw;}
+  .checklist{padding:22px 20px;}
+
+  /* ---- 実施スケジュール：横スクロールのカルーセルではなく、
+     左に線でつながる縦一列のステッパーとして専用レイアウトにする ---- */
+  .timeline{max-width:420px;}
+  .tl-track{display:flex;flex-direction:column;gap:0;}
+  .tl-item{
+    display:flex;align-items:flex-start;gap:14px;text-align:left;
+    background:transparent;border:none;box-shadow:none;border-radius:0;
+    padding:0 0 30px;position:relative;
+  }
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-item:not(:last-child)::before{
+    content:'';position:absolute;left:19px;top:42px;bottom:2px;width:2px;
+    background:var(--line);
+  }
+  .tl-item:hover{background:transparent;transform:none;box-shadow:none;}
+  .tl-item:hover h4{color:var(--navy);}
+  .tl-item:hover p{color:var(--ink-soft);}
+  .tl-item:hover .when{color:var(--gold);}
+  .tl-dot{margin:0;}
+  .tl-content{padding-top:6px;}
+
+  /* ---- CTA ---- */
+  .cta-tile{padding:18px 18px;}
+
   .section-bg{background-attachment:scroll !important;}
 }
 
