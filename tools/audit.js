@@ -9,19 +9,18 @@ window.__audit = function () {
   r.scrollWidth = sw;
   if (sw > innerWidth + 1) add('NG', `横スクロールが発生 (scrollWidth ${sw} > ${innerWidth})`);
 
-  // 2. ヒーロー：どちらの海景と船団が有効か
-  const heroBg = getComputedStyle(document.querySelector('#hero .section-bg')).backgroundImage;
+  // 2. ヒーロー：海景と船団の向きが一致しているか
+  //    CSS は @media (max-aspect-ratio:13/10)、JS は同条件の matchMedia で
+  //    切り替えている。両者がずれると船が陸に乗り上げる。
+  const heroBg = getComputedStyle(document.querySelector('.hero-bg')).backgroundImage;
   r.heroScene = /tall/.test(heroBg) ? 'tall(縦)' : /wide/.test(heroBg) ? 'wide(横)' : '不明';
-  const dv = getComputedStyle(document.querySelector('.fleet-viewport-desktop')).display;
-  const mv = getComputedStyle(document.querySelector('.fleet-viewport-mobile')).display;
-  r.fleetActive = dv !== 'none' ? 'desktop' : mv !== 'none' ? 'mobile' : 'なし';
-  if ((r.heroScene.startsWith('tall') && r.fleetActive !== 'mobile') ||
-      (r.heroScene.startsWith('wide') && r.fleetActive !== 'desktop')) {
-    add('NG', `海景(${r.heroScene})と船団(${r.fleetActive})の組み合わせが不整合`);
+  r.fleetActive = matchMedia('(max-aspect-ratio: 13/10)').matches ? 'tall(縦)' : 'wide(横)';
+  if (r.heroScene !== r.fleetActive) {
+    add('NG', `海景(${r.heroScene})と船団(${r.fleetActive})の向きが不一致`);
   }
 
   // 3. 船団：集結済みか、画面内に何隻見えているか
-  const fleet = document.querySelector(r.fleetActive === 'mobile' ? '.fleet-mobile' : '.fleet-desktop');
+  const fleet = document.getElementById('fleet');
   r.gathered = fleet ? fleet.classList.contains('is-gathered') : null;
   if (fleet && !r.gathered) add('NG', '船団に is-gathered が付いていない（船が非表示のまま）');
   if (fleet) {

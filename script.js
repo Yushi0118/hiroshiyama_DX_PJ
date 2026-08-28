@@ -1,363 +1,245 @@
 /* ============================================================
-   ひろしま協働DXプロジェクト スクロールLP — script.js
-   - reveal-on-scroll (fade-up / left / right / scale) + stagger
-   - 船団の「集結」と、スクロールに追従する前進
-   - 装飾レイヤー（.deco）と ヒーロー背景（.parallax-bg）のパララックス
-   - GSAP ScrollTrigger を優先使用、読み込み失敗時は
-     IntersectionObserver + CSS transition にフォールバック
-   - ヘッダーのスクロール状態切り替え
-   - prefers-reduced-motion 対応
+   ひろしま協働DXプロジェクト ― スクロールLP
+   ・船団の生成と「集結」演出
+   ・スクロール連動のフェードイン
+   ・装飾部品の視差
+   GSAP が CDN から取得できた場合は ScrollTrigger を使い、
+   取得できない場合は IntersectionObserver に自動で切り替える。
    ============================================================ */
 (function () {
-  "use strict";
+  'use strict';
 
-  // JS が動いたことを示す（no-js フォールバック解除）
-  document.documentElement.classList.remove("no-js");
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  var reduceMotion =
-    window.matchMedia &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* --------------------------------------------------------
+     船団
 
-  var isMobile = window.matchMedia && window.matchMedia("(max-width: 767px)").matches;
+     位置は「背景画像そのものの座標」で持つ（0〜1の比率）。
+     背景は background-size:cover なので、同じ計算式で .fleet の
+     枠を作れば、画面比がどう変わっても船は必ず海面の上に乗る。
+     -------------------------------------------------------- */
+  var SHIPS = ['crest','fish','gear','growth','leaf','plain','shop'];
 
-  /* ------------------------------------------------------------
-     0. 船団の「集結」
-     .ship-slot は既定で opacity:0、かつ --dx/--dy の分だけ隊列から
-     ずれた位置に置いてある。is-gathered を付けるとそれが 0 に向かって
-     動き、ばらばらの小舟が船団になる（＝LPのコンセプトの視覚化）。
-     どこで例外が起きても船が消えたままにならないよう、この予約だけは
-     最初に済ませておく。
-     ------------------------------------------------------------ */
-  function gatherFleets() {
-    var fleets = document.querySelectorAll(".fleet");
-    for (var i = 0; i < fleets.length; i++) fleets[i].classList.add("is-gathered");
-  }
-  // 散らばった状態が一瞬見えてから集まるよう、わずかに遅らせる
-  window.setTimeout(gatherFleets, reduceMotion ? 0 : 420);
-
-  /* ------------------------------------------------------------
-     1. 船団フレームのカバーフィット配置
-     .fleet-viewport（= セクションいっぱいの窓）の中で、.fleet フレームを
-     背景画像の background-size:cover と全く同じ計算式でサイズ・位置決めする。
-     これにより、各船の left/top/width（%指定、元画像基準で配置）は
-     ビューポートの縦横比が変わっても常に元画像の同じ場所を指し続ける
-     （= 船が背景の陸地に乗り上げたり水平線からズレたりしない）。
-     reduced-motion でも常に実行する必要がある（実行しないと .fleet が
-     0×0 に潰れて船が消えてしまうため）。
-     ------------------------------------------------------------ */
-  function sizeFleetFrame(frame) {
-    var viewport = frame.parentElement;
-    if (!viewport) return;
-    var vw = viewport.clientWidth;
-    var vh = viewport.clientHeight;
-    if (!vw || !vh) return;
-    var imgW = parseFloat(frame.getAttribute("data-img-w")) || 1600;
-    var imgH = parseFloat(frame.getAttribute("data-img-h")) || 900;
-    var imgRatio = imgW / imgH;
-    var viewRatio = vw / vh;
-    var w, h;
-    if (viewRatio > imgRatio) {
-      w = vw;
-      h = w / imgRatio;
-    } else {
-      h = vh;
-      w = h * imgRatio;
-    }
-    frame.style.width = w + "px";
-    frame.style.height = h + "px";
-    frame.style.left = (vw - w) / 2 + "px";
-    frame.style.top = (vh - h) / 2 + "px";
-  }
-  function sizeAllFleetFrames() {
-    document.querySelectorAll(".fleet").forEach(sizeFleetFrame);
-  }
-  sizeAllFleetFrames();
-  window.addEventListener("resize", debounce(sizeAllFleetFrames, 120));
-  window.addEventListener("orientationchange", sizeAllFleetFrames);
-  // フォント読み込み等による遅延レイアウト変化を拾うための保険再計算
-  window.setTimeout(sizeAllFleetFrames, 300);
-
-  /* ------------------------------------------------------------
-     2. 装飾部品ごとのパララックス速度
-     手前にあるもの（下辺の波の帯）ほど速く、遠くにあるもの
-     （コンパス・空の葉）ほど遅く動かして奥行きを出す。
-     .deco の transform は scaleX（左右反転）と合成する必要があるため、
-     移動量は --py というカスタムプロパティ経由で渡す。
-     ------------------------------------------------------------ */
-  var DECO_SPEED = {
-    "d-band": 0.17,
-    "d-house": 0.10,
-    "d-wave": 0.08,
-    "d-sea": 0.07,
-    "d-sweep": 0.07,
-    "d-bridge": 0.06,
-    "d-leaf": 0.05,
-    "d-vine": 0.05,
-    "d-gulls": 0.04,
-    "d-compass": 0.03
+  // 横長（PC）: hero-scene-wide.jpg 1600x900 / 水平線 y≈0.355 / 海は x>0.48
+  var FLEET_WIDE = {
+    img: [1600, 900],
+    anchorY: 0.5,
+    rows: [
+      // y の帯, 幅の帯, 隻数, x の帯, 不透明度
+      { y:[0.366,0.392], w:[0.010,0.017], n:14, x:[0.500,0.840], fade:0.72 },
+      { y:[0.400,0.452], w:[0.022,0.034], n: 9, x:[0.505,0.835], fade:0.86 },
+      { y:[0.468,0.598], w:[0.045,0.070], n: 7, x:[0.510,0.830], fade:1    },
+      { y:[0.630,0.905], w:[0.105,0.170], n: 5, x:[0.495,0.825], fade:1    }
+    ]
   };
-  /* 船団の前進量を適用する。t は 0（ヒーロー上端）〜1（ヒーローを抜けきる）。 */
-  function applyFleetAdvance(fleets, t) {
-    var x = (t * (isMobile ? -14 : -26)).toFixed(1) + "px";
-    var y = (t * (isMobile ? 10 : 18)).toFixed(1) + "px";
-    for (var i = 0; i < fleets.length; i++) {
-      fleets[i].style.setProperty("--advX", x);
-      fleets[i].style.setProperty("--advY", y);
-    }
-  }
 
-  function decoAmplitude(el) {
-    var speed = 0.06;
-    for (var key in DECO_SPEED) {
-      if (el.classList.contains(key)) { speed = DECO_SPEED[key]; break; }
-    }
-    // スマホでは動きを控えめにする（画面が狭く、動きが大きいと酔いやすい）
-    return speed * (isMobile ? 0.45 : 1) * 320;
-  }
+  // 縦長（モバイル）: hero-scene-tall.jpg 941x1672 / 水平線 y≈0.665
+  var FLEET_TALL = {
+    img: [941, 1672],
+    anchorY: 1,
+    rows: [
+      { y:[0.676,0.700], w:[0.024,0.040], n: 8, x:[0.150,0.870], fade:0.75 },
+      { y:[0.712,0.762], w:[0.050,0.078], n: 6, x:[0.165,0.855], fade:0.9   },
+      { y:[0.775,0.862], w:[0.098,0.150], n: 5, x:[0.175,0.835], fade:1    },
+      { y:[0.880,0.968], w:[0.180,0.260], n: 3, x:[0.225,0.785], fade:1    }
+    ]
+  };
 
-  /* ------------------------------------------------------------
-     3. reduced-motion の場合はすべて即表示にして終了
-     ------------------------------------------------------------ */
-  if (reduceMotion) {
-    document.querySelectorAll(".reveal").forEach(function (el) {
-      el.classList.add("is-visible");
-    });
-    gatherFleets();
-    setupHeaderScroll();
-    return; // パララックス・stagger・floatはCSS側で無効化済みなのでJSも何もしない
-  }
-
-  /* ------------------------------------------------------------
-     4. stagger 用の遅延値 (--d) を各グループ内で設定
-     ------------------------------------------------------------ */
-  var STAGGER_STEP = 0.09; // seconds
-  document.querySelectorAll("[data-stagger]").forEach(function (group) {
-    var children = Array.prototype.slice.call(group.children);
-    children.forEach(function (child, i) {
-      child.style.setProperty("--d", i * STAGGER_STEP + "s");
-    });
-  });
-
-  /* ------------------------------------------------------------
-     5. ヘッダーのスクロール状態
-     ------------------------------------------------------------ */
-  function setupHeaderScroll() {
-    var header = document.getElementById("siteHeader");
-    if (!header) return;
-    var toggle = function () {
-      if (window.scrollY > 12) {
-        header.classList.add("is-scrolled");
-      } else {
-        header.classList.remove("is-scrolled");
-      }
+  // 見た目のばらつきを「毎回同じ」にするための決定的な擬似乱数
+  function rng(seed) {
+    var s = seed >>> 0;
+    return function () {
+      s = (s * 1664525 + 1013904223) >>> 0;
+      return s / 4294967296;
     };
-    toggle();
-    window.addEventListener("scroll", toggle, { passive: true });
   }
-  setupHeaderScroll();
 
-  /* ------------------------------------------------------------
-     6. GSAP + ScrollTrigger が使えるか判定
-     ------------------------------------------------------------ */
-  var hasGSAP =
-    typeof window.gsap !== "undefined" &&
-    typeof window.ScrollTrigger !== "undefined";
+  function buildFleet(cfg) {
+    var frag = document.createDocumentFragment();
+    var rand = rng(20260828);
+    var idx = 0;
+
+    cfg.rows.forEach(function (row, ri) {
+      for (var i = 0; i < row.n; i++) {
+        // 等間隔に置いてから少しだけ散らす（列に見えないように）
+        var t = row.n === 1 ? 0.5 : i / (row.n - 1);
+        var jitterX = (rand() - 0.5) * ((row.x[1] - row.x[0]) / row.n) * 0.9;
+        var x = row.x[0] + (row.x[1] - row.x[0]) * t + jitterX;
+        var y = row.y[0] + (row.y[1] - row.y[0]) * rand();
+        var w = row.w[0] + (row.w[1] - row.w[0]) * rand();
+
+        var slot = document.createElement('span');
+        slot.className = 'ship-slot';
+        slot.style.setProperty('--x', (x * 100).toFixed(2) + '%');
+        slot.style.setProperty('--y', (y * 100).toFixed(2) + '%');
+        slot.style.setProperty('--w', (w * 100).toFixed(2) + '%');
+        slot.style.setProperty('--fade', row.fade);
+        // 集結前の散らばり。遠い船ほど遠くから寄ってくる
+        var spread = 26 - ri * 5;
+        slot.style.setProperty('--sx', ((rand() - 0.35) * spread).toFixed(1) + 'vw');
+        slot.style.setProperty('--sy', ((rand() - 0.5) * spread * 0.5).toFixed(1) + 'vh');
+        slot.style.setProperty('--sc', (0.55 + rand() * 0.25).toFixed(2));
+        slot.style.setProperty('--gd', (0.05 * idx + ri * 0.08).toFixed(2) + 's');
+        slot.style.setProperty('--dur', (3.6 + rand() * 3.4).toFixed(2) + 's');
+        slot.style.setProperty('--bd', (rand() * 3).toFixed(2) + 's');
+
+        var img = document.createElement('img');
+        img.src = 'assets/img/icons/ships/ship-' + SHIPS[idx % SHIPS.length] + '.webp';
+        img.alt = '';
+        img.decoding = 'async';
+        // 遠景の小さな船は帆の柄が潰れるので、無彩色寄りにして奥行きを出す
+        if (ri === 0) img.style.filter = 'saturate(.55) opacity(.9)';
+        else if (ri === 1) img.style.filter = 'saturate(.8)';
+
+        slot.appendChild(img);
+        frag.appendChild(slot);
+        idx++;
+      }
+    });
+    return frag;
+  }
+
+  var fleetEl = document.getElementById('fleet');
+  var fleetCfg = null;
+  var fleetMode = null;
+
+  function currentMode() {
+    // CSS の @media (max-aspect-ratio:13/10) と必ず同じ条件にすること。
+    // ずれると海景と船団の組み合わせが食い違い、船が陸に乗り上げる。
+    return window.matchMedia('(max-aspect-ratio: 13/10)').matches ? 'tall' : 'wide';
+  }
+
+  function mountFleet() {
+    if (!fleetEl) return;
+    var mode = currentMode();
+    if (mode === fleetMode) return;
+    fleetMode = mode;
+    fleetCfg = mode === 'tall' ? FLEET_TALL : FLEET_WIDE;
+    fleetEl.innerHTML = '';
+    fleetEl.appendChild(buildFleet(fleetCfg));
+    sizeFleetFrame();
+    // 一度でも表示済みなら、組み替え後もすぐ隊列を組んだ状態にする
+    if (gathered) requestAnimationFrame(function () { fleetEl.classList.add('is-gathered'); });
+  }
+
+  /* background-size:cover と同じ式で .fleet の枠を海面に一致させる。
+     この関数はモーション低減時も必ず実行する（実行しないと枠が
+     0×0 に潰れて船がすべて消える）。 */
+  function sizeFleetFrame() {
+    if (!fleetEl || !fleetCfg) return;
+    var hero = document.getElementById('hero');
+    if (!hero) return;
+    var W = hero.clientWidth, H = hero.clientHeight;
+    var iw = fleetCfg.img[0], ih = fleetCfg.img[1];
+    var scale = Math.max(W / iw, H / ih);
+    var fw = iw * scale, fh = ih * scale;
+    fleetEl.style.width = fw + 'px';
+    fleetEl.style.height = fh + 'px';
+    fleetEl.style.left = ((W - fw) / 2) + 'px';
+    fleetEl.style.top = ((H - fh) * fleetCfg.anchorY) + 'px';
+  }
+
+  var gathered = false;
+  function gatherFleet() {
+    if (gathered || !fleetEl) return;
+    gathered = true;
+    fleetEl.classList.add('is-gathered');
+  }
+
+  mountFleet();
+  window.addEventListener('resize', function () { mountFleet(); sizeFleetFrame(); });
+  window.addEventListener('orientationchange', sizeFleetFrame);
+  window.addEventListener('load', sizeFleetFrame);
+
+  /* --------------------------------------------------------
+     モーション低減：演出はすべて止め、完成状態を静止表示する
+     -------------------------------------------------------- */
+  if (reduceMotion) {
+    document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('is-visible'); });
+    gatherFleet();
+    return;
+  }
+
+  /* --------------------------------------------------------
+     スクロール演出
+     -------------------------------------------------------- */
+  var hasGSAP = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
 
   if (hasGSAP) {
-    initGSAP();
-  } else {
-    initFallback();
-  }
-
-  /* ------------------------------------------------------------
-     7a. GSAP ScrollTrigger 実装
-     ------------------------------------------------------------ */
-  function initGSAP() {
     gsap.registerPlugin(ScrollTrigger);
 
-    // reveal 要素：一つずつ ScrollTrigger を張る（--d の遅延を尊重）
-    // フェードイン自体はCSSの transition が担当するので、ここでは
-    // is-visible を付けるだけでよい。以前は「アニメーション対象のプロパティを
-    // 持たない gsap.to() の onStart」に頼っていたが、GSAPは動かすものが無い
-    // tween を再生しないため is-visible が付かず、GSAPがCDNから読める環境では
-    // 本文がすべて opacity:0 のまま残ってしまっていた。ScrollTrigger を直接
-    // 使うことでこの依存をなくす。
-    document.querySelectorAll(".reveal").forEach(function (el) {
-      var delay = parseFloat(
-        (el.style.getPropertyValue("--d") || "0s").replace("s", "")
-      ) || 0;
-
+    document.querySelectorAll('.reveal').forEach(function (el, i) {
       ScrollTrigger.create({
         trigger: el,
-        start: "top 88%",
+        start: 'top 88%',
         once: true,
         onEnter: function () {
-          if (delay > 0) {
-            window.setTimeout(function () { el.classList.add("is-visible"); }, delay * 1000);
-          } else {
-            el.classList.add("is-visible");
-          }
-        },
+          setTimeout(function () { el.classList.add('is-visible'); }, (i % 5) * 70);
+        }
       });
     });
 
-    // ヒーロー背景のパララックス
-    document.querySelectorAll(".parallax-bg").forEach(function (el) {
-      var speedAttr = parseFloat(el.getAttribute("data-speed")) || 0.1;
-      var speed = isMobile ? speedAttr * 0.4 : speedAttr;
-      var section = el.closest(".section");
-      if (!section) return;
-      gsap.fromTo(
-        el,
-        { yPercent: -speed * 50 },
-        {
-          yPercent: speed * 50,
-          ease: "none",
-          scrollTrigger: { trigger: section, start: "top bottom", end: "bottom top", scrub: true },
-        }
-      );
-    });
-
-    // 装飾部品のパララックス（部品ごとに速度が違う）
-    document.querySelectorAll(".deco").forEach(function (el) {
-      var section = el.closest(".section");
-      if (!section) return;
-      var amp = decoAmplitude(el);
-      gsap.fromTo(
-        el,
-        { "--py": -amp + "px" },
-        {
-          "--py": amp + "px",
-          ease: "none",
-          scrollTrigger: { trigger: section, start: "top bottom", end: "bottom top", scrub: true },
-        }
-      );
-    });
-
-    // 船団の前進：ヒーローをスクロールしていく間、船団がわずかに手前へ寄る。
-    // カスタムプロパティを直接 tween させるのではなく、素の数値を tween して
-    // onUpdate で setProperty する（GSAPのCSS変数対応に依存しないため確実）。
-    var hero = document.getElementById("hero");
-    if (hero) {
-      var fleets = document.querySelectorAll(".fleet");
-      if (fleets.length) {
-        var adv = { t: 0 };
-        gsap.to(adv, {
-          t: 1,
-          ease: "none",
-          scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: true },
-          onUpdate: function () {
-            applyFleetAdvance(fleets, adv.t);
-          },
+    // 装飾部品の視差
+    document.querySelectorAll('.section-deco').forEach(function (layer) {
+      var sec = layer.closest('.section');
+      layer.querySelectorAll('.deco').forEach(function (el, i) {
+        var depth = 16 + (i % 3) * 12;
+        gsap.fromTo(el, { '--py': depth + 'px' }, {
+          '--py': -depth + 'px', ease: 'none',
+          scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: 0.6 }
         });
-      }
+      });
+    });
+
+    // 船団：ヒーローに入ったら集結し、スクロールに合わせて前へ進む
+    ScrollTrigger.create({ trigger: '#hero', start: 'top 92%', once: true, onEnter: gatherFleet });
+    if (fleetEl) {
+      gsap.fromTo(fleetEl, { '--advX': '0px' }, {
+        '--advX': '-56px', ease: 'none',
+        scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 0.8 }
+      });
     }
+  } else {
+    // フォールバック
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('is-visible');
+        io.unobserve(e.target);
+      });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.05 });
+    document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
 
-    // ビューポート変更時にモバイル判定を更新（回転など）
-    window.addEventListener(
-      "resize",
-      debounce(function () {
-        isMobile = window.matchMedia("(max-width: 767px)").matches;
-        ScrollTrigger.refresh();
-      }, 250)
-    );
-  }
+    var heroIO = new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting) { gatherFleet(); heroIO.disconnect(); }
+    }, { threshold: 0.05 });
+    var heroEl = document.getElementById('hero');
+    if (heroEl) heroIO.observe(heroEl);
 
-  /* ------------------------------------------------------------
-     7b. フォールバック実装（IntersectionObserver + CSS transition）
-     ------------------------------------------------------------ */
-  function initFallback() {
-    if ("IntersectionObserver" in window) {
-      var io = new IntersectionObserver(
-        function (entries) {
-          entries.forEach(function (entry) {
-            if (entry.isIntersecting) {
-              entry.target.classList.add("is-visible");
-              io.unobserve(entry.target);
-            }
+    var ticking = false;
+    window.addEventListener('scroll', function () {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () {
+        var y = window.scrollY;
+        document.querySelectorAll('.section-deco').forEach(function (layer) {
+          var sec = layer.closest('.section');
+          var r = sec.getBoundingClientRect();
+          var p = 1 - (r.top + r.height) / (window.innerHeight + r.height);
+          layer.querySelectorAll('.deco').forEach(function (el, i) {
+            var depth = 16 + (i % 3) * 12;
+            el.style.setProperty('--py', ((0.5 - p) * 2 * depth).toFixed(1) + 'px');
           });
-        },
-        { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
-      );
-      document.querySelectorAll(".reveal").forEach(function (el) {
-        io.observe(el);
-      });
-    } else {
-      // IntersectionObserver 非対応ブラウザ：即表示
-      document.querySelectorAll(".reveal").forEach(function (el) {
-        el.classList.add("is-visible");
-      });
-    }
-
-    // パララックス（scroll イベント + rAF、簡易版）
-    var bgEls = Array.prototype.slice.call(document.querySelectorAll(".parallax-bg"));
-    var decoEls = Array.prototype.slice.call(document.querySelectorAll(".deco"));
-    var fleets = Array.prototype.slice.call(document.querySelectorAll(".fleet"));
-    var hero = document.getElementById("hero");
-
-    if (bgEls.length || decoEls.length || fleets.length) {
-      var ticking = false;
-      var updateParallax = function () {
+        });
+        if (fleetEl) {
+          var hh = document.getElementById('hero').clientHeight || 1;
+          fleetEl.style.setProperty('--advX', (-56 * Math.min(1, y / hh)).toFixed(1) + 'px');
+        }
         ticking = false;
-        var vh = window.innerHeight;
-
-        bgEls.forEach(function (el) {
-          var section = el.closest(".section");
-          if (!section) return;
-          var rect = section.getBoundingClientRect();
-          if (rect.bottom < 0 || rect.top > vh) return;
-          var speedAttr = parseFloat(el.getAttribute("data-speed")) || 0.1;
-          var speed = isMobile ? speedAttr * 0.4 : speedAttr;
-          var progress = (vh - rect.top) / (vh + rect.height); // 0..1
-          el.style.transform = "translate3d(0," + ((progress - 0.5) * speed * 100).toFixed(2) + "%,0)";
-        });
-
-        decoEls.forEach(function (el) {
-          var section = el.closest(".section");
-          if (!section) return;
-          var rect = section.getBoundingClientRect();
-          if (rect.bottom < 0 || rect.top > vh) return;
-          var progress = (vh - rect.top) / (vh + rect.height); // 0..1
-          el.style.setProperty("--py", ((progress - 0.5) * 2 * decoAmplitude(el)).toFixed(1) + "px");
-        });
-
-        if (hero && fleets.length) {
-          var hr = hero.getBoundingClientRect();
-          if (hr.bottom > 0 && hr.top < vh) {
-            // ヒーローが上へ抜けていく割合（0..1）
-            applyFleetAdvance(fleets, Math.min(1, Math.max(0, -hr.top / Math.max(1, hr.height))));
-          }
-        }
-      };
-      var onScroll = function () {
-        if (!ticking) {
-          window.requestAnimationFrame(updateParallax);
-          ticking = true;
-        }
-      };
-      updateParallax();
-      window.addEventListener("scroll", onScroll, { passive: true });
-      window.addEventListener(
-        "resize",
-        debounce(function () {
-          isMobile = window.matchMedia("(max-width: 767px)").matches;
-          updateParallax();
-        }, 250)
-      );
-    }
+      });
+    }, { passive: true });
   }
 
-  /* ------------------------------------------------------------
-     util
-     ------------------------------------------------------------ */
-  function debounce(fn, wait) {
-    var t;
-    return function () {
-      clearTimeout(t);
-      var args = arguments;
-      t = setTimeout(function () {
-        fn.apply(null, args);
-      }, wait);
-    };
-  }
+  // 保険：3秒経っても集結していなければ強制的に表示する
+  setTimeout(gatherFleet, 3000);
 })();
