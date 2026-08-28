@@ -118,6 +118,21 @@ ul,ol{list-style:none;padding:0;}
   mix-blend-mode:multiply;
   transform:translate3d(0,var(--py,0),0) scaleX(var(--fx,1));
   will-change:transform;
+  /* 切り出し矩形の辺で水彩が断ち切られると直線の継ぎ目に見える。
+     配置の基準となる角（--mx,--my）から外へ減衰させて辺を消す。 */
+  -webkit-mask-image:var(--mask, radial-gradient(135% 135% at var(--mx,50%) var(--my,50%), #000 42%, rgba(0,0,0,.72) 68%, transparent 100%));
+          mask-image:var(--mask, radial-gradient(135% 135% at var(--mx,50%) var(--my,50%), #000 42%, rgba(0,0,0,.72) 68%, transparent 100%));
+}
+/* 角に置く部品は、その角を基準に減衰させる */
+.deco[class*="d-sea"],.deco[class*="d-bridge"],.deco[class*="d-net"],
+.deco[class*="d-wave"],.deco[class*="d-sweep"]{--mx:100%;--my:0%;}
+.deco[class*="d-leaf"]{--mx:0%;--my:0%;}
+.deco[class*="d-house"]{--mx:0%;--my:100%;}
+.deco[class*="d-vine"]{--mx:100%;--my:100%;}
+.deco[class*="d-compass"]{--mx:50%;--my:50%;}
+/* 帯は横に長いので、上辺だけを減衰させる */
+.deco[class*="d-band"]{
+  --mask:linear-gradient(to top, #000 34%, rgba(0,0,0,.55) 70%, transparent 100%);
 }
 /* 可読性のための幕。装飾より上、本文より下に置く */
 .section-scrim{
@@ -393,9 +408,9 @@ ul,ol{list-style:none;padding:0;}
   font-family:var(--serif);font-size:clamp(20px,1.9vw,27px);font-weight:600;
   color:var(--navy);letter-spacing:.03em;margin-bottom:.75em;
 }
-.step-card p{font-size:14px;line-height:1.95;color:var(--ink-soft);max-width:74%;}
+.step-card p{font-size:14px;line-height:1.95;color:var(--ink-soft);max-width:60%;}
 .step-illus{
-  position:absolute;right:2%;bottom:6%;width:40%;max-width:150px;
+  position:absolute;right:3%;bottom:7%;width:36%;max-width:140px;
   mix-blend-mode:multiply;pointer-events:none;
 }
 
