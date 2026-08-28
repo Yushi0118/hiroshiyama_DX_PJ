@@ -20,6 +20,11 @@
   --shadow-lg: 0 18px 44px rgba(21,42,69,0.20);
   --maxw:1160px;
   --header-h:64px;
+  /* 紙の粒。multiply で下地に重ねる前提の、白に近い淡い粒。 */
+  --paper-grain:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22220%22%20height%3D%22220%22%3E%3Cfilter%20id%3D%22p%22%20x%3D%220%22%20y%3D%220%22%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%220.85%22%20numOctaves%3D%224%22%20seed%3D%227%22%20stitchTiles%3D%22stitch%22%2F%3E%3CfeColorMatrix%20type%3D%22saturate%22%20values%3D%220%22%2F%3E%3CfeComponentTransfer%3E%3CfeFuncR%20type%3D%22linear%22%20slope%3D%220.15%22%20intercept%3D%220.85%22%2F%3E%3CfeFuncG%20type%3D%22linear%22%20slope%3D%220.15%22%20intercept%3D%220.85%22%2F%3E%3CfeFuncB%20type%3D%22linear%22%20slope%3D%220.14%22%20intercept%3D%220.85%22%2F%3E%3CfeFuncA%20type%3D%22linear%22%20slope%3D%220%22%20intercept%3D%221%22%2F%3E%3C%2FfeComponentTransfer%3E%3C%2Ffilter%3E%3Crect%20width%3D%22220%22%20height%3D%22220%22%20filter%3D%22url(%23p)%22%2F%3E%3C%2Fsvg%3E");
+  /* alt セクションのクリーム。旧 --cream-deep より明度差を弱めてある
+     （装飾レイヤーがセクションの描き分けを担うようになったため）。 */
+  --cream-alt:#F6EFE2;
 }
 
 *{box-sizing:border-box;}
@@ -87,8 +92,16 @@ a{color:inherit;text-decoration:none;}
   overflow:hidden;
   isolation:isolate;
   scroll-margin-top:var(--header-h);
+  /* 下地はクリームの水彩紙。紙の粒は --paper-grain（SVGのfeTurbulence）で描く。
+     ラスタのタイルを4方向ミラーで敷く方式は、どうしても格子状の折り目が
+     見えてしまったため採用していない。stitchTiles="stitch" のおかげで
+     継ぎ目が原理的に出ず、ファイル容量もゼロ。 */
+  background-color:var(--cream);
+  background-image:var(--paper-grain);
+  background-size:220px 220px;
+  background-blend-mode:multiply;
 }
-.section.alt-section{background:var(--cream-deep);}
+.section.alt-section{background-color:var(--cream-alt);}
 .section-bg{
   position:absolute;inset:-6% -2%;
   background-size:cover;background-position:center;background-repeat:no-repeat;
@@ -96,11 +109,23 @@ a{color:inherit;text-decoration:none;}
   will-change:transform;
 }
 .section-scrim{
-  position:absolute;inset:0;z-index:1;
-  background:linear-gradient(180deg,rgba(250,245,234,.72) 0%,rgba(250,245,234,.86) 40%,rgba(250,245,234,.92) 100%);
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  /* スクリムはセクションの上下の縁だけを持ち上げる。放射グラデーションだと
+     縦に長いセクション（スマホでは2300px級になる）で中央の広い範囲まで
+     洗い流してしまい、水彩が消えてしまった。px指定にすることで
+     セクションの高さに依存しなくなる。 */
+  background:
+    linear-gradient(180deg, rgba(250,245,234,.62) 0px, rgba(250,245,234,.34) 150px, rgba(250,245,234,.08) 320px, rgba(250,245,234,0) 460px),
+    linear-gradient(0deg,   rgba(250,245,234,.50) 0px, rgba(250,245,234,.22) 130px, rgba(250,245,234,.04) 280px, rgba(250,245,234,0) 400px);
 }
 .alt-section .section-scrim{
-  background:linear-gradient(180deg,rgba(241,232,216,.72) 0%,rgba(241,232,216,.88) 40%,rgba(241,232,216,.93) 100%);
+  /* スクリムはセクションの上下の縁だけを持ち上げる。放射グラデーションだと
+     縦に長いセクション（スマホでは2300px級になる）で中央の広い範囲まで
+     洗い流してしまい、水彩が消えてしまった。px指定にすることで
+     セクションの高さに依存しなくなる。 */
+  background:
+    linear-gradient(180deg, rgba(246,239,226,.62) 0px, rgba(246,239,226,.34) 150px, rgba(246,239,226,.08) 320px, rgba(246,239,226,0) 460px),
+    linear-gradient(0deg,   rgba(246,239,226,.50) 0px, rgba(246,239,226,.22) 130px, rgba(246,239,226,.04) 280px, rgba(246,239,226,0) 400px);
 }
 
 .section-head{max-width:720px;margin:0 auto 3rem;text-align:center;}
@@ -285,18 +310,64 @@ a{color:inherit;text-decoration:none;}
    authored against the source artwork) always line up with the water no
    matter how the section's aspect ratio changes. */
 .fleet-viewport{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none;}
-.fleet{position:absolute;top:0;left:0;width:100%;height:100%;}
+.fleet{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  /* スクロール量に応じて船団全体をわずかに手前へ寄せる（script.js が設定） */
+  transform:translate3d(var(--advX,0px),var(--advY,0px),0);
+}
 .fleet-viewport-mobile{display:none;}
-.ship{position:absolute;display:block;filter:drop-shadow(0 6px 10px rgba(10,26,58,.28));will-change:transform;}
-.float-slow{animation:shipFloat 5.6s ease-in-out infinite;}
-.float-med{animation:shipFloat 4.8s ease-in-out infinite;}
-.float-fast{animation:shipFloat 5.2s ease-in-out infinite;}
-.ship:nth-of-type(2n){animation-delay:.6s;}
-.ship:nth-of-type(3n){animation-delay:1.1s;}
-.ship:nth-of-type(4n){animation-delay:.3s;}
-@keyframes shipFloat{
-  0%,100%{transform:translateY(0) rotate(0deg);}
-  50%{transform:translateY(-6px) rotate(1.4deg);}
+
+/* 1隻分の枠。left/top のパーセントは .fleet（背景の cover 計算と一致する枠）を
+   基準に解決されるので、画面比が変わっても船が陸へ乗り上げない。
+   --dx/--dy は「まだ散らばっている状態」のずれ。.fleet に is-gathered が付くと
+   0 へ向かって動き、ばらばらの小舟が隊列＝船団になる。 */
+.ship-slot{
+  position:absolute;display:block;
+  /* --sdx/--sdy は「まだ散らばっている状態」のずれ。インラインstyleで与える。
+     集結後の値をカスタムプロパティ側で 0 に上書きすることはできない
+     （インラインstyleはどのセレクタよりも優先されるため）ので、
+     is-gathered では left/top 自体を宣言し直す。 */
+  left:calc(var(--x) + var(--sdx,0%));
+  top:calc(var(--y) + var(--sdy,0%));
+  width:var(--w);
+  opacity:0;
+  transition:left 1.9s cubic-bezier(.2,.78,.26,1),
+             top 1.9s cubic-bezier(.2,.78,.26,1),
+             opacity 1.1s ease-out;
+  transition-delay:var(--bd,0s);
+}
+.fleet.is-gathered .ship-slot{
+  left:var(--x);
+  top:var(--y);
+  opacity:1;
+}
+
+/* 航跡。船の後ろに白い水彩のウェーキを薄く伸ばす */
+.ship-slot::before{
+  content:'';position:absolute;z-index:-1;
+  left:-45%;right:-45%;bottom:-4%;height:48%;
+  background:radial-gradient(ellipse at 50% 100%,
+    rgba(255,255,255,.55) 0%, rgba(255,255,255,.22) 46%, rgba(255,255,255,0) 74%);
+  animation:shipWake var(--bob,5.2s) ease-in-out infinite;
+  animation-delay:var(--bd,0s);
+}
+.ship{
+  width:100%;height:auto;display:block;
+  filter:drop-shadow(0 6px 10px rgba(10,26,58,.28));
+  animation:shipBob var(--bob,5.2s) ease-in-out infinite;
+  animation-delay:var(--bd,0s);
+  will-change:transform;
+}
+/* 揺れ幅は船自身のサイズに対する % なので、手前の大きな船ほど大きく揺れる。 */
+@keyframes shipBob{
+  0%,100%{transform:translate3d(0,0,0) rotate(-1.2deg);}
+  25%    {transform:translate3d(-2%,-4%,0) rotate(.5deg);}
+  50%    {transform:translate3d(0,-7%,0) rotate(1.5deg);}
+  75%    {transform:translate3d(2%,-3%,0) rotate(.3deg);}
+}
+@keyframes shipWake{
+  0%,100%{transform:scaleX(1) translateY(0);opacity:.75;}
+  50%    {transform:scaleX(1.18) translateY(7%);opacity:.42;}
 }
 
 /* generic slow-float for decorative icons (compass, badges, etc.) */
@@ -377,7 +448,7 @@ a{color:inherit;text-decoration:none;}
 .tl-item p{font-size:12px;color:var(--ink-soft);margin:0;line-height:1.6;transition:color .4s ease;}
 
 /* ---------- CTA / Entry ---------- */
-.entry-section{background:var(--navy);}
+.entry-section{background-color:var(--navy);}
 .entry-scrim{background:linear-gradient(180deg,rgba(14,30,51,.55) 0%,rgba(14,30,51,.78) 100%);}
 .cta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:960px;margin:0 auto;}
 .cta-tile{
@@ -430,10 +501,6 @@ a{color:inherit;text-decoration:none;}
   /* ---- ヒーロー ---- */
   .hero-section{padding-top:calc(56px + 24px);}
   .hero-panel{max-width:none;}
-  .hero-scrim{background:rgba(250,245,234,.82);}
-  .fleet-viewport-desktop{display:none;}
-  .fleet-viewport-mobile{display:block;}
-  #hero .section-bg{background-image:url('assets/img/backgrounds/hero-bg-mobile.jpg') !important;}
   .hero-title{font-size:clamp(26px,7.8vw,34px);}
   .hero-actions{flex-direction:column;align-items:stretch;gap:12px;}
   .hero-actions .btn{width:100%;}
@@ -496,10 +563,217 @@ a{color:inherit;text-decoration:none;}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto;}
   .reveal{opacity:1 !important;transform:none !important;transition:none !important;}
-  .ship,.float-slow,.float-med,.float-fast,.float-decor,.scroll-cue span::before{animation:none !important;}
+  .ship,.ship-slot::before,.float-decor,.scroll-cue span::before{animation:none !important;}
+  /* 船は「集結し終わった隊列」の状態で静止表示する */
+  .ship-slot{transition:none !important;left:var(--x) !important;top:var(--y) !important;opacity:1 !important;}
+  /* .deco の transform は左右反転（scaleX）も兼ねているので、
+     パララックスの移動分だけを止める（none にすると反転が解けてしまう）。 */
   .section-bg{transform:none !important;}
+  .deco{transform:scaleX(var(--sx,1)) !important;}
   .flip-card-face,.tl-item,.cta-tile,.btn{transition-duration:.15s !important;}
 }
 
 /* JS-disabled / no-motion fallback: ensure content is visible even if scripts fail */
 .no-js .reveal{opacity:1;transform:none;}
+
+
+/* ============================================================
+   装飾レイヤー（deco layer）
+   ------------------------------------------------------------
+   背景を「1枚の完成イメージ画像」から「水彩の装飾部品の配置」へ
+   置き換えた仕組み。デザイン仕様書（LP/全体/完成イメージ）を読むと、
+   全セクションが共通の部品セット（海のウォッシュ／灯台／来島海峡大橋／
+   コンパスローズ／葉）を、1つの角から対角へ流れ込む構図で並べている。
+   その構造をそのまま実装に写している。
+
+   各部品画像は、元画像のクリーム地を multiply の中性色（白）へ正規化して
+   書き出してある（tools/build-deco.ps1）。したがって
+     ・余白は下地に一切影響しない＝透過と同じ挙動
+     ・下地がクリームのとき、合成結果は元の水彩そのもの
+   の2つが同時に成り立つ。この性質のおかげで部品を余白ごと大きめに
+   切り出してよく、境界のフェザーブレンドが要らない。
+
+   位置は --l/--r/--t/--b/--w のカスタムプロパティで与える。
+   レスポンシブは画像を差し替えるのではなく、この値だけを上書きする。
+   ============================================================ */
+.section-deco{
+  position:absolute;inset:0;z-index:0;
+  overflow:hidden;pointer-events:none;
+}
+.deco{
+  position:absolute;
+  left:var(--l,auto); right:var(--r,auto);
+  top:var(--t,auto);  bottom:var(--b,auto);
+  width:var(--w,auto);
+  max-width:none;               /* 全体指定の img{max-width:100%} を打ち消す */
+  height:auto;
+  opacity:var(--o,1);
+  /* --py は script.js がスクロール量に応じて設定する（部品ごとに速度が違う）。
+     scaleX は左右反転用。transform は1つしか持てないのでここで合成する。 */
+  transform:translate3d(0,var(--py,0px),0) scaleX(var(--sx,1));
+  mix-blend-mode:multiply;
+  will-change:transform;
+}
+
+/* ---- 2. こんな困りごと：右上から海、下辺に波の帯、左上に葉 ---- */
+/* 中間帯用の装飾。スマホではセクションが2300px級に伸びて中央が無装飾に
+   なってしまうため、その帯だけを埋める。PC・タブレットでは不要なので
+   display:none にしてある（lazy 読み込みなので通信も発生しない）。 */
+.d-mid{display:none;}
+
+.deco-pain .d-sea      {--r:-3%;  --t:-9%;  --w:48%;  --o:1;}
+.deco-pain .d-leaf     {--l:-2%;  --t:-4%;  --w:14%;  --o:.88;}
+.deco-pain .d-band     {--l:-2%;  --b:-4%;  --w:104%; --o:.97;}
+
+/* ---- 3. 本プロジェクトでできること：右上に橋と海岸、下辺に波 ---- */
+.deco-what .d-bridge   {--r:-2%;  --t:-3%;  --w:27%;  --o:.97;}
+.deco-what .d-leaf     {--l:-4%;  --t:-4%;  --w:21%;  --o:.85; --sx:-1;}
+.deco-what .d-band     {--l:-2%;  --b:-3%;  --w:104%; --o:.95;}
+
+/* ---- 4. メリット：完成イメージ(4)の構図をそのまま ---- */
+.deco-benefit .d-sea    {--r:-2%; --t:-7%;  --w:46%;  --o:1;}
+.deco-benefit .d-compass{--r:1.5%;--t:1.5%; --w:10%;  --o:.68;}
+.deco-benefit .d-band   {--l:-2%; --b:-4%;  --w:104%; --o:.97;}
+
+/* ---- 5. 募集テーマ：完成イメージ(5)の構図（右上の海と左下の灯台） ---- */
+.deco-themes .d-sweep  {--r:-3%;  --t:-7%;  --w:44%;  --o:1;}
+.deco-themes .d-house  {--l:0.5%; --b:1%;   --w:12%;  --o:.94;}
+
+/* ---- 6. 進め方・支援体制：完成イメージ(6)(7)の構図 ---- */
+.deco-flow .d-wave     {--r:-2%;  --t:-5%;  --w:24%;  --o:.94;}
+.deco-flow .d-compass  {--r:3.5%; --t:2.5%; --w:11%;  --o:.6;}
+.deco-flow .d-house    {--l:-1%;  --t:17%;  --w:10%;  --o:.94;}
+.deco-flow .d-gulls    {--l:9%;   --t:9%;   --w:12%;  --o:.7;}
+.deco-flow .d-vine     {--r:1%;   --b:13%;  --w:5%;   --o:.82;}
+.deco-flow .d-band     {--l:-2%;  --b:-3%;  --w:104%; --o:.92;}
+
+/* ---- 7. スケジュール：波を左に反転させて、前後のセクションと流れを変える ---- */
+.deco-schedule .d-wave   {--l:-3%; --t:-5%; --w:24%;  --o:.9; --sx:-1;}
+.deco-schedule .d-compass{--r:2.5%;--t:3.5%;--w:9%;   --o:.55;}
+.deco-schedule .d-band   {--l:-2%; --b:-2%; --w:104%; --o:.95;}
+
+/* ---- 8. CTA（紺地） ----
+   紺地に multiply をかけると装飾が黒く沈んで見えなくなる。
+   反転して金系に寄せたうえで screen で重ね、「紺地に金の線画」にする。 */
+.deco-entry .deco{
+  mix-blend-mode:screen;
+  filter:invert(1) grayscale(1) sepia(1) saturate(3.2) hue-rotate(-8deg) brightness(.72);
+}
+.deco-entry .d-wave    {--r:-3%;  --t:-7%;  --w:26%;  --o:.9;}
+.deco-entry .d-compass {--l:2.5%; --b:7%;   --w:11%;  --o:.72;}
+.deco-entry .d-band    {--l:-2%;  --b:-2%;  --w:104%; --o:.8;}
+
+/* ---- メリットカード：完成イメージ(4)に合わせ、白カードではなく
+   クリーム地＋金のヘアライン枠＋紺の丸数字にする。困りごと（白）／
+   募集テーマ（紺×金）と3種類に描き分けて、スクロール中の単調さを避ける。 ---- */
+.benefit-grid .flip-card-face{
+  background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(250,245,234,.86));
+  border:1px solid rgba(184,147,60,.5);
+  text-align:center;
+  box-shadow:0 8px 24px rgba(21,42,69,.09);
+}
+.benefit-grid .badge-num{margin-left:auto;margin-right:auto;box-shadow:0 3px 9px rgba(21,42,69,.25);}
+.benefit-grid .card-photo{
+  aspect-ratio:1/1;object-fit:contain;max-width:74%;margin:2px auto 10px;border-radius:0;
+  -webkit-mask-image:radial-gradient(ellipse at center,#000 58%,transparent 84%);
+  mask-image:radial-gradient(ellipse at center,#000 58%,transparent 84%);
+}
+
+/* ============================================================
+   装飾レイヤーのレスポンシブ
+   画像は差し替えず、位置とサイズだけを組み替える。
+   ============================================================ */
+
+/* ---- タブレット（768〜1099px）：部品を少し大きく、点数はそのまま ---- */
+@media (min-width:768px) and (max-width:1099px){
+  .deco-pain .d-sea       {--w:60%;  --t:-6%;}
+  .deco-pain .d-leaf      {--w:17%;}
+  .deco-what .d-bridge    {--w:34%;}
+  .deco-what .d-leaf      {--w:26%;}
+  .deco-benefit .d-sea    {--w:58%;}
+  .deco-benefit .d-compass{--w:12%;}
+  .deco-themes .d-sweep   {--w:56%;}
+  .deco-themes .d-house   {--w:15%;}
+  .deco-flow .d-wave      {--w:28%;}
+  .deco-flow .d-compass   {--w:13%;}
+  .deco-flow .d-house     {--w:12%;}
+  .deco-flow .d-gulls     {--w:15%; --l:6%;}
+  .deco-flow .d-vine      {--w:6%;}
+  .deco-schedule .d-wave  {--w:28%;}
+  .deco-schedule .d-compass{--w:11%;}
+  .deco-entry .d-wave     {--w:30%;}
+  .deco-entry .d-compass  {--w:13%;}
+}
+
+/* ---- スマホ（〜767px）：横構図の部品を縦構図へ組み替える ----
+   1600px幅を前提に置いた部品をそのまま縮めると、水彩がただの染みに
+   見えてしまう。画面外へはみ出させて拡大し、"画面の縁から水彩が
+   流れ込む"構図を保つ。 */
+@media (max-width:767px){
+  .deco-pain .d-sea       {--r:-34%; --t:-3%;  --w:104%; --o:.85;}
+  .deco-pain .d-leaf      {--l:-8%;  --t:-2%;  --w:38%;  --o:.72;}
+  .deco-pain .d-band      {--l:-46%; --b:-2%;  --w:200%; --o:.85;}
+  .deco-pain .d-mid       {display:block; --l:-22%; --t:33%; --w:74%; --o:.62; --sx:-1;}
+
+  .deco-what .d-bridge    {--r:-16%; --t:-2%;  --w:66%;}
+  .deco-what .d-leaf      {--l:-12%; --t:-2%;  --w:52%;  --o:.62;}
+  .deco-what .d-band      {--l:-44%; --b:-2%;  --w:196%;}
+
+  .deco-benefit .d-sea    {--r:-30%; --t:-4%;  --w:104%; --o:.85;}
+  .deco-benefit .d-compass{--r:2%;   --t:1%;   --w:22%;  --o:.4;}
+  .deco-benefit .d-band   {--l:-46%; --b:-2%;  --w:200%; --o:.85;}
+  .deco-benefit .d-mid    {display:block; --r:-28%; --t:45%; --w:96%; --o:.55;}
+
+  .deco-themes .d-sweep   {--r:-24%; --t:-3%;  --w:100%; --o:.85;}
+  .deco-themes .d-house   {--l:-3%;  --b:0.5%; --w:30%;}
+  .deco-themes .d-mid     {display:block; --l:-44%; --t:47%; --w:190%; --o:.72;}
+
+  .deco-flow .d-wave      {--r:-10%; --t:-2%;  --w:52%;  --o:.75;}
+  .deco-flow .d-compass   {--r:2%;   --t:1.5%; --w:24%;  --o:.35;}
+  .deco-flow .d-house     {--l:-4%;  --t:24%;  --w:26%;  --o:.8;}
+  .deco-flow .d-gulls     {--l:16%;  --t:12%;  --w:30%;  --o:.45;}
+  .deco-flow .d-vine      {--r:0%;   --b:16%;  --w:13%;  --o:.6;}
+  .deco-flow .d-band      {--l:-44%; --b:-2%;  --w:196%; --o:.75;}
+  .deco-flow .d-mid       {display:block; --r:-20%; --t:55%; --w:76%; --o:.6;}
+
+  .deco-schedule .d-wave  {--l:-12%; --t:-2%;  --w:54%;  --o:.7;}
+  .deco-schedule .d-compass{--r:2%;  --t:2%;   --w:20%;  --o:.32;}
+  .deco-schedule .d-band  {--l:-40%; --b:-1%;  --w:190%;}
+
+  .deco-entry .d-wave     {--r:-18%; --t:2%;   --w:62%;  --o:.5;}
+  .deco-entry .d-compass  {--l:-2%;  --b:5%;   --w:26%;  --o:.4;}
+  .deco-entry .d-band     {--l:-40%; --b:-1%;  --w:190%; --o:.55;}
+}
+
+/* ---- 極小幅（〜389px）：装飾を間引いて本文の面積を確保する ---- */
+@media (max-width:389px){
+  .deco-flow .d-gulls,
+  .deco-flow .d-vine,
+  .deco-what .d-leaf{display:none;}
+  .section{padding:64px 0;}
+}
+
+/* JS が動かない環境でも船が消えないようにする（既定は非表示＋散開状態のため） */
+.no-js .ship-slot{left:var(--x) !important;top:var(--y) !important;opacity:1 !important;}
+
+/* ============================================================
+   ヒーローの縦横切り替え
+   ------------------------------------------------------------
+   画面幅ではなく「画面のアスペクト比」で切り替える。
+   横長の海景を縦長の画面に background-size:cover で敷くと左右が大きく
+   切り落とされ、水平線・島・橋・船団が画面外へ出てしまう。タブレットの
+   縦置き（例 834x1112）は幅が768px以上あるため幅基準だと横長画像のまま
+   になってしまうので、比率で判定する。
+   ============================================================ */
+@media (max-aspect-ratio:13/10){
+  #hero .section-bg{background-image:url('assets/img/backgrounds/hero-scene-tall.jpg') !important;}
+  .fleet-viewport-desktop{display:none;}
+  .fleet-viewport-mobile{display:block;}
+  /* 縦画面では文章を上へ寄せて、下半分の海と船団を見せる */
+  .hero-section{align-items:flex-start;}
+  .hero-scrim{
+    background:linear-gradient(180deg,
+      rgba(250,245,234,.90) 0%, rgba(250,245,234,.74) 40%,
+      rgba(250,245,234,.20) 66%, rgba(250,245,234,.04) 100%);
+  }
+}
