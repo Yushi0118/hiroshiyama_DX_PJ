@@ -12,27 +12,35 @@
    深さに応じてカードの明暗を反転させる（浅瀬＝明るいカードに紺の文字、
    深海＝紺のカードに白の文字）。これがスクロールの体験を作る。
 
-   アニメーションは使わない。JSも使わない。
+   アニメーションは使わない（@keyframes 0件・JS 0件）。
+   hover の transition と smooth scroll のみ、モーション低減時に止める。
    ============================================================ */
 
 /* ============================================================
    トークン
    ============================================================ */
 :root{
-  /* 海面から深海まで。ページ全体で1本のグラデーションにする */
-  --sea-0:#FBF6E9;   /*   0% 陽に照らされた水面 */
-  --sea-1:#DCEDF0;   /*  12% 浅瀬 */
-  --sea-2:#A8D3E2;   /*  26% 透ける水 */
-  --sea-3:#6FB2D2;   /*  42% 中層 */
-  --sea-4:#3D80B8;   /*  58% やや深い */
-  --sea-5:#1F5691;   /*  72% 深い */
-  --sea-6:#123A6B;   /*  86% 深海 */
-  --sea-7:#0A2247;   /* 100% 最深部 */
+  /* 海面から深海まで。ページ全体で1本のグラデーションにする。
+
+     停止位置はセクションの階層に合わせてある。
+       浅瀬 0〜25% / 中層 25〜58% / 深海 58〜100%
+     ここがずれると、深海セクションの見出しが明るい水の上に乗って
+     コントラストが足りなくなる（実際に5件の未達を出した）。
+
+     色と位置は tools/check.js も読む。片方だけ変えないこと。 */
+  --sea-0:#FBF6E9;  --sea-p0:0%;     /* 水面 */
+  --sea-1:#E4EFE9;  --sea-p1:10%;
+  --sea-2:#C6E2EC;  --sea-p2:20%;
+  --sea-3:#A5D0E2;  --sea-p3:28%;    /* 中層のはじまり */
+  --sea-4:#79B2D2;  --sea-p4:42%;
+  --sea-5:#4C8CBC;  --sea-p5:54%;
+  --sea-6:#245C93;  --sea-p6:62%;    /* 深海。ここから一気に暗くする */
+  --sea-7:#071C3C;  --sea-p7:100%;   /* 最深部 */
 
   --ink:#12335C;        /* 浅瀬側の文字 */
   --ink-soft:#40566F;   /* 浅瀬側の補助文字 */
   --paper:#F4F9FC;      /* 深海側の文字 */
-  --paper-soft:#C8DCEC; /* 深海側の補助文字 */
+  --paper-soft:#D6E7F2; /* 深海側の補助文字。#C8DCEC では 4.46:1 で AA に僅かに届かなかった */
   --gold:#C6A45C;
   --gold-deep:#8A6A2A;
 
@@ -59,6 +67,9 @@ body{
   overflow-x:hidden;
 }
 img{max-width:100%;height:auto;display:block;}
+/* キーボード操作のフォーカス表示。定義が無いとUA既定のリングだけが頼りになり、
+   紺のボタンや紺のカードの上では判別しづらい。 */
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:4px;}
 a{color:inherit;text-decoration:none;}
 h1,h2,h3,p,ul,ol{margin:0;}
 ul,ol{list-style:none;padding:0;}
@@ -72,14 +83,14 @@ body::before{
   content:'';
   position:absolute; inset:0; z-index:-3;
   background:linear-gradient(180deg,
-    var(--sea-0)   0%,
-    var(--sea-1)  12%,
-    var(--sea-2)  26%,
-    var(--sea-3)  42%,
-    var(--sea-4)  58%,
-    var(--sea-5)  72%,
-    var(--sea-6)  86%,
-    var(--sea-7) 100%);
+    var(--sea-0) var(--sea-p0),
+    var(--sea-1) var(--sea-p1),
+    var(--sea-2) var(--sea-p2),
+    var(--sea-3) var(--sea-p3),
+    var(--sea-4) var(--sea-p4),
+    var(--sea-5) var(--sea-p5),
+    var(--sea-6) var(--sea-p6),
+    var(--sea-7) var(--sea-p7));
 }
 
 /* 水面から差し込む光。上部だけに効かせ、下へ向かって消す */
@@ -121,13 +132,7 @@ body::after{
 }
 .section + .section{padding-top:88px;}
 
-/* --tier-bg は「その深さの代表的な海の色」。
-   半透明カードの合成結果を測るために tools/check.js が読む。
-   擬似要素で描いたグラデーションは JS から取得できないため、
-   ここで明示しておかないとコントラスト判定が当てにならない。 */
-.tier-shallow{--tier-bg:#EBF2EE;}
-.tier-mid    {--tier-bg:#6FB2D2;}
-.tier-deep   {--tier-bg:#14406F; color:var(--paper);}
+.tier-deep{color:var(--paper);}
 
 /* ============================================================
    見出し
@@ -138,8 +143,10 @@ body::after{
   padding:.5em 1.4em;border-radius:999px;
   background:#12335C;color:#fff;
 }
+/* 白の半透明を敷くと下地が明るくなり、金の文字が 2.7:1 まで落ちる。
+   深海側は逆に「暗い地に金」にして締める。 */
 .tier-deep .eyebrow{
-  background:rgba(255,255,255,.14);
+  background:rgba(6,24,48,.72);
   border:1px solid rgba(198,164,92,.75);
   color:#F0E3C4;
 }
@@ -159,7 +166,11 @@ h2{
 }
 /* 中層は水の青が濃いので、補助色ではなく本文色を使う。
    --ink-soft のままだと 3.2:1 しか出ずAA(4.5:1)に届かない。 */
-.tier-mid .lead{color:var(--ink);}
+/* 中層の水は明るく、通常の --ink では 4.0:1 しか出ない。もう一段暗くする。
+   見出しもスマホでは21pxまで縮み「大きい文字」の閾値(24px)を下回るため、
+   必要比が 3:1 から 4.5:1 に上がる。同じ色を当てる。 */
+.tier-mid .lead,
+.tier-mid h2{color:#0A1F3C;}
 .tier-deep .lead{color:var(--paper-soft);}
 
 /* ============================================================
@@ -223,8 +234,16 @@ h2{
 .vignette-center{align-self:center;width:52%;max-width:120px;margin:.2em auto;}
 /* 浅瀬・中層のカードは明るい地なので、挿絵の白地を馴染ませる */
 .tier-shallow .vignette,.tier-mid .vignette{mix-blend-mode:multiply;}
-/* 深海の紺地では multiply だと沈むため、そのまま重ねて明るさを補う */
-.tier-deep .vignette{filter:brightness(1.06);}
+/* 紺地では白背景の挿絵が矩形として浮く。
+   multiply は白を消せるが線画まで沈み、screen は白が白のまま残るので、
+   どちらも解にならない。明るい下敷きを敷いて「額に入った絵」にする。
+   .nodes の丸バッジは元から背景を持つので対象外。 */
+.steps .vignette{
+  background:rgba(250,253,255,.94);
+  border-radius:12px;
+  padding:8px;
+  box-shadow:0 2px 10px rgba(3,14,32,.28);
+}
 
 /* ============================================================
    個別のカード
@@ -293,7 +312,9 @@ h2{
 .checklist .sub{display:block;font-size:13px;color:var(--paper-soft);}
 
 /* スケジュール */
-.timeline{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;}
+/* 6列だと1枚あたり約170pxで、日本語が「ワークシ／ョップ」のように
+   拗音1文字で折り返す。3列×2段にして1枚の幅を確保する。 */
+.timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
 .timeline .card{padding:22px 16px;text-align:center;align-items:center;}
 .timeline .card-title{font-size:16px;}
 .timeline p{font-size:12.5px;}
@@ -332,6 +353,10 @@ h2{
 .btn-ghost{background:rgba(255,255,255,.9);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--gold);}
 .btn:hover{transform:translateY(-2px);}
 
+/* セクション末尾の導線。デスクトップは固定CTAが無いため、
+   読み進めた先々で申し込みへ戻れるようにしておく。 */
+.section-cta{margin-top:2.4rem;text-align:center;}
+
 .cta-grid{margin-bottom:0;}
 .cta{
   gap:.3em;min-height:112px;justify-content:center;
@@ -340,6 +365,16 @@ h2{
 }
 .cta:hover{transform:translateY(-3px);}
 .cta-sub{font-size:12.5px;color:var(--paper-soft);}
+/* 押しても動かないものはリンクにしない。準備中であることを明示する。 */
+.cta.is-pending{cursor:default;opacity:.86;}
+.cta.is-pending:hover{transform:none;}
+.cta-badge{
+  position:absolute;right:16px;top:50%;transform:translateY(-50%);
+  padding:.25em .9em;border-radius:999px;
+  font-size:11.5px;font-weight:700;white-space:nowrap;
+  background:rgba(198,164,92,.22);color:#EBD9AC;
+  border:1px solid rgba(198,164,92,.6);
+}
 /* 右端の矢印 */
 .chev{
   position:absolute;right:20px;top:50%;
@@ -420,7 +455,6 @@ h2{
   color:var(--paper-soft);
   padding:40px 0 48px;
   text-align:center;
-  --tier-bg:#0A2247;
 }
 .foot-brand{
   display:flex;align-items:center;justify-content:center;gap:.5em;
@@ -428,6 +462,8 @@ h2{
 }
 .foot-mark{width:34px;height:auto;}
 .foot-note{font-size:12.5px;margin-top:.5em;color:var(--paper-soft);}
+/* --gold-deep は明るい地の前提の色。最深部の紺では 3.1:1 しか出ない */
+.site-footer .gold{color:#E3C880;}
 
 /* ============================================================
    スマホ用の固定CTA（767px以下でのみ表示）
@@ -441,7 +477,6 @@ h2{
   .section{padding:88px 0;}
   .section + .section{padding-top:72px;}
   .grid-5{grid-template-columns:repeat(3,1fr);}
-  .timeline{grid-template-columns:repeat(3,1fr);}
   .hero-panel{max-width:min(60%,560px);}
   .hero-nav a{min-width:180px;font-size:12.5px;}
 }
@@ -498,7 +533,7 @@ h2{
   .timeline{grid-template-columns:1fr;gap:0;}
   .timeline .card{
     display:grid;grid-template-columns:34px 1fr;
-    column-gap:14px;text-align:left;align-items:start;
+    column-gap:14px;row-gap:0;text-align:left;align-items:start;
     background:transparent;box-shadow:none;border-radius:0;
     padding:0 0 26px;
   }
@@ -509,7 +544,7 @@ h2{
     width:1.5px;background:rgba(198,164,92,.45);
   }
   .timeline .num{grid-column:1;grid-row:1;}
-  .when{grid-column:2;grid-row:1;justify-self:start;align-self:center;}
+  .timeline .when{grid-column:2;grid-row:1;justify-self:start;align-self:center;}
   .timeline .card-title{grid-column:2;grid-row:2;margin-top:.4em;}
   /* .card-title も <p> なので、除外しないと本文と同じ行に置かれて重なる */
   .timeline .card p:not(.when):not(.card-title){grid-column:2;grid-row:3;font-size:13px;}
@@ -544,7 +579,11 @@ h2{
    画面幅で判定するとタブレット縦置き（834×1112）が横長画像のままになり、
    水平線や島が画面外へ出てしまう。
    ============================================================ */
-@media (max-aspect-ratio:13/10){
+/* 幅の条件を併記すること。縦横比だけで判定すると、5:4のデスクトップ
+   （1280×1024 = 比1.25）まで縦長画像に切り替わり、幅1265pxの枠に
+   縦長画像を cover するため上端の空しか出ず、船が1隻も見えなくなる。
+   縦長画像が要るのは「幅が狭くて縦に長い」画面だけ。 */
+@media (max-aspect-ratio:13/10) and (max-width:1099px){
   /* 縦画面では船団を下半分に敷き、見出しを上に置く。
      上下ともマスクで減衰させ、紙とグラデーションの両方へ溶かす。 */
   /* 絵の高さと本文の下余白を同じ変数から出す。
@@ -563,11 +602,23 @@ h2{
 }
 
 /* ============================================================
+   モーション低減
+   @keyframes は使っていないが、transition と smooth scroll は残る。
+   7000px級のページ内スクロールを滑らせるのは負荷が大きいので止める。
+   ============================================================ */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  *{transition:none !important;}
+}
+
+/* ============================================================
    印刷
    ============================================================ */
 @media print{
   body::before,body::after,.particles,.sticky-cta,.hero-art{display:none;}
   .card{box-shadow:none;border:1px solid #999;}
-  .tier-deep{color:#000;}
-  .tier-deep h2,.tier-deep .card-title{color:#000;}
+  /* 個別に上書きすると詳細度の高いルール（.tier-deep .card p:not(.when) など）が
+     残り、白紙に薄い水色で印刷されてしまう。まとめて黒に倒す。 */
+  .tier-deep,.tier-deep *{color:#000 !important;background:transparent !important;}
+  .num,.when,.cta-badge{border:1px solid #666;}
 }

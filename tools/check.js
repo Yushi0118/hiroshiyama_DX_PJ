@@ -38,22 +38,41 @@ window.__check = function () {
     return [0, 1, 2].map(i => Math.round(fg[i] * a + bg[i] * (1 - a)));
   };
 
-  /* 祖先をたどって背景色を積み上げる。透明なら親へ、を繰り返す。
+  /* ページ下地の色を、要素のY座標から求める。
 
-     最終的な下地は --tier-bg から取る。ページの深度グラデーションは
-     body::before で描いており、擬似要素の背景は JS から読めないため、
-     各セクションが「その位置の代表的な海の色」を --tier-bg として
-     宣言している。これが無いと半透明カードの合成結果を実態どおりに
-     測れず、コントラスト判定が当てにならなくなる。 */
-  const baseOf = el => {
-    for (let n = el; n; n = n.parentElement) {
-      const v = getComputedStyle(n).getPropertyValue('--tier-bg').trim();
-      if (v) {
-        const c = parse(v);
-        if (c.length >= 3) return c.slice(0, 3);
+     以前は各セクションが宣言した --tier-bg という定数を使っていたが、
+     グラデーションはセクションの中でも色が変わるため、実際の下地と
+     ずれてコントラスト不足を見逃していた（1セクション1色で近似する
+     と、最大で明度が2段階ぶんずれる）。
+     style.css の --sea-0〜--sea-7 と同じ停止位置で線形補間する。 */
+  /* 停止位置と色は style.css の :root から読む。
+     ここに値を書き写すと、CSS だけ直したときに判定が実態とずれる
+     （実際に --tier-bg を定数で持っていて AA未達を5件見逃した）。 */
+  const SEA = (() => {
+    const rs = getComputedStyle(document.documentElement);
+    const out = [];
+    for (let i = 0; i < 8; i++) {
+      const c = parse(rs.getPropertyValue(`--sea-${i}`));
+      const p = parseFloat(rs.getPropertyValue(`--sea-p${i}`));
+      if (c.length >= 3 && !isNaN(p)) out.push([p / 100, c.slice(0, 3)]);
+    }
+    return out.length >= 2 ? out : [[0, [255, 255, 255]], [1, [255, 255, 255]]];
+  })();
+  const seaAt = t => {
+    t = Math.max(0, Math.min(1, t));
+    for (let i = 1; i < SEA.length; i++) {
+      if (t <= SEA[i][0]) {
+        const [p0, c0] = SEA[i - 1], [p1, c1] = SEA[i];
+        const k = (t - p0) / (p1 - p0);
+        return c0.map((v, j) => Math.round(v + (c1[j] - v) * k));
       }
     }
-    return [255, 255, 255];
+    return SEA[SEA.length - 1][1];
+  };
+  const pageH = () => Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, 1);
+  const baseOf = el => {
+    const b = el.getBoundingClientRect();
+    return seaAt((b.top + scrollY + b.height / 2) / pageH());
   };
 
   const bgOf = el => {
@@ -78,8 +97,13 @@ window.__check = function () {
   };
 
   /* --- 1. コントラスト --- */
-  const texts = [...document.querySelectorAll('p, li, h1, h2, h3, h4, a, .eyebrow, .btn, .num, strong, dt, dd')]
-    .filter(el => el.textContent.trim() && el.offsetParent !== null && el.getClientRects().length);
+  const texts = [...document.querySelectorAll('p, li, h1, h2, h3, h4, a, span, strong, .eyebrow, .btn, .num, dt, dd')]
+    /* 「自分自身が文字を持つ」要素だけを測る。
+       子要素を包むだけの器（<p> の中に <a> が1つ、など）まで測ると、
+       器の背景（＝地の色）と子の文字色を突き合わせてしまい、
+       実際には読める文字を不足として報告する。 */
+    .filter(el => el.offsetParent !== null && el.getClientRects().length &&
+      [...el.childNodes].some(nd => nd.nodeType === 3 && nd.textContent.trim()));
   const low = [];
   texts.forEach(el => {
     const cs = getComputedStyle(el);
