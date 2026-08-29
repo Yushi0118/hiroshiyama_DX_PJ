@@ -101,8 +101,10 @@ body::after{
 /* 漂う粒子。SVGのノイズを薄く全面に敷く */
 .particles{
   position:absolute; inset:0; z-index:-1; pointer-events:none;
-  opacity:.45;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 -15 6.5'/%3E%3C/filter%3E%3Crect width='320' height='320' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* 粒子は「言われないと気づかない」強さに留める。
+     強いと圧縮ノイズや砂嵐に見え、紺地では文字の可読性まで落ちる。 */
+  opacity:.14;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='340' height='340'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 -28 12'/%3E%3C/filter%3E%3Crect width='340' height='340' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size:320px 320px;
 }
 
@@ -251,6 +253,14 @@ h2{
   border:.38em solid transparent;border-left-color:var(--gold);
 }
 
+/* 支援体制のノード。丸バッジのアイコンは元が240pxの円形で、
+   そのまま大きく出すとカードを占領してしまう。小さく中央に置き、
+   文字も中央揃えにして「役割の一覧」として読ませる。 */
+.nodes .card{align-items:center;text-align:center;padding:20px 16px;}
+.nodes .vignette-center{width:auto;max-width:none;height:58px;margin:0 auto .2em;}
+.nodes .card-title{font-size:15.5px;}
+.nodes .card p{font-size:12.5px;}
+
 /* 支援体制の中心 */
 .hub-center{
   display:flex;flex-direction:column;align-items:center;gap:.1em;
@@ -396,7 +406,9 @@ h2{
    ============================================================ */
 .site-footer{
   position:relative;
-  background:var(--sea-7);
+  /* 背景は敷かない。ページのグラデーションをそのまま continue させる。
+     塗ると終端色とずれて上端に水平の段差が出る。区切りは金の細線で示す。 */
+  border-top:1px solid rgba(198,164,92,.35);
   color:var(--paper-soft);
   padding:40px 0 48px;
   text-align:center;
@@ -491,7 +503,8 @@ h2{
   .timeline .num{grid-column:1;grid-row:1;}
   .when{grid-column:2;grid-row:1;justify-self:start;align-self:center;}
   .timeline .card-title{grid-column:2;grid-row:2;margin-top:.4em;}
-  .timeline .card p:not(.when){grid-column:2;grid-row:3;font-size:13px;}
+  /* .card-title も <p> なので、除外しないと本文と同じ行に置かれて重なる */
+  .timeline .card p:not(.when):not(.card-title){grid-column:2;grid-row:3;font-size:13px;}
 
   /* --- CTA --- */
   .cta{min-height:84px;padding:18px 44px 18px 20px;}
