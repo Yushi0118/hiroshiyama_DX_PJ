@@ -18,7 +18,18 @@ window.__check = function () {
     const f = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
     return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
   };
-  const parse = s => (s.match(/[\d.]+/g) || []).map(Number);
+  /* 色の文字列を [r,g,b(,a)] にする。
+     rgb()/rgba() だけでなく #rrggbb / #rgb も受ける。
+     16進数を数値抽出だけで処理すると "#14406F" が [14406] という
+     1要素になり、下地の取得に失敗して判定が丸ごと狂う。 */
+  const parse = s => {
+    s = (s || '').trim();
+    let m = s.match(/^#([0-9a-f]{3})$/i);
+    if (m) return m[1].split('').map(c => parseInt(c + c, 16));
+    m = s.match(/^#([0-9a-f]{6})$/i);
+    if (m) return [0, 2, 4].map(i => parseInt(m[1].substr(i, 2), 16));
+    return (s.match(/[\d.]+/g) || []).map(Number);
+  };
 
   /* 半透明の色を下地に合成する。カードは rgba で敷くことが多く、
      合成後の実効色で測らないと判定が実態とずれる。 */
@@ -27,19 +38,36 @@ window.__check = function () {
     return [0, 1, 2].map(i => Math.round(fg[i] * a + bg[i] * (1 - a)));
   };
 
-  /* 祖先をたどって背景色を積み上げる。透明なら親へ、を繰り返す。 */
+  /* 祖先をたどって背景色を積み上げる。透明なら親へ、を繰り返す。
+
+     最終的な下地は --tier-bg から取る。ページの深度グラデーションは
+     body::before で描いており、擬似要素の背景は JS から読めないため、
+     各セクションが「その位置の代表的な海の色」を --tier-bg として
+     宣言している。これが無いと半透明カードの合成結果を実態どおりに
+     測れず、コントラスト判定が当てにならなくなる。 */
+  const baseOf = el => {
+    for (let n = el; n; n = n.parentElement) {
+      const v = getComputedStyle(n).getPropertyValue('--tier-bg').trim();
+      if (v) {
+        const c = parse(v);
+        if (c.length >= 3) return c.slice(0, 3);
+      }
+    }
+    return [255, 255, 255];
+  };
+
   const bgOf = el => {
     const stack = [];
-    for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
+    /* body と html は数えない。実際の下地はページ全体の深度グラデーション
+       （body::before）であり、body の background-color はその下に隠れる
+       ただのフォールバックでしかない。これを合成に含めると、
+       body のクリーム色が階層の海の色を上書きしてしまう。 */
+    for (let n = el; n && n !== document.body && n !== document.documentElement; n = n.parentElement) {
       const c = parse(getComputedStyle(n).backgroundColor);
       if (c.length >= 3 && (c[3] === undefined || c[3] > 0.01)) stack.push(c);
       if (c.length >= 3 && (c[3] === undefined || c[3] >= 0.999)) break;
     }
-    // ページ全体の下地。深度グラデーションは body::before なので取得できない。
-    // 取れない場合は body の背景色を最終下地として使う。
-    let acc = parse(getComputedStyle(document.body).backgroundColor);
-    if (!(acc.length >= 3) || acc[3] === 0) acc = [255, 255, 255];
-    acc = acc.slice(0, 3);
+    let acc = baseOf(el);
     for (let i = stack.length - 1; i >= 0; i--) acc = over(stack[i], acc);
     return acc;
   };
