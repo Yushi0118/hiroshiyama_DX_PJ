@@ -601,6 +601,54 @@ h2{
   .hero-inner{padding-bottom:calc(var(--hero-art-h) + 20px);}
 }
 
+
+/* ============================================================
+   海の生き物（assets/img/creatures/）
+
+   画像を置くと表示され、置くまでは何も出ない（レイアウトは崩れない）。
+   深度グラデーションの上に直接浮かべるので、**背景が透過のPNG**が必要。
+   白背景のままだと白い矩形として見えてしまう。
+
+   位置は各セクションを基準にした % 指定。本文は .wrap（中央帯）に
+   あるので、生き物は左右の縁に置いて文字に重ねない。
+   ============================================================ */
+.creatures{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;}
+.creature{
+  position:absolute;
+  top:var(--ct,auto); right:var(--cr,auto); bottom:var(--cb,auto); left:var(--cl,auto);
+  width:var(--cw,120px);
+  opacity:var(--co,.85);
+  transform:scaleX(var(--cfx,1));
+}
+
+/* 浅瀬：小魚の群れと海藻 */
+.sec-pain  .c-fish-1  {--cl:-2%;  --ct:14%;  --cw:clamp(90px,11vw,170px); --co:.8;}
+.sec-pain  .c-seaweed {--cr:1%;   --cb:-2%;  --cw:clamp(70px,8vw,130px);  --co:.7;}
+
+/* 中層：魚とウミガメ */
+.sec-what    .c-fish-2 {--cr:-1%; --ct:22%;  --cw:clamp(100px,12vw,190px); --co:.78;}
+.sec-benefit .c-turtle {--cl:-3%; --ct:30%;  --cw:clamp(120px,15vw,240px); --co:.82;}
+.sec-themes  .c-fish-1 {--cr:-2%; --ct:12%;  --cw:clamp(110px,13vw,200px); --co:.75; --cfx:-1;}
+
+/* 深海：クラゲと珊瑚 */
+.sec-flow     .c-jelly-1 {--cl:0%;  --ct:18%; --cw:clamp(70px,8vw,130px);  --co:.72;}
+.sec-target   .c-fish-3  {--cr:-1%; --ct:10%; --cw:clamp(110px,13vw,210px); --co:.7;}
+.sec-target   .c-coral   {--cl:-2%; --cb:-1%; --cw:clamp(120px,15vw,250px); --co:.8;}
+.sec-schedule .c-jelly-2 {--cr:1%;  --ct:24%; --cw:clamp(80px,9vw,150px);  --co:.7;}
+.sec-entry    .c-coral   {--cr:-2%; --cb:-1%; --cw:clamp(110px,14vw,230px); --co:.75; --cfx:-1;}
+
+/* 狭い画面では左右の余白が無くなるので、大きいものだけ残して間引く */
+@media (max-width:767px){
+  .creature{--co:.5;}
+  .c-fish-2,.c-fish-3,.c-jelly-2{display:none;}
+  .sec-pain  .c-fish-1{--cl:-8%; --cw:36%;}
+  .sec-benefit .c-turtle{--cl:-10%; --cw:44%;}
+  .sec-themes .c-fish-1{--cr:-8%; --cw:38%;}
+  .sec-flow  .c-jelly-1{--cl:-4%; --cw:26%;}
+  .sec-target .c-coral{--cl:-8%; --cw:44%;}
+  .sec-entry .c-coral{--cr:-8%; --cw:40%;}
+}
+
 /* ============================================================
    モーション低減
    @keyframes は使っていないが、transition と smooth scroll は残る。
