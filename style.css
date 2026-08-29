@@ -355,11 +355,19 @@ h2{
 
 /* 海景の下端をマスクで消し、深度グラデーションへ溶かす。
    これでヒーローと次のセクションが1枚の絵としてつながる。 */
+/* 船団の絵は右側に置き、左側は紙の余白として見出しに明け渡す。
+   完成イメージと同じ構成。文字は左半分にしか無い元画像なので、
+   右側だけを切り出せば文字の写り込みが無い（tools/build-hero.ps1）。
+
+   マスクは1枚の放射グラデーションで済ませている。左と下の2方向を
+   同時に減衰させたいが、mask を2枚重ねるには mask-composite が要り、
+   対応していないブラウザでは逆に「どちらかが不透明なら不透明」になって
+   masking が効かなくなる。右上を中心に減衰させれば1枚で両方賄える。 */
 .hero-art{
-  position:absolute;inset:0;z-index:-1;
-  background:url('assets/img/backgrounds/hero-scene-wide.jpg') center top / cover no-repeat;
-  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 58%,transparent 100%);
-          mask-image:linear-gradient(180deg,#000 0%,#000 58%,transparent 100%);
+  position:absolute;inset:0 0 0 auto;width:56%;z-index:-1;
+  background:url('assets/img/backgrounds/hero-fleet-wide.jpg') center top / cover no-repeat;
+  -webkit-mask-image:radial-gradient(125% 115% at 100% 0%, #000 52%, rgba(0,0,0,.55) 78%, transparent 100%);
+          mask-image:radial-gradient(125% 115% at 100% 0%, #000 52%, rgba(0,0,0,.55) 78%, transparent 100%);
 }
 
 .hero-inner{
@@ -537,10 +545,21 @@ h2{
    水平線や島が画面外へ出てしまう。
    ============================================================ */
 @media (max-aspect-ratio:13/10){
+  /* 縦画面では船団を下半分に敷き、見出しを上に置く。
+     上下ともマスクで減衰させ、紙とグラデーションの両方へ溶かす。 */
+  /* 絵の高さと本文の下余白を同じ変数から出す。
+     別々に決めるとボタンが船の上に重なる（実際に一度重ねた）。
+     変数は必ずセレクタの中で宣言すること。@media の直下に裸で書くと
+     構文エラーになり、ブロックごと無効になる。 */
+  :root{--hero-art-h:clamp(280px,46vh,440px);}
   .hero-art{
-    background-image:url('assets/img/backgrounds/hero-scene-tall.jpg');
+    inset:auto 0 0 0;width:100%;height:var(--hero-art-h);
+    background-image:url('assets/img/backgrounds/hero-fleet-tall.jpg');
     background-position:center top;
+    -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 20%,#000 86%,transparent 100%);
+            mask-image:linear-gradient(180deg,transparent 0%,#000 20%,#000 86%,transparent 100%);
   }
+  .hero-inner{padding-bottom:calc(var(--hero-art-h) + 20px);}
 }
 
 /* ============================================================
