@@ -70,9 +70,33 @@ window.__check = function () {
     return SEA[SEA.length - 1][1];
   };
   const pageH = () => Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, 1);
+  /* 深海セクションの上部には局所的な暗い幕（.tier-deep::before）が
+     掛かっている。擬似要素なので祖先の背景として読めず、これを
+     無視すると「明るい水の上に白文字」と誤判定してしまう。
+     CSS と同じ値を :root から読み、同じ式で合成する。 */
+  const rs0 = getComputedStyle(document.documentElement);
+  const SCRIM = {
+    rgb: (rs0.getPropertyValue("--scrim-rgb") || "6,26,52").split(",").map(Number),
+    a: parseFloat(rs0.getPropertyValue("--scrim-a")) || 0.62,
+    h: parseFloat(rs0.getPropertyValue("--scrim-h")) || 420
+  };
   const baseOf = el => {
     const b = el.getBoundingClientRect();
-    return seaAt((b.top + scrollY + b.height / 2) / pageH());
+    const mid = b.top + scrollY + b.height / 2;
+    let base = seaAt(mid / pageH());
+    const deep = el.closest(".tier-deep");
+    if (deep) {
+      const h = Math.min(deep.offsetHeight * 0.62, SCRIM.h);
+      const d = mid - deep.offsetTop;
+      if (d >= 0 && d < h) {
+        const t = d / h;
+        const a = t < 0.6
+          ? SCRIM.a + (SCRIM.a * 0.74 - SCRIM.a) * (t / 0.6)
+          : SCRIM.a * 0.74 * (1 - (t - 0.6) / 0.4);
+        base = base.map((v, i) => Math.round(SCRIM.rgb[i] * a + v * (1 - a)));
+      }
+    }
+    return base;
   };
 
   const bgOf = el => {

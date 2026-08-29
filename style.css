@@ -47,6 +47,12 @@
   --serif:"Noto Serif JP","Yu Mincho",YuMincho,"Hiragino Mincho ProN",serif;
   --sans:"Noto Sans JP","Yu Gothic",YuGothic,"Hiragino Sans","Meiryo",sans-serif;
 
+  /* 深海セクション上部の幕。tools/check.js もこの値を読むので、
+     ここを変えれば判定も自動で追随する。片方だけ変えないこと。 */
+  --scrim-rgb:6,26,52;
+  --scrim-a:.68;
+  --scrim-h:560px;
+
   --wrap:1120px;
   --radius:16px;
 }
@@ -133,6 +139,31 @@ body::after{
 .section + .section{padding-top:88px;}
 
 .tier-deep{color:var(--paper);}
+
+/* 深海セクションの上部だけを局所的に暗く落とす。
+
+   背景は「ページ全高に対する%」で色が決まるため、内容が増えて
+   ページが伸びると、各セクションはグラデーション上の別の位置へずれる。
+   実際 FAQ を足しただけで 8,261px → 10,142px に伸び、深海セクションの
+   見出しが明るい水の上に乗ってコントラストが 2.5:1 まで落ちた。
+
+   セクションの先頭を局所的に暗くしておけば、ページ丈が変わっても
+   白い見出しは必ず暗い地の上に乗る。下へ向かって消えるので、
+   境目に帯は見えない。 */
+.tier-deep::before{
+  content:"";
+  position:absolute;inset:0 0 auto;
+  height:min(62%, var(--scrim-h));
+  background:linear-gradient(180deg,
+    rgba(var(--scrim-rgb),var(--scrim-a)) 0%,
+    rgba(var(--scrim-rgb),calc(var(--scrim-a) * .74)) 60%,
+    rgba(var(--scrim-rgb),0) 100%);
+  pointer-events:none;z-index:0;
+}
+/* 本文は幕より上に置く。位置指定した擬似要素は、位置指定していない
+   通常フローの要素より後に描かれるため、これが無いと文字が隠れる。 */
+.tier-deep > .wrap{position:relative;z-index:1;}
+
 
 /* ============================================================
    見出し
@@ -272,6 +303,47 @@ h2{
   border:.38em solid transparent;border-left-color:var(--gold);
 }
 
+/* ============================================================
+   よくあるご質問
+   <details>/<summary> のネイティブ開閉を使う。JSを足さずに済み、
+   キーボード操作とスクリーンリーダーにそのまま対応できる。
+   ============================================================ */
+.faq-list{display:grid;gap:12px;}
+.faq-item{padding:0;}
+.faq-item summary{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:20px 22px;cursor:pointer;
+  list-style:none;              /* Firefox の三角を消す */
+  min-height:44px;              /* タップ領域 */
+}
+.faq-item summary::-webkit-details-marker{display:none;}
+.faq-item summary .card-title{flex:1;font-size:17px;}
+/* 開閉の目印。開くと縦棒が消えて「−」になる */
+.faq-item summary::after{
+  content:"";flex:none;position:relative;
+  width:15px;height:15px;margin-top:.35em;
+  background:
+    linear-gradient(var(--gold),var(--gold)) center/100% 2px no-repeat,
+    linear-gradient(var(--gold),var(--gold)) center/2px 100% no-repeat;
+  transition:transform .2s ease;
+}
+.faq-item[open] summary::after{
+  background:linear-gradient(var(--gold),var(--gold)) center/100% 2px no-repeat;
+}
+.faq-item summary:hover .card-title{color:var(--gold);}
+.faq-item > p{
+  margin:0;padding:0 22px 22px;
+  font-size:14px;line-height:1.95;color:var(--paper-soft);
+}
+.faq-item > p strong{color:#fff;}
+/* 参加費無料は一番効く訴求なので、CTA の直前で目立たせる */
+.free-mark{
+  display:inline-block;margin-left:.4em;
+  color:#0A2247;background:var(--gold);
+  padding:.12em .7em;border-radius:999px;font-size:.92em;font-weight:700;
+}
+
+
 /* 支援体制のノード。丸バッジのアイコンは元が240pxの円形で、
    そのまま大きく出すとカードを占領してしまう。小さく中央に置き、
    文字も中央揃えにして「役割の一覧」として読ませる。 */
@@ -285,7 +357,9 @@ h2{
   display:flex;flex-direction:column;align-items:center;gap:.1em;
   max-width:280px;margin:0 auto 26px;
   padding:20px;border-radius:var(--radius);
-  background:rgba(198,164,92,.16);
+  /* 金の淡い地は下地を明るくしてしまい、白系の文字が乗らない。
+     紺を敷いて金は枠だけにする。 */
+  background:rgba(6,26,52,.55);
   box-shadow:inset 0 0 0 1px rgba(198,164,92,.7);
 }
 .hub-center strong{font-family:var(--serif);font-size:20px;color:#fff;}
