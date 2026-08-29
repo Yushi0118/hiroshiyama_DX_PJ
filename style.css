@@ -621,32 +621,43 @@ h2{
   transform:scaleX(var(--cfx,1));
 }
 
+/* 置き場所は「カードが無い水域」を狙う。
+   見出しとリード文は左寄せで幅44em までなので、広い画面では
+   見出しブロックの右側がまるごと空く。そこが一番大きな空き水域。
+   もうひとつはセクションとセクションの隙間（--cb を負にして潜り込ませる）。
+
+   カードの下に潜った生き物は見えなくなるが、それでよい。
+   z-index:-1 なので、勝手に「空いている所だけ見える」状態になる。 */
+
 /* 浅瀬：小魚の群れと海藻 */
-.sec-pain  .c-fish-1  {--cl:-2%;  --ct:14%;  --cw:clamp(90px,11vw,170px); --co:.8;}
-.sec-pain  .c-seaweed {--cr:1%;   --cb:-2%;  --cw:clamp(70px,8vw,130px);  --co:.7;}
+.sec-pain  .c-fish-1  {--cr:2%;  --ct:3%;   --cw:clamp(150px,20vw,300px); --co:.95;}
+.sec-pain  .c-seaweed {--cl:1%;  --cb:-40px; --cw:clamp(70px,8vw,120px);  --co:.8;}
 
 /* 中層：魚とウミガメ */
-.sec-what    .c-fish-2 {--cr:-1%; --ct:22%;  --cw:clamp(100px,12vw,190px); --co:.78;}
-.sec-benefit .c-turtle {--cl:-3%; --ct:30%;  --cw:clamp(120px,15vw,240px); --co:.82;}
-.sec-themes  .c-fish-1 {--cr:-2%; --ct:12%;  --cw:clamp(110px,13vw,200px); --co:.75; --cfx:-1;}
+.sec-what    .c-fish-2 {--cr:3%;  --ct:4%;  --cw:clamp(140px,18vw,270px); --co:.9;}
+.sec-benefit .c-turtle {--cr:2%;  --ct:2%;  --cw:clamp(150px,19vw,290px); --co:.9;}
+.sec-themes  .c-fish-1 {--cr:3%;  --ct:3%;  --cw:clamp(140px,18vw,280px); --co:.85; --cfx:-1;}
 
 /* 深海：クラゲと珊瑚 */
-.sec-flow     .c-jelly-1 {--cl:0%;  --ct:18%; --cw:clamp(70px,8vw,130px);  --co:.72;}
-.sec-target   .c-fish-3  {--cr:-1%; --ct:10%; --cw:clamp(110px,13vw,210px); --co:.7;}
-.sec-target   .c-coral   {--cl:-2%; --cb:-1%; --cw:clamp(120px,15vw,250px); --co:.8;}
-.sec-schedule .c-jelly-2 {--cr:1%;  --ct:24%; --cw:clamp(80px,9vw,150px);  --co:.7;}
-.sec-entry    .c-coral   {--cr:-2%; --cb:-1%; --cw:clamp(110px,14vw,230px); --co:.75; --cfx:-1;}
+.sec-flow     .c-jelly-1 {--cr:2%; --ct:3%;   --cw:clamp(90px,11vw,170px);  --co:.85;}
+.sec-target   .c-fish-3  {--cr:2%; --ct:2%;   --cw:clamp(140px,18vw,270px); --co:.85;}
+.sec-target   .c-coral   {--cl:0%; --cb:-30px; --cw:clamp(150px,19vw,300px); --co:.9;}
+.sec-schedule .c-jelly-2 {--cr:2%; --ct:3%;   --cw:clamp(90px,11vw,180px);  --co:.85;}
+.sec-entry    .c-coral   {--cr:0%; --cb:-20px; --cw:clamp(140px,17vw,270px); --co:.85; --cfx:-1;}
 
 /* 狭い画面では左右の余白が無くなるので、大きいものだけ残して間引く */
 @media (max-width:767px){
-  .creature{--co:.5;}
+  /* 縦画面は左右の余白がほぼ無い。カードの上下の隙間に置き、
+     はみ出させずに全体が見える大きさにする。 */
+  .creature{--co:.62;}
   .c-fish-2,.c-fish-3,.c-jelly-2{display:none;}
-  .sec-pain  .c-fish-1{--cl:-8%; --cw:36%;}
-  .sec-benefit .c-turtle{--cl:-10%; --cw:44%;}
-  .sec-themes .c-fish-1{--cr:-8%; --cw:38%;}
-  .sec-flow  .c-jelly-1{--cl:-4%; --cw:26%;}
-  .sec-target .c-coral{--cl:-8%; --cw:44%;}
-  .sec-entry .c-coral{--cr:-8%; --cw:40%;}
+  .sec-pain    .c-fish-1 {--cr:2%;  --ct:1%;    --cw:46%;}
+  .sec-pain    .c-seaweed{--cl:2%;  --cb:-20px; --cw:20%;}
+  .sec-benefit .c-turtle {--cr:2%;  --ct:1%;    --cw:42%;}
+  .sec-themes  .c-fish-1 {--cr:2%;  --ct:1%;    --cw:44%;}
+  .sec-flow    .c-jelly-1{--cr:3%;  --ct:1%;    --cw:22%;}
+  .sec-target  .c-coral  {--cl:0%;  --cb:-14px; --cw:44%;}
+  .sec-entry   .c-coral  {--cr:0%;  --cb:-10px; --cw:40%;}
 }
 
 /* ============================================================
