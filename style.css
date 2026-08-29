@@ -352,6 +352,11 @@ h2{
 .btn-primary{background:#12335C;color:#fff;box-shadow:0 6px 18px rgba(12,40,76,.28);}
 .btn-ghost{background:rgba(255,255,255,.9);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--gold);}
 .btn:hover{transform:translateY(-2px);}
+/* ホバーで地と文字を入れ替える。浮くだけの変化では「押せる」ことが
+   伝わりにくい。反転後も紺と白の組み合わせなので約12:1あり、
+   どちらの状態でも読める。 */
+.btn-primary:hover{background:#fff;color:#12335C;box-shadow:inset 0 0 0 2px #12335C, 0 8px 22px rgba(12,40,76,.3);}
+.btn-ghost:hover{background:#12335C;color:#fff;box-shadow:inset 0 0 0 1.5px #12335C, 0 8px 22px rgba(12,40,76,.3);}
 
 /* セクション末尾の導線。デスクトップは固定CTAが無いため、
    読み進めた先々で申し込みへ戻れるようにしておく。 */
@@ -363,7 +368,11 @@ h2{
   padding-right:46px;
   transition:transform .18s ease;
 }
-.cta:hover{transform:translateY(-3px);}
+/* 紺のカードを明るい地に反転させる。文字色もまとめて入れ替える */
+.cta:hover{transform:translateY(-3px);background:rgba(248,252,255,.96);}
+.cta:hover .card-title{color:#0A2247;}
+.cta:hover .cta-sub{color:#40566F;}
+.cta:hover .chev{border-color:#0A2247;}
 .cta-sub{font-size:12.5px;color:var(--paper-soft);}
 /* 押しても動かないものはリンクにしない。準備中であることを明示する。 */
 .cta.is-pending{cursor:default;opacity:.86;}
@@ -408,7 +417,8 @@ h2{
 .hero-inner{
   position:relative;
   display:flex;align-items:flex-start;justify-content:space-between;gap:32px;
-  padding:112px 0 104px;
+  /* 下は詰める。本文の終わりからセクション末尾まで153pxの空白ができていた */
+  padding:104px 0 64px;
 }
 .hero-panel{max-width:min(54%,600px);}
 
@@ -441,7 +451,8 @@ h2{
   background:rgba(18,51,92,.9);color:#fff;
   transition:background .18s ease;
 }
-.hero-nav a:hover{background:rgba(18,51,92,1);}
+.hero-nav a:hover{background:#fff;color:#12335C;box-shadow:inset 0 0 0 1.5px #12335C;}
+.hero-nav a:hover .chev{border-color:#12335C;}
 .hero-nav .chev{border-color:#fff;right:18px;}
 
 /* ============================================================
@@ -462,6 +473,27 @@ h2{
 }
 .foot-mark{width:34px;height:auto;}
 .foot-note{font-size:12.5px;margin-top:.5em;color:var(--paper-soft);}
+
+/* 読み終えた位置から各セクションへ戻れるようにする。
+   ページが9画面分あり、ヒーローのナビはスクロールで流れてしまうため。 */
+.foot-nav{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1.4em;
+  margin-top:1.8em;padding-top:1.4em;
+  border-top:1px solid rgba(198,164,92,.28);
+}
+.foot-nav a{
+  display:inline-flex;align-items:center;min-height:44px;padding:0 .2em;
+  font-size:13px;color:var(--paper-soft);
+}
+.foot-nav a:hover{color:var(--gold);}
+.foot-top{margin-top:1.2em;}
+.foot-top a{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;padding:0 1.6em;border-radius:999px;
+  font-size:13px;font-weight:700;color:var(--paper);
+  box-shadow:inset 0 0 0 1px rgba(198,164,92,.6);
+}
+.foot-top a:hover{background:var(--gold);color:#0A2247;}
 /* --gold-deep は明るい地の前提の色。最深部の紺では 3.1:1 しか出ない */
 .site-footer .gold{color:#E3C880;}
 
@@ -562,6 +594,7 @@ h2{
     background:#12335C;color:#fff;
     box-shadow:0 8px 24px rgba(4,18,40,.4);
   }
+  .sticky-cta:hover{background:#fff;color:#12335C;box-shadow:inset 0 0 0 2px #12335C, 0 8px 24px rgba(4,18,40,.4);}
 }
 
 /* --- 390px 未満：もう一段詰める --- */
