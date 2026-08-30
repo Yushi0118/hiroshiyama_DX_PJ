@@ -13,7 +13,7 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="ひろしま協働DXプロジェクト｜小さな船も、船団になれば、越えられる潮がある。">
 <meta property="og:description" content="広島県の小規模事業者のための、協働型DX実証プロジェクト。同じ悩みを持つ事業者が集まり、困りごとを見える化し、AIやデジタル技術で小さく試します。">
-<meta property="og:image" content="assets/img/backgrounds/hero-fleet-wide.jpg">
+<meta property="og:image" content="assets/img/backgrounds/hero-scene-wide.jpg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
@@ -54,13 +54,22 @@
   </div>
 </section>
 
+<!-- ヒーロー直後から main の終わりまでを覆うレール。
+     この最後に追従CTAを置く。position:sticky の bottom は「下へ流れ去る
+     のを止める」働きなので、要素の自然位置がレールの末尾＝常に画面の下に
+     あることで、ずっと下端に留まる。レールの上端より上へは動けないので、
+     ヒーローを読み終えるまでは現れない。JSは要らない。 -->
+<div class="cta-rail">
 <!-- ============================================================
      2. 困りごと（浅瀬）
      ============================================================ -->
 <section id="pain" class="section sec-pain tier-shallow" aria-labelledby="pain-h">
   <div class="creatures" aria-hidden="true">
-    <img class="creature c-fish-1" src="assets/img/creatures/fish-school-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature c-seaweed" src="assets/img/creatures/seaweed.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s1" src="assets/img/creatures/fish-school-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-sway s2" src="assets/img/creatures/seaweed.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s3" src="assets/img/creatures/fish-school-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s4" src="assets/img/creatures/fish-school-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-sway s5" src="assets/img/creatures/seaweed.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
   </div>
   <div class="wrap">
     <p class="eyebrow">こんな困りごとはありませんか？</p>
@@ -107,7 +116,10 @@
      ============================================================ -->
 <section id="what" class="section sec-what tier-mid" aria-labelledby="what-h">
   <div class="creatures" aria-hidden="true">
-    <img class="creature c-fish-2" src="assets/img/creatures/fish-school-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s1" src="assets/img/creatures/fish-school-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s2" src="assets/img/creatures/fish-large.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s3" src="assets/img/creatures/fish-school-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-sway s4" src="assets/img/creatures/seaweed.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
   </div>
   <div class="wrap">
     <p class="eyebrow">本プロジェクトでできること</p>
@@ -146,7 +158,10 @@
      ============================================================ -->
 <section id="benefit" class="section sec-benefit tier-mid" aria-labelledby="benefit-h">
   <div class="creatures" aria-hidden="true">
-    <img class="creature c-turtle" src="assets/img/creatures/turtle.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s1" src="assets/img/creatures/turtle.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s2" src="assets/img/creatures/fish-school-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s3" src="assets/img/creatures/fish-school-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-drift s4" src="assets/img/creatures/jelly-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
   </div>
   <div class="wrap">
     <p class="eyebrow">参加すると得られること</p>
@@ -193,7 +208,10 @@
      ============================================================ -->
 <section id="themes" class="section sec-themes tier-mid" aria-labelledby="themes-h">
   <div class="creatures" aria-hidden="true">
-    <img class="creature c-fish-1" src="assets/img/creatures/fish-school-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s1" src="assets/img/creatures/fish-school-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s2" src="assets/img/creatures/fish-large.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s3" src="assets/img/creatures/fish-school-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-drift s4" src="assets/img/creatures/jelly-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
   </div>
   <div class="wrap">
     <p class="eyebrow">募集テーマ</p>
@@ -232,7 +250,10 @@
      ============================================================ -->
 <section id="flow" class="section sec-flow tier-deep" aria-labelledby="flow-h">
   <div class="creatures" aria-hidden="true">
-    <img class="creature c-jelly-1" src="assets/img/creatures/jelly-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-drift s1" src="assets/img/creatures/jelly-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-drift s2" src="assets/img/creatures/jelly-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s3" src="assets/img/creatures/fish-large.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-sway s4" src="assets/img/creatures/seaweed.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
   </div>
   <div class="wrap">
     <p class="eyebrow">進め方</p>
@@ -268,8 +289,10 @@
      ============================================================ -->
 <section id="target" class="section sec-target tier-deep" aria-labelledby="target-h">
   <div class="creatures" aria-hidden="true">
-    <img class="creature c-fish-3" src="assets/img/creatures/fish-large.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature c-coral" src="assets/img/creatures/coral.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s1" src="assets/img/creatures/fish-large.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-sway s2" src="assets/img/creatures/coral.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-drift s3" src="assets/img/creatures/jelly-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s4" src="assets/img/creatures/fish-school-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
   </div>
   <div class="wrap">
       <p class="eyebrow">支援対象・参加対象</p>
@@ -323,7 +346,10 @@
      ============================================================ -->
 <section id="schedule" class="section sec-schedule tier-deep" aria-labelledby="schedule-h">
   <div class="creatures" aria-hidden="true">
-    <img class="creature c-jelly-2" src="assets/img/creatures/jelly-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-drift s1" src="assets/img/creatures/jelly-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-sway s2" src="assets/img/creatures/coral.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-drift s3" src="assets/img/creatures/jelly-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s4" src="assets/img/creatures/fish-large.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
   </div>
   <div class="wrap">
     <p class="eyebrow">スケジュール</p>
@@ -380,7 +406,12 @@
      JS を使わず <details> で開閉する。ネイティブ要素なので
      キーボード操作とスクリーンリーダーにそのまま対応できる。
      ============================================================ -->
-<section id="faq" class="section tier-deep" aria-labelledby="faq-h">
+<section id="faq" class="section sec-faq tier-deep" aria-labelledby="faq-h">
+  <div class="creatures" aria-hidden="true">
+    <img class="creature a-drift s1" src="assets/img/creatures/jelly-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-sway s2" src="assets/img/creatures/seaweed.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s3" src="assets/img/creatures/fish-school-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+  </div>
   <div class="wrap">
     <p class="eyebrow">よくあるご質問</p>
     <h2 id="faq-h">はじめる前の不安に、<br>先にお答えします</h2>
@@ -433,7 +464,10 @@
      ============================================================ -->
 <section id="entry" class="section sec-entry tier-deep" aria-labelledby="entry-h">
   <div class="creatures" aria-hidden="true">
-    <img class="creature c-coral" src="assets/img/creatures/coral.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-sway s1" src="assets/img/creatures/coral.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-sway s2" src="assets/img/creatures/coral.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-drift s3" src="assets/img/creatures/jelly-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s4" src="assets/img/creatures/fish-school-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
   </div>
   <div class="wrap entry-inner">
     <p class="eyebrow">まずは一歩、踏み出してみませんか</p>
@@ -468,6 +502,8 @@
   </div>
 </section>
 
+<a class="sticky-cta" href="#entry">参加を相談する</a>
+</div><!-- /.cta-rail -->
 </main>
 
 <footer class="site-footer">
@@ -497,7 +533,6 @@
 
 <!-- スマホでは画面下にCTAを固定する。縦に長いLPなので、
      どこまで読んでも申し込み導線が届く状態にしておく。 -->
-<a class="sticky-cta" href="#entry">参加を相談する</a>
 
 </body>
 </html>

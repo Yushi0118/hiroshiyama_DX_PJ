@@ -12,8 +12,10 @@
    深さに応じてカードの明暗を反転させる（浅瀬＝明るいカードに紺の文字、
    深海＝紺のカードに白の文字）。これがスクロールの体験を作る。
 
-   アニメーションは使わない（@keyframes 0件・JS 0件）。
-   hover の transition と smooth scroll のみ、モーション低減時に止める。
+   動くのは海の生き物だけ（JS 0件、CSSの @keyframes 3種）。
+   レイアウトには一切関わらない装飾なので、transform と opacity しか
+   動かさない。モーション低減の指定があるときは、hover の transition と
+   smooth scroll ごとまとめて止める。
    ============================================================ */
 
 /* ============================================================
@@ -70,7 +72,13 @@ body{
   line-height:1.9;
   color:var(--ink);
   background:var(--sea-0);
+  /* 横あふれの止め方で position:sticky の効き方が変わる。
+     overflow-x:hidden は body をスクロール枠にしてしまい、中の sticky は
+     「動かないその枠」に張り付くので、実質まったく効かなくなる
+     （追従CTAが一度これで動かなくなった）。clip は枠を作らずに切るだけ。
+     古いブラウザ向けに hidden を先に置き、対応していれば clip が勝つ。 */
   overflow-x:hidden;
+  overflow-x:clip;
 }
 img{max-width:100%;height:auto;display:block;}
 /* キーボード操作のフォーカス表示。定義が無いとUA既定のリングだけが頼りになり、
@@ -404,6 +412,10 @@ h2{
 .note{
   margin-top:2.4rem;padding:18px 24px;border-radius:12px;
   font-size:14px;line-height:1.85;
+  /* 幅を止めないと1行が1060pxまで伸び、14pxの文字で1行75字を超える。
+     読点で目が迷って行を取り違えやすくなるうえ、セクション下端の
+     左右いっぱいに広がるので、装飾を置ける水域も無くなる。 */
+  max-width:52em;
   background:rgba(255,255,255,.72);
   box-shadow:inset 0 0 0 1px rgba(198,164,92,.45);
   color:var(--ink);
@@ -469,36 +481,49 @@ h2{
 /* ============================================================
    ヒーロー
    ============================================================ */
-.hero{padding:0;min-height:min(100svh,860px);display:flex;align-items:center;}
+.hero{padding:0;min-height:min(100svh,880px);display:flex;align-items:center;}
+/* ヒーローだけは中央寄せの器を外す。位置は絵に合わせるため画面幅で決める */
+.hero > .wrap{width:100%;}
 
-/* 海景の下端をマスクで消し、深度グラデーションへ溶かす。
-   これでヒーローと次のセクションが1枚の絵としてつながる。 */
-/* 船団の絵は右側に置き、左側は紙の余白として見出しに明け渡す。
-   完成イメージと同じ構成。文字は左半分にしか無い元画像なので、
-   右側だけを切り出せば文字の写り込みが無い（tools/build-hero.ps1）。
+/* 絵は1枚のまま全面に敷く。
+   以前は船団だけを右56%に置き、左はページのクリーム色に任せていた。
+   だが絵の左端がどう減衰しても、そこで「絵が終わる」ことに変わりはなく、
+   画面がくっきり左右に割れて見えた。マスクを弱めても、絵の側だけ
+   紙の質感があるので境目は消えない。
 
-   マスクは1枚の放射グラデーションで済ませている。左と下の2方向を
-   同時に減衰させたいが、mask を2枚重ねるには mask-composite が要り、
-   対応していないブラウザでは逆に「どちらかが不透明なら不透明」になって
-   masking が効かなくなる。右上を中心に減衰させれば1枚で両方賄える。 */
+   元絵はもともと「破れた紙 + 海」で1枚に描かれている。焼き込まれた
+   文字だけを消して（tools/build-hero-full.ps1）全面に敷けば、紙から
+   海への移り変わりは絵の中の破れた縁がそのまま担ってくれる。
+   継ぎ目は存在しなくなる。
+
+   下端だけはマスクで抜き、次のセクションの水面へ溶かす。 */
 .hero-art{
-  position:absolute;inset:0 0 0 auto;width:56%;z-index:-1;
-  background:url('assets/img/backgrounds/hero-fleet-wide.jpg') center top / cover no-repeat;
-  -webkit-mask-image:radial-gradient(125% 115% at 100% 0%, #000 52%, rgba(0,0,0,.55) 78%, transparent 100%);
-          mask-image:radial-gradient(125% 115% at 100% 0%, #000 52%, rgba(0,0,0,.55) 78%, transparent 100%);
+  position:absolute;inset:0;z-index:-1;
+  background:url('assets/img/backgrounds/hero-scene-wide.jpg') center 28% / cover no-repeat;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 80%,transparent 100%);
+          mask-image:linear-gradient(180deg,#000 0%,#000 80%,transparent 100%);
 }
 
+/* 本文は .wrap ではなく画面幅を基準に置く。
+   絵の中の紙は画面の左9%あたりから中央（50%）まで。一方 .wrap は
+   1120px で中央寄せなので、広い画面では左端が20%まで下がってしまい、
+   紙の左3割が空いたまま見出しだけ窮屈になる。
+
+   紙の右端が画面のちょうど中央に来るのは偶然ではない。cover は
+   短い辺に合わせて拡大するので、絵の横中央は必ず画面の横中央に来る。
+   だから右端は画面幅によらず 50vw で、そこから内側に本文を収めればよい。 */
 .hero-inner{
-  position:relative;
+  position:relative;width:100%;
   display:flex;align-items:flex-start;justify-content:space-between;gap:32px;
-  /* 下は詰める。本文の終わりからセクション末尾まで153pxの空白ができていた */
-  padding:104px 0 64px;
+  padding:104px 4vw 64px 10vw;
 }
-.hero-panel{max-width:min(54%,600px);}
+.hero-panel{max-width:min(40vw,760px);}
 
 .hero-title{
   font-family:var(--serif);
-  font-size:clamp(30px,4.2vw,56px);
+  /* 紙の中に「越えられる潮がある。」の10字が1行で収まる大きさが上限。
+     これを超えると折り返して4行になり、絵の余白と合わなくなる。 */
+  font-size:clamp(26px,3.6vw,54px);
   font-weight:600;line-height:1.42;letter-spacing:.02em;
   color:var(--ink);
   text-shadow:0 2px 18px rgba(251,246,233,.9);
@@ -583,8 +608,27 @@ h2{
   .section{padding:88px 0;}
   .section + .section{padding-top:72px;}
   .grid-5{grid-template-columns:repeat(3,1fr);}
-  .hero-panel{max-width:min(60%,560px);}
   .hero-nav a{min-width:180px;font-size:12.5px;}
+}
+
+/* 768〜1279px：紙が狭くなるぶん、本文も詰める。
+
+   この幅では画面が絵（1.41:1）より縦長寄りになるため、cover は高さ側で
+   合い、絵が丸ごと画面に入る。つまり紙の帯は画面に対して小さくなる。
+   余白と字をそのままにすると、リード文の最終行が紙の下端まで下りて
+   広島の建物（原爆ドーム）に重なり、読めなくなる。実測で最も暗い所が
+   116/255 まで落ちていた。
+
+   左を 13vw まで寄せているのは、その原爆ドームの尖塔を避けるため。 */
+@media (min-width:768px) and (max-width:1279px){
+  .hero{min-height:min(100svh,820px);}
+  .hero-inner{padding:76px 4vw 48px 13vw;}
+  .hero-panel{max-width:min(37vw,460px);}
+  .hero-title{font-size:clamp(24px,3.1vw,38px);}
+  /* 紙は下へいくほど狭まる（破れた縁が左へ回り込む）。リード文はその
+     一番狭い高さに乗るので、上の行より短く折り返す必要がある。 */
+  .hero-lead{font-size:13.5px;line-height:1.85;margin-top:1.1em;max-width:24em;}
+  .hero-cta{margin-top:1.5em;}
 }
 
 @media (max-width:900px){
@@ -626,6 +670,7 @@ h2{
   /* --- ヒーロー：縦構図 --- */
   .hero{min-height:auto;display:block;}
   .hero-inner{flex-direction:column;padding:72px 0 48px;}
+  .hero .wrap{width:min(100% - 32px, var(--wrap));}
   .hero-panel{max-width:none;}
   .hero-title{font-size:clamp(26px,7.4vw,34px);}
   .hero-lead{font-size:14px;line-height:1.95;}
@@ -660,9 +705,18 @@ h2{
   .note{padding:15px 18px;font-size:13px;}
 
   /* --- 画面下に固定するCTA --- */
+  /* 追従CTA。position:fixed だと最初の一画面から出てしまい、ヒーローの
+     「プロジェクトを見る」の上に重なる（360×640 で実際に重なっていた）。
+     ヒーロー直後から main の終わりまでを覆う .cta-rail の中に置き、
+     sticky にすると、要素は自分の含みブロックの上端より上へは動けない。
+     つまりヒーローを読み終えるまでは現れない。JSは要らない。
+
+     margin-bottom で自分の高さを打ち消しているのは、レールの先頭に
+     置いた分だけ以降のセクションが下がるのを避けるため。 */
   .sticky-cta{
     display:flex;align-items:center;justify-content:center;
-    position:fixed;left:16px;right:16px;bottom:14px;z-index:50;
+    position:sticky;bottom:14px;z-index:50;
+    margin:-54px 16px 0;
     min-height:54px;border-radius:999px;
     font-size:15.5px;font-weight:700;
     background:#12335C;color:#fff;
@@ -690,7 +744,11 @@ h2{
    （1280×1024 = 比1.25）まで縦長画像に切り替わり、幅1265pxの枠に
    縦長画像を cover するため上端の空しか出ず、船が1隻も見えなくなる。
    縦長画像が要るのは「幅が狭くて縦に長い」画面だけ。 */
-@media (max-aspect-ratio:13/10) and (max-width:1099px){
+/* スマホは横に倒しても縦構図のまま扱う。
+   全面の絵に本文を重ねる配置は、紙が画面の左半分に収まるだけの幅が
+   あって初めて成り立つ。横向きのスマホ（例 740×360）は幅が足りず、
+   本文が紙からはみ出して海の上に乗ってしまう。 */
+@media (max-aspect-ratio:13/10) and (max-width:1099px), (max-width:767px){
   /* 縦画面では船団を下半分に敷き、見出しを上に置く。
      上下ともマスクで減衰させ、紙とグラデーションの両方へ溶かす。 */
   /* 絵の高さと本文の下余白を同じ変数から出す。
@@ -700,24 +758,38 @@ h2{
   :root{--hero-art-h:clamp(280px,46vh,440px);}
   .hero-art{
     inset:auto 0 0 0;width:100%;height:var(--hero-art-h);
-    background-image:url('assets/img/backgrounds/hero-fleet-tall.jpg');
+    background-image:url('assets/img/backgrounds/hero-scene-tall.jpg');
     background-position:center top;
     -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 20%,#000 86%,transparent 100%);
             mask-image:linear-gradient(180deg,transparent 0%,#000 20%,#000 86%,transparent 100%);
   }
-  .hero-inner{padding-bottom:calc(var(--hero-art-h) + 20px);}
+  /* 横長のときの「絵に合わせた配置」は縦画面では意味を持たない。
+     絵は下半分に移り、本文は画面の全幅を使う縦積みになるため、
+     中央寄せの器と通常の余白へ戻す。ここを戻し忘れると、タブレットの
+     縦置き（834px）で本文だけが左に寄り、幅も 41vw に潰れる。 */
+  .hero > .wrap{width:min(100% - 48px, var(--wrap));}
+  .hero-inner{padding:72px 0 calc(var(--hero-art-h) + 20px);}
+  .hero-panel{max-width:none;}
 }
 
 
 /* ============================================================
    海の生き物（assets/img/creatures/）
 
-   画像を置くと表示され、置くまでは何も出ない（レイアウトは崩れない）。
-   深度グラデーションの上に直接浮かべるので、**背景が透過のPNG**が必要。
-   白背景のままだと白い矩形として見えてしまう。
+   画像は8種類しか無いが、同じ画像を大きさ・向き・濃さ・速さを変えて
+   何度も置くことで群れを作る。ブラウザは同じURLを1回しか読まないので、
+   数を増やしても通信量は変わらない。
+
+   クラスは2種類に分けてある。
+     動きのクラス  a-swim / a-drift / a-sway … どう動くか
+     位置のクラス  s1〜s5                    … セクション内のどこに置くか
+   位置はセクション側で `.sec-xxx .s1 { … }` として与える。
+   この分け方にしておくと、同じ魚を1つのセクションに複数置ける。
 
    位置は各セクションを基準にした % 指定。本文は .wrap（中央帯）に
    あるので、生き物は左右の縁に置いて文字に重ねない。
+   カードの下に潜った生き物は見えなくなるが、それでよい。
+   z-index:-1 なので、勝手に「空いている所だけ見える」状態になる。
    ============================================================ */
 .creatures{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;}
 .creature{
@@ -728,53 +800,143 @@ h2{
   transform:scaleX(var(--cfx,1));
 }
 
-/* 置き場所は「カードが無い水域」を狙う。
-   見出しとリード文は左寄せで幅44em までなので、広い画面では
-   見出しブロックの右側がまるごと空く。そこが一番大きな空き水域。
-   もうひとつはセクションとセクションの隙間（--cb を負にして潜り込ませる）。
+/* --- 動き ---
+   潮に運ばれている程度の、気づかれない速さにする。
+   位置ではなく transform だけを動かすので、レイアウトの再計算は起きない。
 
-   カードの下に潜った生き物は見えなくなるが、それでよい。
-   z-index:-1 なので、勝手に「空いている所だけ見える」状態になる。 */
+   scaleX(-1) を掛けた個体では、続く translate の向きも反転する。
+   左を向いた魚に正の --cax を与えると左へ進むので、向きと進行方向は
+   自動的に揃う。個別に符号を書き分ける必要はない。 */
+@keyframes creature-swim{
+  0%,100%{transform:scaleX(var(--cfx,1)) translate3d(0,0,0);}
+  50%    {transform:scaleX(var(--cfx,1)) translate3d(var(--cax,30px),var(--cay,-12px),0);}
+}
+@keyframes creature-drift{   /* クラゲ：ゆっくり浮き沈みし、わずかに傾く */
+  0%,100%{transform:scaleX(var(--cfx,1)) translate3d(0,0,0) rotate(-2deg);}
+  50%    {transform:scaleX(var(--cfx,1)) translate3d(var(--cax,8px),var(--cay,-26px),0) rotate(2deg);}
+}
+@keyframes creature-sway{    /* 海藻・珊瑚：根元を軸に左右へ揺れる */
+  0%,100%{transform:scaleX(var(--cfx,1)) rotate(-2.4deg);}
+  50%    {transform:scaleX(var(--cfx,1)) rotate(2.4deg);}
+}
+.a-swim,.a-drift,.a-sway{
+  animation:creature-swim var(--cdur,18s) ease-in-out var(--cdl,0s) infinite;
+}
+.a-drift{animation-name:creature-drift;}
+.a-sway{animation-name:creature-sway;transform-origin:bottom center;}
+
+/* 速さと開始位相をスロットごとにずらす。
+   同じ値だと全部が同じ拍で動き、群れではなく行進に見える。
+   負の delay は「その分だけ既に進んだ状態」で始まるという意味で、
+   最初の描画から位相がばらける。 */
+.s1{--cdur:17s; --cdl:0s;}
+.s2{--cdur:23s; --cdl:-4s;}
+.s3{--cdur:20s; --cdl:-9s;}
+.s4{--cdur:27s; --cdl:-14s;}
+.s5{--cdur:15s; --cdl:-6s;}
+
+/* --- 配置 ---
+   置き場所は「カードが無い水域」を狙う。見出しとリード文は左寄せで
+   幅44em までなので、広い画面では見出しブロックの右側がまるごと空く。
+   そこが一番大きな空き水域。もうひとつはセクションの下端（--cb を
+   負にして半分沈める）。 */
 
 /* 浅瀬：小魚の群れと海藻 */
-.sec-pain  .c-fish-1  {--cr:2%;  --ct:3%;   --cw:clamp(150px,20vw,300px); --co:.95;}
-.sec-pain  .c-seaweed {--cl:1%;  --cb:-40px; --cw:clamp(70px,8vw,120px);  --co:.8;}
+.sec-pain .s1{--cr:1%;   --ct:4%;    --cw:clamp(160px,21vw,320px); --co:.95;}
+.sec-pain .s2{--cl:0%;   --cb:-30px; --cw:clamp(70px,8vw,120px);   --co:.80;}
+.sec-pain .s3{--cl:3%;   --ct:48%;   --cw:clamp(90px,11vw,170px);  --co:.70;}
+.sec-pain .s4{--cr:6%;   --cb:6%;    --cw:clamp(80px,9vw,140px);   --co:.60;}
+.sec-pain .s5{--cr:.5%;  --cb:-50px; --cw:clamp(50px,6vw,90px);    --co:.55;}
 
-/* 中層：魚とウミガメ */
-.sec-what    .c-fish-2 {--cr:3%;  --ct:4%;  --cw:clamp(140px,18vw,270px); --co:.9;}
-.sec-benefit .c-turtle {--cr:2%;  --ct:2%;  --cw:clamp(150px,19vw,290px); --co:.9;}
-.sec-themes  .c-fish-1 {--cr:3%;  --ct:3%;  --cw:clamp(140px,18vw,280px); --co:.85; --cfx:-1;}
+.sec-what .s1{--cr:2%;   --ct:5%;    --cw:clamp(150px,19vw,290px); --co:.90;}
+.sec-what .s2{--cl:1%;   --ct:50%;   --cw:clamp(120px,15vw,230px); --co:.75;}
+.sec-what .s3{--cl:1%;   --cb:5%;    --cw:clamp(80px,9vw,140px);   --co:.60;}
+.sec-what .s4{--cr:0%;   --cb:-40px; --cw:clamp(60px,7vw,110px);   --co:.60;}
 
-/* 深海：クラゲと珊瑚 */
-.sec-flow     .c-jelly-1 {--cr:2%; --ct:3%;   --cw:clamp(90px,11vw,170px);  --co:.85;}
-.sec-target   .c-fish-3  {--cr:2%; --ct:2%;   --cw:clamp(140px,18vw,270px); --co:.85;}
-.sec-target   .c-coral   {--cl:0%; --cb:-30px; --cw:clamp(150px,19vw,300px); --co:.9;}
-.sec-schedule .c-jelly-2 {--cr:2%; --ct:3%;   --cw:clamp(90px,11vw,180px);  --co:.85;}
-.sec-entry    .c-coral   {--cr:0%; --cb:-20px; --cw:clamp(140px,17vw,270px); --co:.85; --cfx:-1;}
+.sec-benefit .s1{--cr:2%; --ct:3%;   --cw:clamp(160px,20vw,300px); --co:.90;}
+.sec-benefit .s2{--cl:2%; --ct:40%;  --cw:clamp(120px,15vw,220px); --co:.70;}
+.sec-benefit .s3{--cr:4%; --cb:8%;   --cw:clamp(90px,10vw,150px);  --co:.60; --cfx:-1;}
+.sec-benefit .s4{--cl:5%; --cb:12%;   --cw:clamp(60px,7vw,110px);   --co:.55;}
 
-/* 狭い画面では左右の余白が無くなるので、大きいものだけ残して間引く */
+.sec-themes .s1{--cr:2%;  --ct:3%;   --cw:clamp(150px,19vw,290px); --co:.85; --cfx:-1;}
+.sec-themes .s2{--cl:1%;  --ct:54%;  --cw:clamp(130px,16vw,240px); --co:.75;}
+.sec-themes .s3{--cr:3%;  --cb:5%;   --cw:clamp(90px,11vw,160px);  --co:.60;}
+.sec-themes .s4{--cr:8%;  --cb:12%;  --cw:clamp(60px,7vw,110px);   --co:.50;}
+
+/* 深海：クラゲ・珊瑚・大きめの魚 */
+.sec-flow .s1{--cr:2%;   --ct:4%;    --cw:clamp(90px,11vw,170px);  --co:.85;}
+.sec-flow .s2{--cl:2%;   --ct:58%;   --cw:clamp(80px,10vw,150px);  --co:.60;}
+.sec-flow .s3{--cr:5%;   --cb:8%;    --cw:clamp(120px,14vw,210px); --co:.55; --cfx:-1;}
+.sec-flow .s4{--cl:0%;   --cb:-30px; --cw:clamp(60px,7vw,110px);   --co:.50;}
+
+.sec-target .s1{--cr:2%; --ct:3%;    --cw:clamp(140px,18vw,270px); --co:.85;}
+.sec-target .s2{--cl:0%; --cb:-20px; --cw:clamp(150px,19vw,300px); --co:.90;}
+.sec-target .s3{--cr:3%; --ct:38%;   --cw:clamp(70px,9vw,140px);   --co:.55;}
+.sec-target .s4{--cl:3%; --cb:20%;    --cw:clamp(90px,11vw,160px);  --co:.55;}
+
+.sec-schedule .s1{--cr:2%; --ct:4%;    --cw:clamp(90px,11vw,180px);  --co:.85;}
+.sec-schedule .s2{--cr:0%; --cb:-24px; --cw:clamp(120px,15vw,240px); --co:.70; --cfx:-1;}
+.sec-schedule .s3{--cl:3%; --ct:58%;   --cw:clamp(70px,8vw,130px);   --co:.55;}
+.sec-schedule .s4{--cl:1%; --cb:30%;   --cw:clamp(110px,13vw,200px); --co:.50;}
+
+.sec-faq .s1{--cr:2%;  --ct:5%;    --cw:clamp(80px,10vw,160px);  --co:.75;}
+.sec-faq .s2{--cr:14%; --cb:-40px; --cw:clamp(70px,8vw,130px);   --co:.55;}
+.sec-faq .s3{--cr:4%;  --cb:10%;   --cw:clamp(100px,12vw,180px); --co:.50;}
+
+.sec-entry .s1{--cr:-4%; --cb:-20px; --cw:clamp(140px,17vw,270px); --co:.85; --cfx:-1;}
+/* 珊瑚はどちらも右下に寄せて重ね、岩場に見せる。左下は注記の指定席で、
+   狭い画面では .wrap が画面いっぱいに広がるため空き水域が残らない。 */
+.sec-entry .s2{--cr:16%; --cb:-46px; --cw:clamp(110px,14vw,220px); --co:.70;}
+.sec-entry .s3{--cr:4%; --ct:6%;    --cw:clamp(80px,10vw,150px);  --co:.60;}
+.sec-entry .s4{--cl:2%; --cb:34%;   --cw:clamp(90px,11vw,160px);  --co:.50;}
+
+/* スマホでは間引く。
+   幅が狭いとカードが画面いっぱいに広がり、空き水域がほとんど無い。
+   そこへ全部置くとカードの陰に隠れるだけで、描画の負担が増える。
+   残す2匹も濃さを落として、文字の読みやすさを優先する。 */
 @media (max-width:767px){
-  /* 縦画面は左右の余白がほぼ無い。カードの上下の隙間に置き、
-     はみ出させずに全体が見える大きさにする。 */
-  .creature{--co:.62;}
-  .c-fish-2,.c-fish-3,.c-jelly-2{display:none;}
-  .sec-pain    .c-fish-1 {--cr:2%;  --ct:1%;    --cw:46%;}
-  .sec-pain    .c-seaweed{--cl:2%;  --cb:-20px; --cw:20%;}
-  .sec-benefit .c-turtle {--cr:2%;  --ct:1%;    --cw:42%;}
-  .sec-themes  .c-fish-1 {--cr:2%;  --ct:1%;    --cw:44%;}
-  .sec-flow    .c-jelly-1{--cr:3%;  --ct:1%;    --cw:22%;}
-  .sec-target  .c-coral  {--cl:0%;  --cb:-14px; --cw:44%;}
-  .sec-entry   .c-coral  {--cr:0%;  --cb:-10px; --cw:40%;}
+  /* 幅は % で決めているので、767px 近くでは実寸が大きくなりすぎる。
+     上限を付けないと、狭い画面用の配置のまま巨大な魚が見出しに掛かる。 */
+  .creature{--co:.55;max-width:220px;}
+  .s3,.s4,.s5{display:none;}
+  /* 大きい個体はセクションの下端へ回し、境目をまたいで泳がせる。
+     スマホでは見出しが画面幅いっぱいに折り返すので、上部に大きく置くと
+     必ず見出しに掛かる。水彩は淡くても面積が大きいぶん下地を動かし、
+     ウミガメでは 3.56:1 まで落ちた（21pxの見出しに必要なのは 4.5:1）。 */
+  .sec-pain     .s1{--cr:1%; --ct:auto; --cb:-26px; --cw:40%;}
+  .sec-pain     .s2{--cl:1%; --cb:-16px; --cw:20%;}
+  .sec-what     .s1{--cr:1%; --ct:auto; --cb:-24px; --cw:38%;}
+  .sec-what     .s2{--cl:1%; --ct:46%;   --cw:34%;}
+  .sec-benefit  .s1{--cr:1%; --ct:auto; --cb:-26px; --cw:36%;}
+  .sec-benefit  .s2{--cl:1%; --ct:44%;   --cw:32%;}
+  .sec-themes   .s1{--cr:1%; --ct:auto; --cb:-24px; --cw:38%;}
+  .sec-themes   .s2{--cl:1%; --ct:34%;   --cw:34%;}
+  /* 深海のクラゲは明るい水彩なので、白い文字の下地としては明るすぎる。
+     スマホでは本文が画面幅いっぱいに広がるため、セクション上部に置くと
+     リード文と重なってコントラストが 2.0:1 まで落ちた。下端へ回す。 */
+  .sec-flow     .s1{--cr:3%; --ct:auto; --cb:-24px; --cw:20%;}
+  .sec-flow     .s2{--cl:2%; --ct:32%;   --cw:20%;}
+  .sec-target   .s1{--cr:1%; --ct:auto; --cb:-40px; --cw:34%;}
+  .sec-target   .s2{--cl:0%; --cb:-14px; --cw:44%;}
+  .sec-schedule .s1{--cr:26%; --ct:auto; --cb:-30px; --cw:20%;}
+  .sec-schedule .s2{--cr:0%; --cb:-14px; --cw:36%;}
+  .sec-faq      .s1{--cr:2%; --ct:auto; --cb:-28px; --cw:18%;}
+  .sec-faq      .s2{--cr:32%; --cb:-16px; --cw:16%;}
+  .sec-entry    .s1{--cr:0%; --cb:-10px; --cw:40%;}
+  .sec-entry    .s2{--cr:22%; --cb:-30px; --cw:28%;}
 }
 
 /* ============================================================
    モーション低減
-   @keyframes は使っていないが、transition と smooth scroll は残る。
-   7000px級のページ内スクロールを滑らせるのは負荷が大きいので止める。
+   生き物の動き、hover の transition、ページ内の smooth scroll を止める。
+   1万px級のページ内スクロールを滑らせるのは負荷も大きい。
+   生き物は animation を切っても transform の初期値（向きの反転）は
+   残るので、配置が崩れることはない。
    ============================================================ */
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto;}
   *{transition:none !important;}
+  .creature{animation:none !important;}
 }
 
 /* ============================================================
