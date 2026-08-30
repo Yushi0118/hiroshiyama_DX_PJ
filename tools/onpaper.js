@@ -10,7 +10,7 @@
    使い方:
      fetch('tools/onpaper.js').then(r=>r.text()).then(t=>{eval(t);return __onPaper()}).then(console.log)
 
-   判定: 文字の下が全点 190 以上の明るさなら合格（紙の上）。 */
+   判定: 文字の下地と文字色のコントラスト比が WCAG 2.1 AA を満たせば合格。 */
 window.__onPaper = async function () {
   const art = document.querySelector('.hero-art');
   const cs = getComputedStyle(art);
@@ -42,7 +42,7 @@ window.__onPaper = async function () {
     const iy = Math.round((vy - ar.top - oy) / s);
     if (ix < 0 || iy < 0 || ix >= iw || iy >= ih) return null;
     const k = (iy * iw + ix) * 4;
-    return Math.round(0.2126 * px[k] + 0.7152 * px[k + 1] + 0.0722 * px[k + 2]);
+    return [px[k], px[k + 1], px[k + 2]];
   };
 
   /* 要素の枠ではなく、文字が実際に占める行の矩形を測る。
@@ -55,28 +55,49 @@ window.__onPaper = async function () {
     return [...r.getClientRects()].filter(b => b.width > 1 && b.height > 1);
   };
 
+  /* 「紙の上か」ではなく「実際に読めるか」で判定する。
+     縦画面の絵は紙から空へ連続していて、右のほうは淡い水色になる。
+     明るさだけで線を引くと、読めているのに不合格になってしまう。
+     文字色との実際のコントラスト比を出して WCAG 2.1 AA と比べる。 */
+  const lum = c => {
+    const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]);
+  };
+  const ratio = (a, b) => {
+    const l1 = lum(a), l2 = lum(b);
+    return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+  };
+  const parse = s => (String(s).match(/[\d.]+/g) || []).map(Number);
+
   const rows = [];
   document.querySelectorAll('.hero-title,.hero-brand,.hero-sub,.hero-lead').forEach(el => {
-    let min = 999, dark = 0, n = 0;
+    const ecs = getComputedStyle(el);
+    const fg = parse(ecs.color).slice(0, 3);
+    const size = parseFloat(ecs.fontSize);
+    const need = (size >= 24 || (size >= 18.66 && parseInt(ecs.fontWeight, 10) >= 700)) ? 3 : 4.5;
+    let worst = Infinity, n = 0, at = null;
     lineRects(el).forEach(b => {
       for (let i = 0; i <= 12; i++) {
         for (let j = 0; j <= 3; j++) {
-          const v = sample(b.left + b.width * i / 12, b.top + b.height * j / 3);
-          if (v === null) continue;
-          n++; if (v < min) min = v; if (v < 190) dark++;
+          const vx = b.left + b.width * i / 12, vy = b.top + b.height * j / 3;
+          const c = sample(vx, vy);
+          if (c === null) continue;
+          n++;
+          const r = ratio(fg, c);
+          if (r < worst) { worst = r; at = [Math.round(vx), Math.round(vy + scrollY)]; }
         }
       }
     });
-    if (n) rows.push({ 要素: el.className || el.tagName, 最暗: min, 暗い点: dark + '/' + n });
+    if (n) rows.push({ 要素: el.className || el.tagName, 比: +worst.toFixed(2), 要: need, 位置: at });
   });
 
-  const bad = rows.filter(r => r.最暗 < 190);
+  const bad = rows.filter(r => r.比 < r.要);
   return {
     pass: bad.length === 0,
     画面: [innerWidth, innerHeight],
     倍率: +s.toFixed(3),
     縦位置: cs.backgroundPositionY,
-    紙から外れた要素: bad.map(r => r.要素),
+    読みにくい要素: bad.map(r => r.要素 + ' ' + r.比 + '/' + r.要),
     明細: rows
   };
 };

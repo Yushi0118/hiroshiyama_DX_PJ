@@ -28,9 +28,16 @@ window.__verify = async function () {
       const sheet = [...document.styleSheets].find(s => s.href === url);
       let n = 0;
       try { n = sheet ? sheet.cssRules.length : 0; } catch (e) { n = 0; }
-      if (n > 0) break;
+      /* 規則が読めるだけでなく、実際に効いていることまで確かめる。
+         body の overflow-x:clip は style.css にしか無いので目印に使える。
+         ここを省くと、まだ適用されていない一瞬を測って「背景が無い」と
+         読み、ありもしないコントラスト不足を20件以上でっち上げる。 */
+      if (n > 0 && getComputedStyle(document.body).overflowX === 'clip') break;
       await new Promise(r => setTimeout(r, 60));
     }
+    /* 画面幅を変えた直後は再レイアウトが済んでいないことがある。
+       2フレーム待って、位置が確定してから測る。 */
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   }
 
   const grab = async f => eval(await fetch(f + '?cb=' + Math.round(performance.now() * 1000)).then(r => r.text()));
@@ -46,7 +53,20 @@ window.__verify = async function () {
     await new Promise(r => setTimeout(r, 150));
   }
 
-  const a = await window.__check();
+  /* 同じ画面で2回測り、両方で出た指摘だけを採る。
+     このブラウザペインでは、画面幅を変えた直後やスタイルを読み直した
+     直後に、まだ効いていない状態を測ってしまうことがある。そのときは
+     背景を持つ要素まで「背景が無い」と読み、20件以上の不足をでっち上げる。
+     一過性のずれは2回目には出ないので、共通部分を取れば消える。
+     本物の不足は何度測っても出る。 */
+  const a1 = await window.__check();
+  await new Promise(r => setTimeout(r, 260));
+  const a2 = await window.__check();
+  const common = a1.failures.filter(f => a2.failures.includes(f));
+  const a = { pass: common.length === 0, failures: common, details: a2.details };
+  const wobble = (a1.failures.length !== a2.failures.length)
+    ? (a1.failures.length + " → " + a2.failures.length + " 件（共通 " + common.length + " 件を採用）")
+    : "なし";
   const b = await window.__overlap();
   const c = await window.__onPaper();
 
@@ -61,9 +81,10 @@ window.__verify = async function () {
     合否: ok ? '合格' : '不合格',
     サイズ: [innerWidth, innerHeight],
     コントラスト等: a.pass ? 'OK' : a.failures,
+    測定ゆらぎ: wobble,
     生き物と文字: b.pass ? ('OK（' + b.生き物 + '体）') : b.不足,
-    ヒーローの文字: c.pass === null ? '―' : (c.pass ? 'OK（紙の上）' : c.紙から外れた要素),
-    ヒーローの絵: /tall/.test(getComputedStyle(document.querySelector('.hero-art')).backgroundImage) ? '縦長' : '横長',
+    ヒーローの文字: c.pass === null ? '―' : (c.pass ? 'OK' : c.読みにくい要素),
+    ヒーローの絵: /mobile|tall/.test(getComputedStyle(document.querySelector('.hero-art')).backgroundImage) ? '縦長' : '横長',
     ページ丈: H,
     見出し: 'h1=' + document.querySelectorAll('h1').length +
             ' h2=' + document.querySelectorAll('h2').length +
