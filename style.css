@@ -1152,7 +1152,14 @@ h2{
    置き場所は本文と既存の生き物の両方を避ける。数が増えるほど当たりが
    増えるので、位置は tools/overlap.js の実測で決めている。 */
 .sec-pain     .b1{--cl:36%; --cb:-30px; --cw:clamp(120px,16vw,250px); --co:.92;}
-.sec-benefit  .b1{--cr:3%;  --ct:58%;   --cw:clamp(180px,25vw,400px); --co:.80; --cdur:52s;}
+/* クジラは鯨らしい大きさで置く。小さく添えると「大きな魚」にしか
+   見えず、中層の見せ場にならない。カードの下に潜る部分は出るが、
+   全身が見えなくても大きさは伝わる。 */
+.sec-benefit  .b1{--cl:2%;  --cb:26px;  --cw:clamp(250px,34vw,560px); --co:.78; --cdur:52s;}
+/* クジラが泳ぐ水域をセクションの下に確保する。カードは不透明なので、
+   場所を作らずに大きくしても隠れるだけだった（25%しか見えていなかった）。
+   余白ではなく「絵が入る場所」として取っている。 */
+.sec-benefit{padding-bottom:clamp(230px,21vw,360px);}
 .sec-themes   .b1{--cl:4%;  --cb:-26px; --cw:clamp(115px,15vw,235px); --co:.88; --cfx:-1;}
 .sec-schedule .b1{--cl:46%; --cb:-96px; --cw:clamp(210px,28vw,430px); --co:.85;}
 /* 最深部の火山だけは、注記のパネルと必ず高さが重なる。注記はセクションの
@@ -1269,7 +1276,8 @@ h2{
   .sec-benefit .s1,
   .sec-schedule .s1,.sec-schedule .s2{display:none;}
   .sec-pain     .b1{--cl:20%; --cb:-18px; --cw:46%;}
-  .sec-benefit  .b1{--cr:2%;  --ct:auto; --cb:-14px; --cw:62%; --co:.70;}
+  .sec-benefit  .b1{--cl:2%;  --ct:auto; --cb:18px;  --cw:88%; --co:.62;}
+  .sec-benefit{padding-bottom:250px;}
   .sec-themes   .b1{--cl:2%;  --ct:auto; --cb:14%; --cw:38%;}
   .sec-schedule .b1{--cl:12%; --cb:-64px; --cw:78%;}
   .sec-entry    .b1{--cl:2%;  --cb:-46px; --cw:46%;}
