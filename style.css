@@ -316,20 +316,33 @@ h2{
    おけば、2つ並べる余地があるカードでは横に並び、足りないカードでは
    勝手に縦へ落ちる。しきい値をどこにも書かずに済む。 */
 .sec-pain .card,
-.sec-what .card{
+.sec-what .card,
+.sec-flow .card{
   flex-direction:row;flex-wrap:wrap;align-items:flex-start;
   row-gap:.5em;column-gap:18px;
 }
 /* 見出し類は横幅いっぱい。番号とタイトルを1行に並べたいので、
    本文と同じ列に閉じ込めない。 */
 .sec-pain .card > .card-head,
+.sec-flow .card > .card-head,
 .sec-what .card > .step-label,
 .sec-what .card > .card-title{flex:0 0 100%;}
 /* 本文は「11em 未満には縮まない」。ここが効いて折り返しが起きる */
 .sec-pain .card > p,
-.sec-what .card > p{flex:1 1 9.5em;min-width:8.5em;}
+.sec-what .card > p,
+.sec-flow .card > p{flex:1 1 9.5em;min-width:8.5em;}
+/* 進め方はHTMLの並びが 絵 → 本文 なので、そのままだと絵が左に来る。
+   他のカードは本文が左なので、見た目の順だけ入れ替えて揃える。
+   HTMLの並びは変えない ―― 番号・見出し・説明の順で読めるほうが、
+   読み上げでも検索でも自然なため。 */
+.sec-flow .card > p{order:1;}
+.sec-flow .vignette{order:2;}
 .sec-pain .vignette,
-.sec-what .vignette{
+.sec-what .vignette,
+.sec-flow .vignette{
+  /* .vignette-center の margin:auto は中央寄せ用。横並びでは列を
+     押しのけてしまうので殺す。 */
+  margin-inline:0;
   /* カードの内寸は padding のぶん 48px 狭い。基準を内寸で考えないと
      2つ並ばず、挿絵だけが次の行へ落ちる（実際に落ちた）。 */
   flex:0 1 48%;width:auto;max-width:210px;min-width:112px;
@@ -361,8 +374,12 @@ h2{
 }
 
 /* メリット：縦長。番号を上に置く */
+/* メリットは5列で1枚が狭く、本文と絵を横に並べる余地が無い。
+   番号と見出しを1行にまとめたうえで、絵だけ大きくする。 */
 .card-tall{align-items:flex-start;}
-.card-tall .card-title{font-size:17px;}
+.card-tall .card-head{width:100%;}
+.card-tall .card-title{font-size:16.5px;}
+.card-tall .vignette-center{width:80%;max-width:160px;margin:.5em auto;}
 
 /* 募集テーマ */
 .theme-name{
@@ -1053,12 +1070,51 @@ h2{
   0%,100%{transform:scaleX(var(--cfx,1)) rotate(calc(-1.1 * var(--crot,3deg)));}
   50%    {transform:scaleX(var(--cfx,1)) rotate(calc(1.1 * var(--crot,3deg)));}
 }
-.a-swim,.a-drift,.a-sway{
+/* カニは横歩き。前後に運びながら、脚の送りぶんだけ上下に揺れる */
+@keyframes creature-crawl{
+  0%,100%{transform:scaleX(var(--cfx,1)) translate3d(0,0,0) rotate(0deg);}
+  25%    {transform:scaleX(var(--cfx,1))
+          translate3d(calc(var(--cax,64px) * .4 * var(--camp,1)),
+                      calc(-5px * var(--camp,1)),0)
+          rotate(calc(-.6 * var(--crot,3deg)));}
+  50%    {transform:scaleX(var(--cfx,1))
+          translate3d(calc(var(--cax,64px) * var(--camp,1)),0,0) rotate(0deg);}
+  75%    {transform:scaleX(var(--cfx,1))
+          translate3d(calc(var(--cax,64px) * .55 * var(--camp,1)),
+                      calc(-5px * var(--camp,1)),0)
+          rotate(calc(.6 * var(--crot,3deg)));}
+}
+/* クジラは大きくゆっくり回遊する。尾を振るぶん体がわずかに傾く */
+@keyframes creature-glide{
+  0%,100%{transform:scaleX(var(--cfx,1)) translate3d(0,0,0)
+          rotate(calc(-.5 * var(--crot,3deg)));}
+  30%    {transform:scaleX(var(--cfx,1))
+          translate3d(calc(var(--cax,130px) * .55 * var(--camp,1)),
+                      calc(var(--cay,-34px) * var(--camp,1)),0)
+          rotate(calc(.4 * var(--crot,3deg)));}
+  60%    {transform:scaleX(var(--cfx,1))
+          translate3d(calc(var(--cax,130px) * var(--camp,1)),
+                      calc(var(--cay,-34px) * .3 * var(--camp,1)),0)
+          rotate(calc(.9 * var(--crot,3deg)));}
+}
+/* 熱水と溶岩の柱は海底に根を張っている。動くのは噴き上がるほうだけ。
+   基点を底に置いてわずかに伸び縮みさせると、柱は動かず煙だけが息をする。
+   位置を動かすと岩ごと浮いてしまい、海底の重さが消える。 */
+@keyframes creature-plume{
+  0%,100%{transform:scaleX(var(--cfx,1)) scaleY(1);        opacity:var(--co,.85);}
+  50%    {transform:scaleX(calc(var(--cfx,1) * 1.02)) scaleY(1.045);
+          opacity:calc(var(--co,.85) * 1.14);}
+}
+
+.a-swim,.a-drift,.a-sway,.a-crawl,.a-glide,.a-plume{
   animation:creature-swim calc(var(--cdur,18s) * var(--cspeed,1))
             ease-in-out var(--cdl,0s) infinite;
 }
 .a-drift{animation-name:creature-drift;}
 .a-sway{animation-name:creature-sway;transform-origin:bottom center;}
+.a-crawl{animation-name:creature-crawl;}
+.a-glide{animation-name:creature-glide;}
+.a-plume{animation-name:creature-plume;transform-origin:bottom center;}
 
 /* 速さと開始位相をスロットごとにずらす。
    同じ値だと全部が同じ拍で動き、群れではなく行進に見える。
@@ -1069,6 +1125,27 @@ h2{
 .s3{--cdur:20s; --cdl:-9s;}
 .s4{--cdur:27s; --cdl:-14s;}
 .s5{--cdur:15s; --cdl:-6s;}
+/* 大きな意匠は、小魚と同じ速さで動かすと落ち着かない。
+   体が大きいものほどゆっくり動く、という当たり前の見え方に合わせる。 */
+.b1{--cdur:36s; --cdl:-7s;}
+
+/* --- 大きな意匠（クジラ・熱水噴出孔・海底火山・カニ）---
+
+   小魚やクラゲが「点景」なのに対し、こちらは各階層の見せ場として置く。
+   深さの物語に沿わせている ―― 浅瀬はカニが底を歩き、中層をクジラが
+   回遊し、深海には熱水噴出孔と海底火山がある。実際の海の縦の並びと
+   同じなので、説明しなくても深く潜っていることが伝わる。
+
+   置き場所は本文と既存の生き物の両方を避ける。数が増えるほど当たりが
+   増えるので、位置は tools/overlap.js の実測で決めている。 */
+.sec-pain     .b1{--cl:36%; --cb:-30px; --cw:clamp(120px,16vw,250px); --co:.92;}
+.sec-benefit  .b1{--cr:3%;  --ct:58%;   --cw:clamp(180px,25vw,400px); --co:.80; --cdur:52s;}
+.sec-themes   .b1{--cl:4%;  --cb:-26px; --cw:clamp(115px,15vw,235px); --co:.88; --cfx:-1;}
+.sec-schedule .b1{--cl:46%; --cb:-96px; --cw:clamp(210px,28vw,430px); --co:.85;}
+/* 最深部の火山だけは、注記のパネルと必ず高さが重なる。注記はセクションの
+   一番下にあり、火山は下から生えているので、位置ではよけられない。
+   濃さを落として、白い文字の下地を明るくしすぎないようにする。 */
+.sec-entry    .b1{--cl:1%;  --cb:-70px; --cw:clamp(140px,16vw,290px); --co:.58;}
 
 /* --- 配置 ---
    置き場所は「カードが無い水域」を狙う。見出しとリード文は左寄せで
@@ -1100,7 +1177,7 @@ h2{
 
 /* 深海：クラゲ・珊瑚・大きめの魚 */
 .sec-flow .s1{--cr:2%;   --ct:4%;    --cw:clamp(90px,11vw,170px);  --co:.85;}
-.sec-flow .s2{--cr:12%;  --ct:42%;   --cw:clamp(80px,10vw,150px);  --co:.60;}
+.sec-flow .s2{--cr:12%;  --ct:52%;   --cw:clamp(80px,10vw,150px);  --co:.60;}
 .sec-flow .s3{--cl:16%;  --cb:6%;    --cw:clamp(120px,14vw,210px); --co:.55; --cfx:-1;}
 .sec-flow .s4{--cl:0%;   --cb:-30px; --cw:clamp(60px,7vw,110px);   --co:.50;}
 
@@ -1159,7 +1236,7 @@ h2{
      スマホでは本文が画面幅いっぱいに広がるため、セクション上部に置くと
      リード文と重なってコントラストが 2.0:1 まで落ちた。下端へ回す。 */
   .sec-flow     .s1{--cr:3%; --ct:auto; --cb:-24px; --cw:20%;}
-  .sec-flow     .s2{--cl:2%; --ct:32%;   --cw:20%;}
+  .sec-flow     .s2{--cl:2%; --ct:46%;   --cw:20%;}
   .sec-target   .s1{--cr:1%; --ct:auto; --cb:-40px; --cw:34%;}
   .sec-target   .s2{--cl:0%; --cb:-14px; --cw:44%;}
   .sec-schedule .s1{--cr:36%; --ct:auto; --cb:-56px; --cw:16%;}
@@ -1168,6 +1245,21 @@ h2{
   .sec-faq      .s2{--cr:32%; --cb:-16px; --cw:16%;}
   .sec-entry    .s1{--cr:0%; --cb:-10px; --cw:40%;}
   .sec-entry    .s2{--cr:46%; --cb:-30px; --cw:24%;}
+
+  /* 大きな意匠はスマホでも残す。各階層の見せ場なので、間引くと
+     深さの物語がいちばん伝わる部分が消えてしまう。
+     幅が狭いぶん、置き場所と大きさだけ引き直す。 */
+  /* 見せ場のある階層では、点景を隠して主役だけにする。
+     幅が狭いと下端に全部が集まり、水彩どうしが重なって濁るため。
+     広い画面では並べる余地があるので、ここだけの措置。 */
+  .sec-pain .s1,.sec-pain .s2,
+  .sec-benefit .s1,
+  .sec-schedule .s1,.sec-schedule .s2{display:none;}
+  .sec-pain     .b1{--cl:20%; --cb:-18px; --cw:46%;}
+  .sec-benefit  .b1{--cr:2%;  --ct:auto; --cb:-14px; --cw:62%; --co:.70;}
+  .sec-themes   .b1{--cl:2%;  --ct:auto; --cb:14%; --cw:38%;}
+  .sec-schedule .b1{--cl:12%; --cb:-64px; --cw:78%;}
+  .sec-entry    .b1{--cl:2%;  --cb:-46px; --cw:46%;}
 }
 /* ============================================================
    対象診断のポップアップ
