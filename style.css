@@ -297,9 +297,44 @@ h2{
 
 .card-head{display:flex;align-items:center;gap:12px;}
 
-/* 挿絵。カードの右下に小さく添える */
+/* 挿絵。狭いカードでは右下に添える */
 .vignette{width:38%;max-width:118px;align-self:flex-end;margin-top:auto;}
-.vignette-center{align-self:center;width:52%;max-width:120px;margin:.2em auto;}
+.vignette-center{align-self:center;width:62%;max-width:170px;margin:.3em auto;}
+
+/* --- 広いカードは本文と挿絵を横に並べる ---
+
+   1列に本文を流すと、1行が長く伸びて2行で終わり、残った下半分に小さな
+   挿絵がぽつんと置かれる形になっていた。本文を狭くして行数を増やし、
+   空いた右側を挿絵に明け渡すと、絵が2倍近く大きくなって読む列も短くなる。
+
+   切り替えはカード自身の幅で決めたい。同じカードが3列にも2列にも1列にも
+   なるので、画面幅で判断すると実際の広さと一致しないためだ。
+   ただしコンテナクエリは使えない ―― 問い合わせ先になれるのは祖先だけで、
+   カード自身の幅をそのカードのルールから参照することはできない。
+
+   代わりに flex の折り返しに任せる。本文と挿絵にそれぞれ最小幅を与えて
+   おけば、2つ並べる余地があるカードでは横に並び、足りないカードでは
+   勝手に縦へ落ちる。しきい値をどこにも書かずに済む。 */
+.sec-pain .card,
+.sec-what .card{
+  flex-direction:row;flex-wrap:wrap;align-items:flex-start;
+  row-gap:.5em;column-gap:18px;
+}
+/* 見出し類は横幅いっぱい。番号とタイトルを1行に並べたいので、
+   本文と同じ列に閉じ込めない。 */
+.sec-pain .card > .card-head,
+.sec-what .card > .step-label,
+.sec-what .card > .card-title{flex:0 0 100%;}
+/* 本文は「11em 未満には縮まない」。ここが効いて折り返しが起きる */
+.sec-pain .card > p,
+.sec-what .card > p{flex:1 1 9.5em;min-width:8.5em;}
+.sec-pain .vignette,
+.sec-what .vignette{
+  /* カードの内寸は padding のぶん 48px 狭い。基準を内寸で考えないと
+     2つ並ばず、挿絵だけが次の行へ落ちる（実際に落ちた）。 */
+  flex:0 1 48%;width:auto;max-width:210px;min-width:112px;
+  align-self:center;margin-top:0;
+}
 /* 浅瀬・中層のカードは明るい地なので、挿絵の白地を馴染ませる */
 .tier-shallow .vignette,.tier-mid .vignette{mix-blend-mode:multiply;}
 /* 紺地では白背景の挿絵が矩形として浮く。
@@ -308,9 +343,12 @@ h2{
    .nodes の丸バッジは元から背景を持つので対象外。 */
 .steps .vignette{
   background:rgba(250,253,255,.94);
-  border-radius:12px;
-  padding:8px;
-  box-shadow:0 2px 10px rgba(3,14,32,.28);
+  border-radius:14px;
+  padding:10px;
+  box-shadow:0 4px 16px rgba(3,14,32,.34);
+  /* 進め方は絵が主役のカード。番号・見出し・一行の説明しか無いので、
+     絵を小さく添えると余白ばかりが目立つ。思い切って大きく取る。 */
+  width:min(76%, 220px);
 }
 
 /* ============================================================
@@ -743,9 +781,12 @@ h2{
   .grid-3,.grid-5{grid-template-columns:1fr;gap:14px;}
   .card{padding:20px 18px;}
 
-  /* 挿絵は横並びにして、カードの縦を抑える */
-  .vignette{width:30%;max-width:88px;}
-  .vignette-center{width:38%;max-width:96px;}
+  /* 1列になって横幅に余裕が出るので、挿絵はむしろ大きくしてよい */
+  .vignette{width:34%;max-width:112px;}
+  .vignette-center{width:54%;max-width:150px;}
+  .sec-pain .vignette,
+  .sec-what .vignette{width:auto;max-width:200px;}
+  .steps .vignette{width:min(64%,190px);max-width:none;}
 
   /* --- ヒーロー：縦構図 --- */
   .hero{min-height:auto;display:block;}
@@ -1044,7 +1085,7 @@ h2{
   .sec-what    .s1{--ct:26%;}
   .sec-benefit .s1{--ct:26%;}
   .sec-themes  .s1{--ct:24%;}
-  .sec-pain    .s1{--ct:22%;}
+  .sec-pain    .s1{--ct:32%;}
 }
 
 /* スマホでは間引く。

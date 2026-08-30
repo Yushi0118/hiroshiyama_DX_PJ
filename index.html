@@ -78,32 +78,32 @@
 
     <ul class="grid grid-3">
       <li class="card">
-        <p class="card-head"><span class="num">1</span><h3 class="card-title">予約・問い合わせ対応</h3></p>
+        <div class="card-head"><span class="num">1</span><h3 class="card-title">予約・問い合わせ対応</h3></div>
         <p>電話や紙、複数のサイトに予約・問い合わせ情報が散らばっていて、対応に追われてしまう。</p>
         <img class="vignette" src="assets/img/icons/pain/icon-1.webp" alt="" loading="lazy" decoding="async">
       </li>
       <li class="card">
-        <p class="card-head"><span class="num">2</span><h3 class="card-title">紙・Excel管理</h3></p>
+        <div class="card-head"><span class="num">2</span><h3 class="card-title">紙・Excel管理</h3></div>
         <p>顧客情報や台帳が紙やExcelのままで、担当者しか内容がわからず、引き継ぎが不安。</p>
         <img class="vignette" src="assets/img/icons/pain/icon-2.webp" alt="" loading="lazy" decoding="async">
       </li>
       <li class="card">
-        <p class="card-head"><span class="num">3</span><h3 class="card-title">発注・在庫の勘頼み</h3></p>
+        <div class="card-head"><span class="num">3</span><h3 class="card-title">発注・在庫の勘頼み</h3></div>
         <p>発注や仕入れの判断が「店長の勘と経験」に頼りきりで、数字として残っていない。</p>
         <img class="vignette" src="assets/img/icons/pain/icon-3.webp" alt="" loading="lazy" decoding="async">
       </li>
       <li class="card">
-        <p class="card-head"><span class="num">4</span><h3 class="card-title">日報・現場記録</h3></p>
+        <div class="card-head"><span class="num">4</span><h3 class="card-title">日報・現場記録</h3></div>
         <p>日報や記録づけが属人化していて、忙しいと後回しになり、正確な記録が残らない。</p>
         <img class="vignette" src="assets/img/icons/pain/icon-4.webp" alt="" loading="lazy" decoding="async">
       </li>
       <li class="card">
-        <p class="card-head"><span class="num">5</span><h3 class="card-title">熟練者の勘とコツ</h3></p>
+        <div class="card-head"><span class="num">5</span><h3 class="card-title">熟練者の勘とコツ</h3></div>
         <p>ベテランのやり方や判断が言葉にできず、若手やパート・アルバイトに伝えづらい。</p>
         <img class="vignette" src="assets/img/icons/pain/icon-5.webp" alt="" loading="lazy" decoding="async">
       </li>
       <li class="card">
-        <p class="card-head"><span class="num">6</span><h3 class="card-title">何から始めるか</h3></p>
+        <div class="card-head"><span class="num">6</span><h3 class="card-title">何から始めるか</h3></div>
         <p>AIやデジタル活用に興味はあるものの、何から手をつければよいのか分からない。</p>
         <img class="vignette" src="assets/img/icons/pain/icon-6.webp" alt="" loading="lazy" decoding="async">
       </li>
@@ -334,7 +334,7 @@
       <div class="card checklist">
         <h3 class="card-title">こんな方におすすめです</h3>
         <ul>
-          <li>広島県内で理美容・飲食・バックオフィス関連の業務を行っている<span class="sub">（目安：従業員10人以下の小規模事業者）</span></li>
+          <li>広島県内で理美容・飲食・バックオフィス関連の業務を行っている<span class="sub">（従業員9名以下の小規模事業者）</span></li>
           <li>経営者ご自身が現場の業務も担っている</li>
           <li>ITやデジタルは得意ではないが、まずは「学ぶ」ことから始めたい</li>
           <li>同じ悩みを持つ他の事業者と一緒に取り組んでみたい</li>
@@ -447,7 +447,7 @@
 
       <details class="card faq-item">
         <summary><h3 class="card-title">募集テーマ以外の業種でも相談できますか？</h3></summary>
-        <p>今年度は理美容・飲食・バックオフィスの3テーマで募集していますが、近い課題をお持ちの場合はお問い合わせください。対象になるかどうかを一緒に確認します。</p>
+        <p>今年度は理美容・飲食・バックオフィスの3テーマで募集しており、その他の業種は対象外です。ただし業務の一部がバックオフィス寄りであるなど、線引きに迷う場合はお問い合わせください。対象になるかどうかを一緒に確認します。</p>
       </details>
 
       <details class="card faq-item">
@@ -609,9 +609,9 @@
 
       <fieldset class="fc-step" data-step="2" hidden>
         <legend class="fc-q">従業員数（経営者を含む）は何名ですか？</legend>
-        <label class="fc-opt"><input type="radio" name="q2" data-score="2"><span>10名以下</span></label>
-        <label class="fc-opt"><input type="radio" name="q2" data-score="1"><span>11〜20名</span></label>
-        <label class="fc-opt"><input type="radio" name="q2" data-score="0"><span>21名以上</span></label>
+        <label class="fc-opt"><input type="radio" name="q2" data-score="2"><span>9名以下</span></label>
+        <label class="fc-opt"><input type="radio" name="q2" data-score="0" data-verdict="size"><span>10〜20名</span></label>
+        <label class="fc-opt"><input type="radio" name="q2" data-score="0" data-verdict="size"><span>21名以上</span></label>
       </fieldset>
 
       <fieldset class="fc-step" data-step="3" hidden>
@@ -619,7 +619,7 @@
         <label class="fc-opt"><input type="radio" name="q3" data-score="2"><span>理美容（美容室・理容室・エステなど）</span></label>
         <label class="fc-opt"><input type="radio" name="q3" data-score="2"><span>飲食（飲食店・食品の製造販売など）</span></label>
         <label class="fc-opt"><input type="radio" name="q3" data-score="2"><span>事務・経理・総務などのバックオフィス業務の比重が大きい</span></label>
-        <label class="fc-opt"><input type="radio" name="q3" data-score="0"><span>上記以外の業種</span></label>
+        <label class="fc-opt"><input type="radio" name="q3" data-score="0" data-verdict="industry"><span>上記以外の業種</span></label>
       </fieldset>
 
       <fieldset class="fc-step" data-step="4" hidden>
@@ -648,10 +648,15 @@
         <p class="fc-verdict">対象になる可能性があります</p>
         <p class="fc-detail">いくつかの点で想定と重なっています。条件の一部が外れていても参加いただける場合がありますので、一度ご相談ください。</p>
       </div>
-      <div class="fc-res" data-res="far" hidden>
+      <div class="fc-res" data-res="size" hidden>
         <span class="fc-badge fc-badge-far"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-lighthouse"></use></svg></span>
-        <p class="fc-verdict">今回の募集とは、少し距離があるかもしれません</p>
-        <p class="fc-detail">今回は「これから始める小規模事業者」を主な対象としています。とはいえ、取り組みたい内容によってはご一緒できる形があるかもしれません。説明会でお話を聞かせてください。</p>
+        <p class="fc-verdict">今回の募集は、従業員9名以下の事業者が対象です</p>
+        <p class="fc-detail">今回は小規模事業者を対象としているため、従業員10名以上の場合は対象外となります。事業所・店舗の単位では9名以下にあたる場合もありますので、判断に迷うときはお問い合わせください。</p>
+      </div>
+      <div class="fc-res" data-res="industry" hidden>
+        <span class="fc-badge fc-badge-far"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-lighthouse"></use></svg></span>
+        <p class="fc-verdict">今回の募集は、理美容・飲食・バックオフィスが対象です</p>
+        <p class="fc-detail">今年度はこの3つのテーマで参加事業者を募集しているため、その他の業種は対象外となります。業務の一部がバックオフィス寄りである場合など、判断に迷うときはお問い合わせください。</p>
       </div>
       <div class="fc-res" data-res="outside" hidden>
         <span class="fc-badge fc-badge-far"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-pin"></use></svg></span>

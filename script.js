@@ -26,9 +26,14 @@
   var at = 0;              /* いま表示している質問の番号（0始まり） */
   var opener = null;       /* 閉じたときにフォーカスを返す先 */
 
-  /* 満点は 10。しきい値は「広島県内であること」を満たした上での目安。 */
-  var FIT = 8;    /* これ以上なら、想定している事業者像とよく重なる */
-  var MAYBE = 5;  /* これ以上なら、可能性あり */
+  /* 対象の条件は3つ。県内であること、従業員9名以下であること、業種が
+     理美容・飲食・バックオフィスのいずれかであること。どれかを外したら
+     その時点で結論が出るので、選んだ選択肢に data-verdict を持たせて
+     残りを聞かずに結果へ進む（答えても結論が変わらない質問を続けさせない）。
+
+     3つを満たした人はいずれも対象なので、残りの2問は「どれだけ噛み合うか」
+     の目安にしか使わない。満点は 10、条件を満たした時点で 6 は確定する。 */
+  var FIT = 9;    /* これ以上なら、想定している事業者像とよく重なる */
 
   function show(i) {
     at = i;
@@ -57,10 +62,7 @@
 
   function finish() {
     var s = score();
-    var key = s.verdict ? s.verdict
-            : s.sum >= FIT ? 'fit'
-            : s.sum >= MAYBE ? 'maybe'
-            : 'far';
+    var key = s.verdict ? s.verdict : (s.sum >= FIT ? 'fit' : 'maybe');
 
     steps.forEach(function (st) { st.hidden = true; });
     prog.hidden = true;
