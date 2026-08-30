@@ -1,24 +1,24 @@
 ﻿<#
-  build-hero-mobile.ps1 ― 縦画面（スマホ・タブレット縦置き）のヒーロー背景を作る
+  build-hero-wide.ps1 ― 横画面（PC）のヒーロー背景を作る
 
-  素材は縦長の完成イメージ（紙 + 瀬戸内の夕景）。船が描かれていないので、
-  アイテムフォルダの船7点を海の上に合成し、夕日へ向かう船団にする。
+  素材は舟の描かれていない横長の背景（紙 + 瀬戸内の夕景、16:9）。
+  そこへアイテムフォルダの舟7点を、夕日へ向かう船団として合成する。
 
-  船はCSSで重ねるのではなく、絵に焼き込む。
-  背景は cover で表示するため、画面の縦横比によって左右が切り取られる。
-  CSSの % で船を置くと画面の座標系に従うので、絵の切り取りとずれて
-  「陸に乗り上げた船」になりかねない。絵の中に描いてしまえば、絵と一緒に
-  切り取られるので、どんな画面でも船は必ず同じ海面の上にいる。
+  以前は舟が描き込まれた完成イメージを使っていた。絵としては成立して
+  いたが、舟の並びを直せない ―― 水彩の一部なので、動かすには波の質感ごと
+  描き直すことになる。舟の無い背景に後から置く形にすれば、並びも大きさも
+  向きも、あとから何度でも調整できる。
 
-  陸に掛からないことは目視ではなく実測で担保する。
-    1. 水平線より下について、画素の色から「水かどうか」の地図を作る
-       （緑が青より強い＝島の緑、暗い＝建物や木立、それ以外＝水）
-    2. 六角アイコンと橋は色だけでは水と区別できないので、明示的に除外区画を置く
-    3. 各船の喫水線（外接矩形の下側30%）が水の上にあるかを数える
-    4. ひとつでも基準を割ったら、その場で止めて位置を報告する
+  舟は絵に焼き込む。背景は cover で表示するため画面の縦横比によって
+  切り取られるので、CSSの % で置くと切り取りとずれて陸に乗り上げる。
+  絵の中に描いてしまえば、絵と一緒に切り取られるので必ず海の上にいる。
 
-  合成前に -Map を付けて実行すると、水の地図をASCIIで出力する。
-  位置を決めるときはこれを見る。
+  検査は2つとも機械的に行う。
+    喫水線の水率 … 舟の下側30%が水の上にあるか（陸に乗っていないか）
+    重なり率     … 不透明な画素が、すでに置いた舟とどれだけ重なるか
+  どちらも基準を割ったらその場で止める。目視では担保にならない。
+
+  -Map を付けて実行すると、水の地図をASCIIで出力する。位置決めに使う。
 #>
 param([switch]$Map)
 
@@ -30,44 +30,45 @@ if (-not (Test-Path $cfg)) { throw "tools/config.local.ps1 がありません。
 . $cfg
 
 $root = Split-Path $PSScriptRoot -Parent
-$bgPath = Join-Path $LP_ROOT '全体\完成イメージ\ChatGPT Image 2026年8月27日 15_25_51.png'
+$bgPath = Join-Path $LP_ROOT '背景画像\ChatGPT Image 2026年8月26日 13_11_05.png'
 $shipDir = Join-Path $LP_ROOT 'アイテム'
-if (-not (Test-Path $bgPath)) { throw "縦長の背景が見つかりません: $bgPath" }
+if (-not (Test-Path $bgPath)) { throw "背景が見つかりません: $bgPath" }
 
-$MAX_OVERLAP = 9      # 先に置いた船とこれ以上重なったら置き直す（%）
-$HORIZON = 0.655   # これより上は空と紙。船は置かない
+$HORIZON     = 0.360   # これより上は空と紙。舟は置かない
+$MAX_OVERLAP = 9       # 先に置いた舟とこれ以上重なったら置き直す（%）
+$MIN_WATER   = 97      # 喫水線がこれ未満の水率なら置き直す（%）
 
-# 色では水と見分けられないものは、区画で除外する（比率 x1,y1,x2,y2）
+# 色では水と見分けられないものは区画で除外する（比率 x1,y1,x2,y2）
 $KeepOut = @(
-  @(0.74, 0.630, 1.00, 0.690),   # しまなみの橋
-  @(0.03, 0.845, 0.53, 0.935)    # 六角アイコンの帯
+  @(0.84, 0.26, 1.00, 0.38),   # しまなみの橋
+  @(0.00, 0.84, 0.40, 1.00),   # 六角アイコンの帯
+  @(0.00, 0.66, 0.44, 1.00)    # 原爆ドーム・鳥居・広島城のある陸
 )
 
-# 船の配置。x は中心、y は喫水線（船底）、w は画像幅に対する船の幅。
-# flip=$true で左右反転。夕日は x=0.63 あたりにあるので、その右の船は
-# 反転させて、全員が光の方を向くようにする。
+# 舟の配置。x は中心、y は喫水線（船底）、w は画像幅に対する舟の幅。
+# 夕日は x=0.70 付近にあるので、その右の舟は反転させて光の方を向かせる。
 $Fleet = @(
-  @{ n=3; x=0.520; y=0.720; w=0.046; flip=$false },
-  @{ n=5; x=0.692; y=0.728; w=0.050; flip=$true  },
-  @{ n=2; x=0.420; y=0.754; w=0.062; flip=$false },
-  @{ n=7; x=0.802; y=0.760; w=0.076; flip=$true  },
-  @{ n=1; x=0.562; y=0.802; w=0.100; flip=$false },
-  @{ n=6; x=0.872; y=0.850; w=0.118; flip=$true  },
-  @{ n=4; x=0.596; y=0.900; w=0.126; flip=$false },
-  @{ n=2; x=0.740; y=0.978; w=0.195; flip=$true  }
+  @{ n=3; x=0.640; y=0.425; w=0.030; flip=$false },
+  @{ n=5; x=0.760; y=0.432; w=0.033; flip=$true  },
+  @{ n=2; x=0.560; y=0.462; w=0.042; flip=$false },
+  @{ n=7; x=0.855; y=0.478; w=0.048; flip=$true  },
+  @{ n=1; x=0.668; y=0.556; w=0.062; flip=$false },
+  @{ n=6; x=0.905; y=0.590; w=0.078; flip=$true  },
+  @{ n=4; x=0.700; y=0.700; w=0.104; flip=$false },
+  @{ n=2; x=0.838; y=0.912; w=0.136; flip=$true  }
 )
 
-# --- 背景を読み込み、32bppARGB の作業面へ ---
 $src = [System.Drawing.Bitmap]::FromFile($bgPath)
 $W = $src.Width; $H = $src.Height
 Write-Host ("背景 {0}x{1}" -f $W, $H)
-$canvas = New-Object System.Drawing.Bitmap($W, $H, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+
+$fmt = [System.Drawing.Imaging.PixelFormat]::Format32bppArgb
+$canvas = New-Object System.Drawing.Bitmap($W, $H, $fmt)
 $g = [System.Drawing.Graphics]::FromImage($canvas)
 $g.DrawImage($src, 0, 0, $W, $H)
 $src.Dispose()
 
-# --- 水の地図（合成前の背景から作る） ---
-$fmt = [System.Drawing.Imaging.PixelFormat]::Format32bppArgb
+# --- 水の地図 ---
 $rect = New-Object System.Drawing.Rectangle(0, 0, $W, $H)
 $data = $canvas.LockBits($rect, [System.Drawing.Imaging.ImageLockMode]::ReadOnly, $fmt)
 $stride = $data.Stride
@@ -84,9 +85,8 @@ for ($y = $yTop; $y -lt $H; $y++) {
     $i = $row + $x * 4
     $b = $bytes[$i]; $gg = $bytes[$i+1]; $r = $bytes[$i+2]
     $lum = (($r * 77) + ($gg * 151) + ($b * 28)) -shr 8
-    # 緑が青を上回る＝島の緑。暗い＝建物・木立・岩。どちらも陸。
-    # ただし夕日の光路は白く輝いていて緑寄りに出る。明るい画素を
-    # 陸から除かないと、海の真ん中が陸と判定されてしまう。
+    # 緑が青を上回る＝島の緑。暗い＝木立や建物。どちらも陸。
+    # 夕日の光路は白く輝いて緑寄りに出るので、明るい画素は陸から除く。
     # 暗いだけで陸と決めてはいけない。手前の波の谷は濃い青で暗く、
     # そのままだと海の一部が陸として弾かれる（実際に弾かれた）。
     # 暗くても青が赤を上回っていれば水。木立や建物は青が立たない。
@@ -94,6 +94,28 @@ for ($y = $yTop; $y -lt $H; $y++) {
     $water[$wrow + $x] = -not $isLand
   }
 }
+# 紙は明るいクリームで、色の規則では「陸ではない＝水」と読まれてしまう。
+# 破れた縁は曲線なので矩形でも切れない。実測した数点を通る折れ線で、
+# その左側をまとめて除外する（値は絵を見て読み取った、紙の内側に安全に
+# 収まる線）。
+$PaperEdge = @( @(0.360,0.525), @(0.450,0.482), @(0.550,0.452), @(0.660,0.438), @(1.000,0.438) )
+for ($y = $yTop; $y -lt $H; $y++) {
+  $t2 = $y / $H
+  $fx = $PaperEdge[-1][1]
+  for ($k2 = 1; $k2 -lt $PaperEdge.Count; $k2++) {
+    if ($t2 -le $PaperEdge[$k2][0]) {
+      $p0 = $PaperEdge[$k2-1]; $p1 = $PaperEdge[$k2]
+      $u = ($t2 - $p0[0]) / ($p1[0] - $p0[0])
+      if ($u -lt 0) { $u = 0 }
+      $fx = $p0[1] + ($p1[1] - $p0[1]) * $u
+      break
+    }
+  }
+  $edge = [int]($fx * $W)
+  $wrow = $y * $W
+  for ($x = 0; $x -lt [math]::Min($edge, $W); $x++) { $water[$wrow + $x] = $false }
+}
+
 foreach ($k in $KeepOut) {
   $x1 = [int]($k[0]*$W); $y1 = [int]($k[1]*$H); $x2 = [int]($k[2]*$W); $y2 = [int]($k[3]*$H)
   for ($y = [math]::Max($y1,0); $y -lt [math]::Min($y2,$H); $y++) {
@@ -104,27 +126,28 @@ foreach ($k in $KeepOut) {
 
 if ($Map) {
   Write-Host "`n水の地図（#=水 .=陸や除外区画 空白=水平線より上）"
-  Write-Host ("      " + (0..5 | ForEach-Object { "{0,-10}" -f ("x=" + ($_ * 10 / 62.0).ToString("0.00")) }) -join '')
-  for ($ry = 0; $ry -lt 84; $ry++) {
-    $y = [int]($ry / 84.0 * $H)
+  Write-Host ("      " + (0..5 | ForEach-Object { "{0,-12}" -f ("x=" + ($_ * 12 / 76.0).ToString("0.00")) }) -join '')
+  for ($ry = 0; $ry -lt 46; $ry++) {
+    $y = [int]($ry / 46.0 * $H)
     $line = ""
-    for ($rx = 0; $rx -lt 62; $rx++) {
-      $x = [int]($rx / 62.0 * $W)
+    for ($rx = 0; $rx -lt 76; $rx++) {
+      $x = [int]($rx / 76.0 * $W)
       if ($y -lt $yTop) { $line += " " }
       elseif ($water[$y * $W + $x]) { $line += "#" } else { $line += "." }
     }
-    "{0,5:N2} {1}" -f ($ry / 84.0), $line
+    "{0,5:N2} {1}" -f ($ry / 46.0), $line
   }
   $g.Dispose(); $canvas.Dispose()
   return
 }
 
-# --- 船を読み込み、不透明部分だけに切り詰める ---
+# --- 舟を読み込み、不透明部分だけに切り詰める ---
 function Get-Trimmed {
   param([string]$Path)
   $b = [System.Drawing.Bitmap]::FromFile($Path)
   $d = $b.LockBits((New-Object System.Drawing.Rectangle(0,0,$b.Width,$b.Height)),
-        [System.Drawing.Imaging.ImageLockMode]::ReadOnly, $fmt)
+        [System.Drawing.Imaging.ImageLockMode]::ReadOnly,
+        [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
   $st = $d.Stride
   $px = New-Object byte[] ($st * $b.Height)
   [System.Runtime.InteropServices.Marshal]::Copy($d.Scan0, $px, 0, $px.Length)
@@ -139,7 +162,8 @@ function Get-Trimmed {
       }
     }
   }
-  $out = New-Object System.Drawing.Bitmap(($x1-$x0+1), ($y1-$y0+1), $fmt)
+  $out = New-Object System.Drawing.Bitmap(($x1-$x0+1), ($y1-$y0+1),
+         [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
   $gg = [System.Drawing.Graphics]::FromImage($out)
   $gg.DrawImage($b, (New-Object System.Drawing.Rectangle(0,0,$out.Width,$out.Height)),
                     (New-Object System.Drawing.Rectangle($x0,$y0,$out.Width,$out.Height)),
@@ -151,19 +175,18 @@ function Get-Trimmed {
 $ships = @{}
 $files = Get-ChildItem "$shipDir\*.png" | Sort-Object Name
 for ($i = 0; $i -lt $files.Count; $i++) { $ships[$i+1] = Get-Trimmed -Path $files[$i].FullName }
-Write-Host ("船 {0}点を読み込み" -f $ships.Count)
+Write-Host ("舟 {0}点を読み込み" -f $ships.Count)
 
-# --- 置き場所の検査 → 合成 ---
 $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
 $g.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
 $g.CompositingQuality = [System.Drawing.Drawing2D.CompositingQuality]::HighQuality
 
-# 船どうしが重なった面積を測るための占有マップ。
+# 舟どうしが重なった面積を測るための占有マップ。
 # 矩形では判定にならない ―― 帆の上は透明な余白が広く、外接矩形が重なって
-# いても絵は重なっていないことが多い。逆に細いマストどうしが交差している
-# だけの場合は、矩形なら大きく重なって見える。不透明な画素そのものを数える。
+# いても絵は重なっていないことが多い。不透明な画素そのものを数える。
 $occupied = New-Object bool[] ($W * $H)
 $bad = @()
+
 foreach ($f in $Fleet) {
   $ship = $ships[$f.n]
   $dw = [int]($f.w * $W)
@@ -171,22 +194,19 @@ foreach ($f in $Fleet) {
   $dx = [int]($f.x * $W - $dw / 2)
   $dy = [int]($f.y * $H - $dh)
 
-  # 喫水線＝外接矩形の下30%。ここが水の上にあるかを数える。
-  # 帆は遠くの島に重なってもよい（手前の船として自然に見える）。
+  # 喫水線＝外接矩形の下30%。帆が遠くの島に重なるのは許す（手前の舟として
+  # 自然に見える）。判定しているのは船底だけ。
   $hullTop = $dy + [int]($dh * 0.70)
   $tot = 0; $wet = 0
-  for ($y = $hullTop; $y -lt $dy + $dh; $y += 2) {
+  for ($y = $hullTop; $y -lt $dy + $dh; $y++) {
     if ($y -lt 0 -or $y -ge $H) { continue }
-    for ($x = $dx; $x -lt $dx + $dw; $x += 2) {
+    for ($x = $dx; $x -lt $dx + $dw; $x++) {
       if ($x -lt 0 -or $x -ge $W) { continue }
       $tot++
       if ($water[$y * $W + $x]) { $wet++ }
     }
   }
   $pct = if ($tot) { [math]::Round($wet / $tot * 100, 1) } else { 0 }
-  $ok = ($pct -ge 97)
-  "{0} 船{1}  x{2:N3} y{3:N3} 幅{4,4}px  喫水線の水率 {5,5:N1}%" -f $(if($ok){"OK  "}else{"NG  "}), $f.n, $f.x, $f.y, $dw, $pct
-  if (-not $ok) { $bad += "船{0} (x{1}, y{2}) 水率{3}%" -f $f.n, $f.x, $f.y, $pct; continue }
 
   $img = $ship
   if ($f.flip) {
@@ -194,8 +214,7 @@ foreach ($f in $Fleet) {
     $img.RotateFlip([System.Drawing.RotateFlipType]::RotateNoneFlipX)
   }
 
-  # 置く大きさに縮めた状態の不透明部分を取り出し、すでに置いた船と
-  # どれだけ重なるかを数える。
+  # 置く大きさに縮めた不透明部分を取り出し、すでに置いた舟との重なりを数える
   $stamp = New-Object System.Drawing.Bitmap($dw, $dh, $fmt)
   $gs = [System.Drawing.Graphics]::FromImage($stamp)
   $gs.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
@@ -222,10 +241,16 @@ foreach ($f in $Fleet) {
     }
   }
   $ovl = if ($own) { [math]::Round($hit / $own * 100, 1) } else { 0 }
-  "     重なり {0,5:N1}%  （すでに置いた船と）" -f $ovl
-  if ($ovl -gt $MAX_OVERLAP) { $bad += "船{0} (x{1}) の重なり {2}%" -f $f.n, $f.x, $ovl }
 
-  # 占有マップへ足してから描く
+  $ok = ($pct -ge $MIN_WATER) -and ($ovl -le $MAX_OVERLAP)
+  "{0} 舟{1}  x{2:N3} y{3:N3} 幅{4,4}px   水率 {5,5:N1}%   重なり {6,5:N1}%" -f `
+    $(if($ok){"OK  "}else{"NG  "}), $f.n, $f.x, $f.y, $dw, $pct, $ovl
+  if (-not $ok) {
+    $bad += "舟{0} (x{1}, y{2}) 水率{3}% 重なり{4}%" -f $f.n, $f.x, $f.y, $pct, $ovl
+    $stamp.Dispose(); if ($f.flip) { $img.Dispose() }
+    continue
+  }
+
   for ($sy = 0; $sy -lt $dh; $sy++) {
     $py = $dy + $sy
     if ($py -lt 0 -or $py -ge $H) { continue }
@@ -246,12 +271,11 @@ $g.Dispose()
 
 if ($bad.Count) {
   $canvas.Dispose()
-  throw "船の置き方に問題があります:`n  " + ($bad -join "`n  ")
+  throw "舟の置き方に問題があります:`n  " + ($bad -join "`n  ")
 }
 
-# --- 書き出し ---
-$outPath = "$root\assets\img\backgrounds\hero-mobile.jpg"
-$MAXW = 900
+$outPath = "$root\assets\img\backgrounds\hero-scene-wide.jpg"
+$MAXW = 1600
 $nw = [math]::Min($MAXW, $W); $nh = [int][math]::Round($H * $nw / $W)
 $dst = New-Object System.Drawing.Bitmap($nw, $nh, [System.Drawing.Imaging.PixelFormat]::Format24bppRgb)
 $g2 = [System.Drawing.Graphics]::FromImage($dst)
@@ -262,7 +286,7 @@ $enc = [System.Drawing.Imaging.ImageCodecInfo]::GetImageEncoders() | Where-Objec
 $ps = New-Object System.Drawing.Imaging.EncoderParameters(1)
 $ps.Param[0] = New-Object System.Drawing.Imaging.EncoderParameter([System.Drawing.Imaging.Encoder]::Quality, [long]84)
 $dst.Save($outPath, $enc, $ps)
-"{0,-22} {1}x{2}  {3} KB" -f (Split-Path $outPath -Leaf), $nw, $nh, [math]::Round((Get-Item $outPath).Length/1KB)
+"{0,-24} {1}x{2}  {3} KB" -f (Split-Path $outPath -Leaf), $nw, $nh, [math]::Round((Get-Item $outPath).Length/1KB)
 $dst.Dispose(); $canvas.Dispose()
 $ships.Values | ForEach-Object { $_.Dispose() }
 Write-Host "完了"

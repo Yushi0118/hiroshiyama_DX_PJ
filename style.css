@@ -627,7 +627,11 @@ h2{
 /* ============================================================
    ヒーロー
    ============================================================ */
-.hero{padding:0;min-height:min(100svh,880px);display:flex;align-items:center;}
+/* 高さは画面ではなく絵で決める。絵は 16:9 で、下の帯に原爆ドーム・鳥居・
+   広島城が並ぶ。ヒーローが低いと cover が絵を縮めて建物が上がってきて、
+   リード文の下に食い込む（1280pxで 1.52:1 まで落ちた）。高さを確保すると
+   絵が拡大され、建物は本文より下へ逃げる。 */
+.hero{padding:0;min-height:clamp(940px, 74vw, 1060px);display:flex;align-items:center;}
 /* ヒーローだけは中央寄せの器を外す。位置は絵に合わせるため画面幅で決める */
 .hero > .wrap{width:100%;}
 
@@ -655,15 +659,16 @@ h2{
    1120px で中央寄せなので、広い画面では左端が20%まで下がってしまい、
    紙の左3割が空いたまま見出しだけ窮屈になる。
 
-   紙の右端が画面のちょうど中央に来るのは偶然ではない。cover は
-   短い辺に合わせて拡大するので、絵の横中央は必ず画面の横中央に来る。
-   だから右端は画面幅によらず 50vw で、そこから内側に本文を収めればよい。 */
+   紙の右端は、画面幅によらずおおむね 44〜45vw に来る（1100〜2560px で
+   実測）。cover の拡大率は画面の縦横比で決まるが、絵が 16:9 で、ヒーロー
+   の高さに上限があるため、結果としてこの範囲に収まる。余裕を見て本文は
+   41vw までに収める。 */
 .hero-inner{
   position:relative;width:100%;
   display:flex;align-items:flex-start;justify-content:space-between;gap:32px;
-  padding:104px 4vw 64px 10vw;
+  padding:104px 4vw 64px 8vw;
 }
-.hero-panel{max-width:min(40vw,760px);}
+.hero-panel{max-width:min(33vw,620px);}
 
 .hero-title{
   font-family:var(--serif);
@@ -815,9 +820,9 @@ h2{
 
    左を 13vw まで寄せているのは、その原爆ドームの尖塔を避けるため。 */
 @media (min-width:768px) and (max-width:1279px){
-  .hero{min-height:min(100svh,820px);}
-  .hero-inner{padding:76px 4vw 48px 13vw;}
-  .hero-panel{max-width:min(37vw,460px);}
+  .hero{min-height:clamp(900px, 78vw, 1000px);}
+  .hero-inner{padding:76px 4vw 48px 9vw;}
+  .hero-panel{max-width:min(32vw,430px);}
   .hero-title{font-size:clamp(24px,3.1vw,38px);}
   /* 紙は下へいくほど狭まる（破れた縁が左へ回り込む）。リード文はその
      一番狭い高さに乗るので、上の行より短く折り返す必要がある。 */
