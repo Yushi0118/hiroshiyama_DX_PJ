@@ -516,6 +516,28 @@
     </p>
     <p class="foot-note">広島県DX協働モデル事例創出プロジェクト実施業務</p>
 
+    <!-- 実施主体。ロゴは白地で使う前提で作られているので、紺のフッターに
+         直接置かず、白い板の上に載せる。ロゴ画像がまだ無い間は社名の
+         文字が出る（img は読めなければ自分を消し、:has が外れて名前が
+         現れる）。画像を置けば名前は読み上げ用に退き、ロゴだけが見える。 -->
+    <div class="credit">
+      <p class="credit-label">主催・運営</p>
+      <div class="lockup">
+        <span class="lockup-item">
+          <img src="assets/img/logos/hiroshima-pref.png" alt="" width="180" height="60" onerror="this.remove()">
+          <span class="lockup-name">広島県</span>
+        </span>
+        <span class="lockup-x" aria-hidden="true">
+          <svg viewBox="0 0 40 40" role="img"><use href="#ic-cross"></use></svg>
+        </span>
+        <span class="lockup-item">
+          <img src="assets/img/logos/lts.png" alt="" width="220" height="60" onerror="this.remove()">
+          <span class="lockup-name">株式会社エル・ティー・エス</span>
+        </span>
+      </div>
+      <p class="credit-note">本プロジェクトは広島県が実施し、株式会社エル・ティー・エスが運営しています。</p>
+    </div>
+
     <!-- 9画面分の長さがあるため、読み終えた位置から各セクションへ戻れるようにする -->
     <nav class="foot-nav" aria-label="ページ内リンク">
       <a href="#pain">困りごと</a>
@@ -568,6 +590,18 @@
     <path d="M24 6.5a11.5 11.5 0 0 1 11.5 11.5C35.5 26.5 24 39 24 39S12.5 26.5 12.5 18A11.5 11.5 0 0 1 24 6.5z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
     <circle cx="24" cy="18" r="4.2" fill="none" stroke="currentColor" stroke-width="2.4"/>
     <path d="M7 43c3.2 0 3.2-2.2 6.4-2.2s3.2 2.2 6.4 2.2 3.2-2.2 6.4-2.2 3.2 2.2 6.4 2.2 3.2-2.2 6.4-2.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".6"/>
+  </symbol>
+  <symbol id="ic-cross" viewBox="0 0 40 40">
+    <defs>
+      <linearGradient id="cross-a" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#E8894A"/><stop offset="1" stop-color="#D9584F"/>
+      </linearGradient>
+      <linearGradient id="cross-b" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#4A90D9"/><stop offset="1" stop-color="#63B87C"/>
+      </linearGradient>
+    </defs>
+    <path d="M11 11 29 29" stroke="url(#cross-a)" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <path d="M29 11 11 29" stroke="url(#cross-b)" stroke-width="6" stroke-linecap="round" fill="none"/>
   </symbol>
   <symbol id="ic-close" viewBox="0 0 24 24">
     <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
