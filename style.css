@@ -12,10 +12,14 @@
    深さに応じてカードの明暗を反転させる（浅瀬＝明るいカードに紺の文字、
    深海＝紺のカードに白の文字）。これがスクロールの体験を作る。
 
-   動くのは海の生き物だけ（JS 0件、CSSの @keyframes 3種）。
-   レイアウトには一切関わらない装飾なので、transform と opacity しか
-   動かさない。モーション低減の指定があるときは、hover の transition と
-   smooth scroll ごとまとめて止める。
+   動くのは海の生き物だけ（CSSの @keyframes 3種）。レイアウトには一切
+   関わらない装飾なので、transform と opacity しか動かさない。
+   深さで動き方を変える ―― 浅瀬は大きく速く、深海はゆっくり小さく。
+   モーション低減の指定があるときは、hover の transition と smooth scroll
+   ごとまとめて止める。
+
+   JavaScript は script.js の1本だけで、対象診断のポップアップ専用。
+   ページの見た目にも本文にも関わらないので、動かなくても何も欠けない。
    ============================================================ */
 
 /* ============================================================
@@ -245,6 +249,31 @@ h2{
   box-shadow:inset 0 0 0 1px rgba(198,164,92,.45), 0 10px 26px rgba(3,14,32,.34);
 }
 
+/* カードにマウスを乗せたときの強調。
+
+   カード自体はリンクではないので cursor は変えない。押せると誤解させず、
+   「いま読んでいる場所」だけを浮かび上がらせるのが狙い。
+   変えるのは地の色と枠と影と浮き上がりで、文字色は動かさない
+   （動かすとコントラストの検証を階層ごとにやり直すことになる）。
+
+   hover:hover で囲うのは、タッチ端末では hover が「触った状態のまま
+   残る」ため。指を離しても1枚だけ光ったままになる。 */
+@media (hover:hover){
+  .card{transition:background-color .2s ease, box-shadow .2s ease, transform .2s ease;}
+  .tier-shallow .card:hover{
+    background:#FFFDF6;transform:translateY(-3px);
+    box-shadow:inset 0 0 0 1.5px var(--gold), 0 12px 28px rgba(8,30,60,.18);
+  }
+  .tier-mid .card:hover{
+    background:#FFFFFF;transform:translateY(-3px);
+    box-shadow:inset 0 0 0 1.5px var(--gold), 0 14px 30px rgba(8,40,72,.24);
+  }
+  .tier-deep .card:hover{
+    background:rgba(18,58,104,.92);transform:translateY(-3px);
+    box-shadow:inset 0 0 0 1.5px var(--gold), 0 14px 32px rgba(3,14,32,.46);
+  }
+}
+
 .card-title{
   font-family:var(--serif);
   font-size:19px;font-weight:600;line-height:1.5;
@@ -373,12 +402,37 @@ h2{
 .hub-center strong{font-family:var(--serif);font-size:20px;color:#fff;}
 .hub-center span{font-size:12.5px;color:var(--paper-soft);}
 
-/* チェックリスト */
-.checklist{margin-top:26px;}
-.checklist ul{display:grid;gap:.7em;margin-top:.6em;}
+/* チェックリスト ―「自分が対象かどうか」を確かめる、判断の要になる箱。
+   ほかのカードと同じ体裁だと読み飛ばされるので、ここだけ強く見せる。
+   金の枠を太くし、左に金の帯を立て、内側に淡い光を入れて浮かせる。 */
+.checklist{
+  margin-top:34px;padding:30px 30px 30px 34px;
+  border-left:5px solid var(--gold);
+  background:rgba(8,32,62,.9);
+  box-shadow:
+    inset 0 0 0 1.5px rgba(198,164,92,.85),
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 16px 38px rgba(3,14,32,.42);
+}
+.checklist .card-title{
+  font-size:22px;letter-spacing:.02em;
+  padding-bottom:.5em;margin-bottom:.2em;
+  border-bottom:1px solid rgba(198,164,92,.35);
+}
+.checklist ul{display:grid;gap:.9em;margin-top:.8em;}
 .checklist li{
-  position:relative;padding-left:1.9em;
-  font-size:15px;line-height:1.85;color:var(--paper);
+  position:relative;padding-left:2em;
+  font-size:15.5px;line-height:1.85;color:var(--paper);
+}
+@media (hover:hover){
+  .checklist{transition:background-color .2s ease, box-shadow .2s ease, transform .2s ease;}
+  .tier-deep .checklist:hover{
+    background:rgba(16,54,98,.94);transform:translateY(-3px);
+    box-shadow:
+      inset 0 0 0 1.5px var(--gold),
+      inset 0 1px 0 rgba(255,255,255,.16),
+      0 20px 44px rgba(3,14,32,.52);
+  }
 }
 .checklist li::before{
   content:'';position:absolute;left:0;top:.42em;
@@ -443,6 +497,32 @@ h2{
    どちらの状態でも読める。 */
 .btn-primary:hover{background:#fff;color:#12335C;box-shadow:inset 0 0 0 2px #12335C, 0 8px 22px rgba(12,40,76,.3);}
 .btn-ghost:hover{background:#12335C;color:#fff;box-shadow:inset 0 0 0 1.5px #12335C, 0 8px 22px rgba(12,40,76,.3);}
+
+/* 深い紺の水の上に置くボタン。
+   紺地に紺のボタン、あるいは白い縁取りだけのボタンでは、まわりの水に
+   沈んで「押せるもの」に見えない。金で塗って一段大きくする。
+
+   背景は必ず単色で宣言する。グラデーションだけにすると
+   backgroundColor が transparent になり、検証ツールが下地を
+   セクションの紺と誤認して「紺地に紺の文字」と判定してしまう。
+   艶はその上に重ねる薄い白黒のグラデーションで付ける。 */
+.btn-accent{
+  min-height:60px;padding:0 40px;font-size:16.5px;
+  background-color:#DDBB6E;
+  background-image:linear-gradient(180deg,rgba(255,255,255,.34),rgba(0,0,0,.07));
+  color:#0A2247;
+  box-shadow:
+    inset 0 0 0 1.5px rgba(255,255,255,.55),
+    0 10px 26px rgba(198,164,92,.30),
+    0 2px 0 rgba(0,0,0,.12);
+}
+/* 反転しても 8.6:1 → 10.1:1 で、どちらの状態でも十分読める */
+.btn-accent:hover{
+  background-color:#0A2247;
+  background-image:none;
+  color:#E9CE8A;
+  box-shadow:inset 0 0 0 2px var(--gold), 0 12px 30px rgba(3,14,32,.5);
+}
 
 /* セクション末尾の導線。デスクトップは固定CTAが無いため、
    読み進めた先々で申し込みへ戻れるようにしておく。 */
@@ -801,26 +881,59 @@ h2{
 }
 
 /* --- 動き ---
-   潮に運ばれている程度の、気づかれない速さにする。
    位置ではなく transform だけを動かすので、レイアウトの再計算は起きない。
 
    scaleX(-1) を掛けた個体では、続く translate の向きも反転する。
    左を向いた魚に正の --cax を与えると左へ進むので、向きと進行方向は
-   自動的に揃う。個別に符号を書き分ける必要はない。 */
+   自動的に揃う。個別に符号を書き分ける必要はない。
+
+   深さで動き方を変える。浅瀬は波も光も届くので大きく速く、深海は
+   水圧の中をゆっくり漂う。同じ速さで動かすと、せっかく色で作った
+   深さの違いが動きの側で打ち消されてしまう。
+     --cspeed  周期の倍率（小さいほど速い）
+     --camp    振れ幅の倍率
+   往復2点だけだと振り子に見えるので、4点を通る経路にして、
+   進みながら少し沈み、また持ち上がる動きにしている。 */
+.tier-shallow{--cspeed:.52; --camp:2.1; --crot:5deg;}
+.tier-mid    {--cspeed:.78; --camp:1.45; --crot:3.5deg;}
+.tier-deep   {--cspeed:1.3; --camp:.9;  --crot:2deg;}
+
 @keyframes creature-swim{
-  0%,100%{transform:scaleX(var(--cfx,1)) translate3d(0,0,0);}
-  50%    {transform:scaleX(var(--cfx,1)) translate3d(var(--cax,30px),var(--cay,-12px),0);}
+  0%,100%{transform:scaleX(var(--cfx,1)) translate3d(0,0,0) rotate(0deg);}
+  25%    {transform:scaleX(var(--cfx,1))
+          translate3d(calc(var(--cax,34px) * .55 * var(--camp,1)),
+                      calc(var(--cay,-14px) * 1.15 * var(--camp,1)),0)
+          rotate(calc(-1 * var(--crot,3deg)));}
+  50%    {transform:scaleX(var(--cfx,1))
+          translate3d(calc(var(--cax,34px) * var(--camp,1)),
+                      calc(var(--cay,-14px) * .15 * var(--camp,1)),0)
+          rotate(var(--crot,3deg));}
+  75%    {transform:scaleX(var(--cfx,1))
+          translate3d(calc(var(--cax,34px) * .42 * var(--camp,1)),
+                      calc(var(--cay,-14px) * 1.35 * var(--camp,1)),0)
+          rotate(0deg);}
 }
-@keyframes creature-drift{   /* クラゲ：ゆっくり浮き沈みし、わずかに傾く */
-  0%,100%{transform:scaleX(var(--cfx,1)) translate3d(0,0,0) rotate(-2deg);}
-  50%    {transform:scaleX(var(--cfx,1)) translate3d(var(--cax,8px),var(--cay,-26px),0) rotate(2deg);}
+/* クラゲ：浮き沈みしながら傘を開閉する */
+@keyframes creature-drift{
+  0%,100%{transform:scaleX(var(--cfx,1)) translate3d(0,0,0)
+          rotate(calc(-1 * var(--crot,3deg))) scale(1);}
+  30%    {transform:scaleX(var(--cfx,1))
+          translate3d(calc(var(--cax,10px) * var(--camp,1)),
+                      calc(var(--cay,-30px) * .7 * var(--camp,1)),0)
+          rotate(0deg) scale(calc(1 + .05 * var(--camp,1)));}
+  60%    {transform:scaleX(var(--cfx,1))
+          translate3d(calc(var(--cax,10px) * -.4 * var(--camp,1)),
+                      calc(var(--cay,-30px) * var(--camp,1)),0)
+          rotate(var(--crot,3deg)) scale(1);}
 }
-@keyframes creature-sway{    /* 海藻・珊瑚：根元を軸に左右へ揺れる */
-  0%,100%{transform:scaleX(var(--cfx,1)) rotate(-2.4deg);}
-  50%    {transform:scaleX(var(--cfx,1)) rotate(2.4deg);}
+/* 海藻・珊瑚：根元を軸に左右へ揺れる */
+@keyframes creature-sway{
+  0%,100%{transform:scaleX(var(--cfx,1)) rotate(calc(-1.1 * var(--crot,3deg)));}
+  50%    {transform:scaleX(var(--cfx,1)) rotate(calc(1.1 * var(--crot,3deg)));}
 }
 .a-swim,.a-drift,.a-sway{
-  animation:creature-swim var(--cdur,18s) ease-in-out var(--cdl,0s) infinite;
+  animation:creature-swim calc(var(--cdur,18s) * var(--cspeed,1))
+            ease-in-out var(--cdl,0s) infinite;
 }
 .a-drift{animation-name:creature-drift;}
 .a-sway{animation-name:creature-sway;transform-origin:bottom center;}
@@ -845,43 +958,43 @@ h2{
 .sec-pain .s1{--cr:1%;   --ct:4%;    --cw:clamp(160px,21vw,320px); --co:.95;}
 .sec-pain .s2{--cl:0%;   --cb:-30px; --cw:clamp(70px,8vw,120px);   --co:.80;}
 .sec-pain .s3{--cl:3%;   --ct:48%;   --cw:clamp(90px,11vw,170px);  --co:.70;}
-.sec-pain .s4{--cr:6%;   --cb:6%;    --cw:clamp(80px,9vw,140px);   --co:.60;}
-.sec-pain .s5{--cr:.5%;  --cb:-50px; --cw:clamp(50px,6vw,90px);    --co:.55;}
+.sec-pain .s4{--cr:21%;  --cb:23%;    --cw:clamp(80px,9vw,140px);   --co:.60;}
+.sec-pain .s5{--cl:16%;  --cb:-50px; --cw:clamp(50px,6vw,90px);    --co:.55;}
 
-.sec-what .s1{--cr:2%;   --ct:5%;    --cw:clamp(150px,19vw,290px); --co:.90;}
+.sec-what .s1{--cr:2%;   --ct:12%;    --cw:clamp(150px,19vw,290px); --co:.90;}
 .sec-what .s2{--cl:1%;   --ct:50%;   --cw:clamp(120px,15vw,230px); --co:.75;}
 .sec-what .s3{--cl:1%;   --cb:5%;    --cw:clamp(80px,9vw,140px);   --co:.60;}
-.sec-what .s4{--cr:0%;   --cb:-40px; --cw:clamp(60px,7vw,110px);   --co:.60;}
+.sec-what .s4{--cr:15%;  --cb:-40px; --cw:clamp(60px,7vw,110px);   --co:.60;}
 
-.sec-benefit .s1{--cr:2%; --ct:3%;   --cw:clamp(160px,20vw,300px); --co:.90;}
+.sec-benefit .s1{--cr:2%; --ct:10%;   --cw:clamp(160px,20vw,300px); --co:.90;}
 .sec-benefit .s2{--cl:2%; --ct:40%;  --cw:clamp(120px,15vw,220px); --co:.70;}
 .sec-benefit .s3{--cr:4%; --cb:8%;   --cw:clamp(90px,10vw,150px);  --co:.60; --cfx:-1;}
-.sec-benefit .s4{--cl:5%; --cb:12%;   --cw:clamp(60px,7vw,110px);   --co:.55;}
+.sec-benefit .s4{--cl:6%; --cb:4%;   --cw:clamp(60px,7vw,110px);   --co:.55;}
 
 .sec-themes .s1{--cr:2%;  --ct:3%;   --cw:clamp(150px,19vw,290px); --co:.85; --cfx:-1;}
 .sec-themes .s2{--cl:1%;  --ct:54%;  --cw:clamp(130px,16vw,240px); --co:.75;}
 .sec-themes .s3{--cr:3%;  --cb:5%;   --cw:clamp(90px,11vw,160px);  --co:.60;}
-.sec-themes .s4{--cr:8%;  --cb:12%;  --cw:clamp(60px,7vw,110px);   --co:.50;}
+.sec-themes .s4{--cr:22%; --cb:16%;  --cw:clamp(60px,7vw,110px);   --co:.50;}
 
 /* 深海：クラゲ・珊瑚・大きめの魚 */
 .sec-flow .s1{--cr:2%;   --ct:4%;    --cw:clamp(90px,11vw,170px);  --co:.85;}
-.sec-flow .s2{--cl:2%;   --ct:58%;   --cw:clamp(80px,10vw,150px);  --co:.60;}
-.sec-flow .s3{--cr:5%;   --cb:8%;    --cw:clamp(120px,14vw,210px); --co:.55; --cfx:-1;}
+.sec-flow .s2{--cr:12%;  --ct:42%;   --cw:clamp(80px,10vw,150px);  --co:.60;}
+.sec-flow .s3{--cl:16%;  --cb:6%;    --cw:clamp(120px,14vw,210px); --co:.55; --cfx:-1;}
 .sec-flow .s4{--cl:0%;   --cb:-30px; --cw:clamp(60px,7vw,110px);   --co:.50;}
 
 .sec-target .s1{--cr:2%; --ct:3%;    --cw:clamp(140px,18vw,270px); --co:.85;}
 .sec-target .s2{--cl:0%; --cb:-20px; --cw:clamp(150px,19vw,300px); --co:.90;}
 .sec-target .s3{--cr:3%; --ct:38%;   --cw:clamp(70px,9vw,140px);   --co:.55;}
-.sec-target .s4{--cl:3%; --cb:20%;    --cw:clamp(90px,11vw,160px);  --co:.55;}
+.sec-target .s4{--cl:7%; --cb:36%;    --cw:clamp(90px,11vw,160px);  --co:.55;}
 
 .sec-schedule .s1{--cr:2%; --ct:4%;    --cw:clamp(90px,11vw,180px);  --co:.85;}
 .sec-schedule .s2{--cr:0%; --cb:-24px; --cw:clamp(120px,15vw,240px); --co:.70; --cfx:-1;}
-.sec-schedule .s3{--cl:3%; --ct:58%;   --cw:clamp(70px,8vw,130px);   --co:.55;}
+.sec-schedule .s3{--cr:18%; --ct:34%;   --cw:clamp(70px,8vw,130px);   --co:.55;}
 .sec-schedule .s4{--cl:1%; --cb:30%;   --cw:clamp(110px,13vw,200px); --co:.50;}
 
 .sec-faq .s1{--cr:2%;  --ct:5%;    --cw:clamp(80px,10vw,160px);  --co:.75;}
 .sec-faq .s2{--cr:14%; --cb:-40px; --cw:clamp(70px,8vw,130px);   --co:.55;}
-.sec-faq .s3{--cr:4%;  --cb:10%;   --cw:clamp(100px,12vw,180px); --co:.50;}
+.sec-faq .s3{--cr:3%;  --ct:34%;   --cw:clamp(100px,12vw,180px); --co:.50;}
 
 .sec-entry .s1{--cr:-4%; --cb:-20px; --cw:clamp(140px,17vw,270px); --co:.85; --cfx:-1;}
 /* 珊瑚はどちらも右下に寄せて重ね、岩場に見せる。左下は注記の指定席で、
@@ -889,6 +1002,15 @@ h2{
 .sec-entry .s2{--cr:16%; --cb:-46px; --cw:clamp(110px,14vw,220px); --co:.70;}
 .sec-entry .s3{--cr:4%; --ct:6%;    --cw:clamp(80px,10vw,150px);  --co:.60;}
 .sec-entry .s4{--cl:2%; --cb:34%;   --cw:clamp(90px,11vw,160px);  --co:.50;}
+
+/* 768〜1099px：リード文が右へ伸びて上段の生き物と当たる。
+   幅44emの本文が画面のほぼ端まで届くので、右上の生き物を下げる。 */
+@media (min-width:768px) and (max-width:1099px){
+  .sec-what    .s1{--ct:26%;}
+  .sec-benefit .s1{--ct:26%;}
+  .sec-themes  .s1{--ct:24%;}
+  .sec-pain    .s1{--ct:22%;}
+}
 
 /* スマホでは間引く。
    幅が狭いとカードが画面いっぱいに広がり、空き水域がほとんど無い。
@@ -918,13 +1040,190 @@ h2{
   .sec-flow     .s2{--cl:2%; --ct:32%;   --cw:20%;}
   .sec-target   .s1{--cr:1%; --ct:auto; --cb:-40px; --cw:34%;}
   .sec-target   .s2{--cl:0%; --cb:-14px; --cw:44%;}
-  .sec-schedule .s1{--cr:26%; --ct:auto; --cb:-30px; --cw:20%;}
-  .sec-schedule .s2{--cr:0%; --cb:-14px; --cw:36%;}
+  .sec-schedule .s1{--cr:36%; --ct:auto; --cb:-56px; --cw:16%;}
+  .sec-schedule .s2{--cr:0%; --cb:-14px; --cw:30%;}
   .sec-faq      .s1{--cr:2%; --ct:auto; --cb:-28px; --cw:18%;}
   .sec-faq      .s2{--cr:32%; --cb:-16px; --cw:16%;}
   .sec-entry    .s1{--cr:0%; --cb:-10px; --cw:40%;}
-  .sec-entry    .s2{--cr:22%; --cb:-30px; --cw:28%;}
+  .sec-entry    .s2{--cr:46%; --cb:-30px; --cw:24%;}
 }
+/* ============================================================
+   対象診断のポップアップ
+
+   <dialog> の既定の見た目（白地・黒枠・中央）は使わず、深海の
+   カードと同じ紺の紙に置き換える。ページの一番深い所から浮かんで
+   きた箱に見えるよう、金の枠と強い影で締める。
+   ============================================================ */
+.sprite{position:absolute;width:0;height:0;overflow:hidden;}
+
+/* ボタンの中に置くアイコン */
+.btn-ic{gap:.6em;}
+.btn-mark{width:1.35em;height:1.35em;flex:none;}
+
+.fc{
+  width:min(640px, 100vw - 32px);
+  max-height:min(88svh, 900px);
+  padding:0;border:0;border-radius:20px;
+  background:transparent;
+  color:var(--paper);
+  overflow:visible;
+}
+.fc::backdrop{
+  background:rgba(3,14,32,.72);
+  backdrop-filter:blur(3px);
+}
+.fc-inner{
+  position:relative;
+  max-height:inherit;
+  overflow-y:auto;
+  padding:34px 34px 26px;
+  border-radius:20px;
+  background:#0B2748;
+  box-shadow:
+    inset 0 0 0 1.5px rgba(198,164,92,.8),
+    inset 0 1px 0 rgba(255,255,255,.12),
+    0 30px 70px rgba(2,10,26,.6);
+}
+
+.fc-close{
+  position:absolute;top:12px;right:12px;
+  width:44px;height:44px;
+  display:flex;align-items:center;justify-content:center;
+  border:0;border-radius:50%;
+  background:rgba(255,255,255,.08);color:var(--paper);
+  cursor:pointer;
+  transition:background-color .18s ease, color .18s ease;
+}
+.fc-close svg{width:20px;height:20px;}
+.fc-close:hover{background:var(--gold);color:#0A2247;}
+
+.fc-head{text-align:center;padding:0 44px;}
+.fc-mark{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:58px;height:58px;border-radius:50%;
+  background:rgba(198,164,92,.16);
+  box-shadow:inset 0 0 0 1.5px rgba(198,164,92,.7);
+  color:var(--gold);
+}
+.fc-mark svg{width:32px;height:32px;}
+.fc-eyebrow{
+  margin-top:.9em;
+  font-size:12.5px;font-weight:700;letter-spacing:.1em;
+  color:#F0E3C4;
+}
+.fc-title{
+  font-family:var(--serif);
+  font-size:clamp(19px,2.4vw,24px);
+  font-weight:600;line-height:1.5;margin-top:.3em;
+  color:#fff;
+}
+
+.fc-prog{
+  margin-top:1.6em;
+  font-size:12.5px;font-weight:700;letter-spacing:.08em;
+  color:var(--gold);
+  text-align:center;
+}
+
+.fc-step{border:0;padding:0;margin:1.1em 0 0;}
+.fc-q{
+  font-size:17px;font-weight:700;line-height:1.65;
+  color:#fff;
+  padding:0 0 .9em;
+  text-align:center;
+}
+
+/* 選択肢。ラジオの丸は隠さず、押せる面をラベル全体に広げる。
+   丸だけが当たり判定だと、指では狙いにくい。 */
+.fc-opt{
+  display:flex;align-items:center;gap:.85em;
+  min-height:56px;padding:12px 18px;margin-top:10px;
+  border-radius:12px;cursor:pointer;
+  background:rgba(255,255,255,.06);
+  box-shadow:inset 0 0 0 1px rgba(198,164,92,.35);
+  font-size:15px;line-height:1.65;color:var(--paper);
+  transition:background-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+.fc-opt input{
+  appearance:none;-webkit-appearance:none;
+  width:20px;height:20px;flex:none;margin:0;
+  border-radius:50%;
+  box-shadow:inset 0 0 0 2px rgba(198,164,92,.85);
+  background:transparent;
+  transition:background-color .16s ease, box-shadow .16s ease;
+}
+.fc-opt input:checked{
+  background:var(--gold);
+  box-shadow:inset 0 0 0 2px var(--gold), inset 0 0 0 5px #0B2748;
+}
+@media (hover:hover){
+  .fc-opt:hover{
+    background:rgba(198,164,92,.18);
+    box-shadow:inset 0 0 0 1.5px var(--gold);
+    transform:translateY(-2px);
+  }
+}
+.fc-opt:has(input:checked){
+  background:rgba(198,164,92,.22);
+  box-shadow:inset 0 0 0 1.5px var(--gold);
+}
+/* :has() が無いブラウザでも、フォーカスの輪だけは出る */
+.fc-opt input:focus-visible{outline:3px solid var(--gold);outline-offset:3px;}
+
+/* --- 結果 --- */
+.fc-result{margin-top:1.4em;text-align:center;}
+.fc-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:88px;height:88px;border-radius:50%;
+}
+.fc-badge svg{width:48px;height:48px;}
+/* 当てはまる：金で塗って一番強く。紺の線画で 8.6:1 */
+.fc-badge-fit{background:#DDBB6E;color:#0A2247;box-shadow:0 10px 26px rgba(198,164,92,.34);}
+/* 可能性あり：紺地に金の線画。枠で締める */
+.fc-badge-maybe{background:rgba(198,164,92,.14);color:var(--gold);box-shadow:inset 0 0 0 2px rgba(198,164,92,.8);}
+/* 距離がある：主張を抑える。落ち着いた水色 */
+.fc-badge-far{background:rgba(255,255,255,.08);color:var(--paper-soft);box-shadow:inset 0 0 0 2px rgba(214,231,242,.45);}
+
+.fc-verdict{
+  font-family:var(--serif);
+  font-size:clamp(18px,2.3vw,22px);
+  font-weight:600;line-height:1.55;margin-top:.7em;
+  color:#fff;
+}
+.fc-verdict:focus-visible{outline:3px solid var(--gold);outline-offset:6px;border-radius:6px;}
+.fc-detail{
+  font-size:14.5px;line-height:1.9;margin-top:.8em;
+  color:var(--paper-soft);
+  text-align:left;
+}
+.fc-actions{
+  display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+  margin-top:1.8em;
+}
+.fc-actions .btn{flex:1 1 auto;min-width:200px;}
+
+/* --- 下段 --- */
+.fc-foot{margin-top:1.6em;padding-top:1.2em;border-top:1px solid rgba(198,164,92,.28);}
+.fc-back{
+  min-height:44px;padding:0 18px;
+  border:0;border-radius:999px;cursor:pointer;
+  background:rgba(255,255,255,.08);color:var(--paper);
+  font-size:13.5px;font-weight:700;font-family:inherit;
+  transition:background-color .18s ease, color .18s ease;
+}
+.fc-back:hover{background:var(--gold);color:#0A2247;}
+.fc-note{
+  margin-top:1em;padding:0;background:none;box-shadow:none;max-width:none;
+  font-size:12.5px;line-height:1.8;color:var(--paper-soft);
+}
+
+@media (max-width:520px){
+  .fc-inner{padding:26px 20px 20px;}
+  .fc-head{padding:0 36px;}
+  .fc-detail{font-size:14px;}
+  .fc-actions .btn{min-width:0;width:100%;}
+}
+
 
 /* ============================================================
    モーション低減

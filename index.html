@@ -149,7 +149,7 @@
 
     <p class="note">個社支援ではなく、『協働型DX』であることが本プロジェクト最大の特徴です。</p>
 
-    <p class="section-cta"><a class="btn btn-ghost" href="#entry">この進め方について相談する</a></p>
+    <p class="section-cta"><a class="btn btn-accent" href="#entry">この進め方について相談する</a></p>
   </div>
 </section>
 
@@ -241,7 +241,9 @@
 
     <p class="note">※ 上記は現時点で想定している取組内容です。実際の課題・進め方は、参加事業者どうしのワークショップを経て決定します。対象業種が迷う場合は、お気軽にお問い合わせください。</p>
 
-    <p class="section-cta"><a class="btn btn-ghost" href="#entry">自社が対象か相談する</a></p>
+    <p class="section-cta"><a class="btn btn-accent btn-ic" href="#entry" data-fitcheck>
+        <svg class="btn-mark" viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-compass"></use></svg>
+        自社が対象か診断する</a></p>
   </div>
 </section>
 
@@ -397,7 +399,7 @@
 
     <p class="note">※ 上記は現時点（2026年8月）の想定スケジュールです。契約内容の確定にあわせて前後する可能性があります。詳細は説明会にてご案内します。</p>
 
-    <p class="section-cta"><a class="btn btn-primary" href="#entry">参加を相談する</a></p>
+    <p class="section-cta"><a class="btn btn-accent" href="#entry">参加を相談する</a></p>
   </div>
 </section>
 
@@ -533,6 +535,144 @@
 
 <!-- スマホでは画面下にCTAを固定する。縦に長いLPなので、
      どこまで読んでも申し込み導線が届く状態にしておく。 -->
+
+<!-- ============================================================
+     アイコン（インラインSVGのスプライト）
+
+     画像ファイルにせずSVGで持つ理由は3つ。拡大しても滲まない、
+     currentColor で階層ごとの色に自動で追随する、通信が増えない。
+     装飾なので aria-hidden、参照側にも代替テキストは置かない。
+     ============================================================ -->
+<svg class="sprite" width="0" height="0" aria-hidden="true" focusable="false">
+  <symbol id="ic-compass" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="17.5" fill="none" stroke="currentColor" stroke-width="2.6"/>
+    <path d="M24 3.5v5M24 39.5v5M3.5 24h5M39.5 24h5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M32.5 15.5 26.5 26.5 15.5 32.5 21.5 21.5Z" fill="currentColor"/>
+  </symbol>
+  <symbol id="ic-ship" viewBox="0 0 48 48">
+    <path d="M24 6.5v18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M25.5 8.5h10l-3.5 4.5 3.5 4.5h-10z" fill="currentColor"/>
+    <path d="M22.5 12.5 15 24.5h7.5z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M9 27h30l-4 7.5a4.5 4.5 0 0 1-4 2.5H17a4.5 4.5 0 0 1-4-2.5z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+    <path d="M5 42c3.2 0 3.2-2.2 6.4-2.2s3.2 2.2 6.4 2.2 3.2-2.2 6.4-2.2 3.2 2.2 6.4 2.2 3.2-2.2 6.4-2.2S40.8 42 44 42" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".65"/>
+  </symbol>
+  <symbol id="ic-lighthouse" viewBox="0 0 48 48">
+    <path d="M19.5 19h9l2 19h-13z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+    <path d="M18 19h12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <rect x="20" y="10" width="8" height="9" rx="1.6" fill="none" stroke="currentColor" stroke-width="2.4"/>
+    <path d="M24 5.5v3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M14.5 12 9 9.5M33.5 12 39 9.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity=".7"/>
+    <path d="M11 42h26" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="ic-pin" viewBox="0 0 48 48">
+    <path d="M24 6.5a11.5 11.5 0 0 1 11.5 11.5C35.5 26.5 24 39 24 39S12.5 26.5 12.5 18A11.5 11.5 0 0 1 24 6.5z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+    <circle cx="24" cy="18" r="4.2" fill="none" stroke="currentColor" stroke-width="2.4"/>
+    <path d="M7 43c3.2 0 3.2-2.2 6.4-2.2s3.2 2.2 6.4 2.2 3.2-2.2 6.4-2.2 3.2 2.2 6.4 2.2 3.2-2.2 6.4-2.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".6"/>
+  </symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24">
+    <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<!-- ============================================================
+     対象診断のポップアップ
+
+     質問も選択肢も結果もすべてHTMLに書いてある。JSがするのは
+     「どれを表示するか」と「点数を数えること」だけ。文言をJSの中の
+     文字列にすると、HTMLだけ読んでも中身が分からなくなる。
+
+     <dialog> の showModal() を使うので、フォーカスの閉じ込め、Escで
+     閉じる、背後の操作を止める、といった作法はブラウザがやってくれる。
+     JSが動かない環境では、呼び出しボタンはただの「お申し込みへ」の
+     リンクとして働く。
+     ============================================================ -->
+<dialog id="fitcheck" class="fc" aria-labelledby="fc-title">
+  <div class="fc-inner">
+    <button type="button" class="fc-close" data-fc="close" aria-label="診断を閉じる">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-close"></use></svg>
+    </button>
+
+    <div class="fc-head">
+      <span class="fc-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-compass"></use></svg></span>
+      <p class="fc-eyebrow">かんたん対象診断</p>
+      <h2 id="fc-title" class="fc-title">5つの質問で、自社が対象か確かめる</h2>
+    </div>
+
+    <p class="fc-prog" data-fc="prog">質問 1 / 5</p>
+
+    <form class="fc-form" data-fc="form">
+      <fieldset class="fc-step" data-step="1">
+        <legend class="fc-q">事業所は広島県内にありますか？</legend>
+        <label class="fc-opt"><input type="radio" name="q1" data-score="2"><span>広島県内にある</span></label>
+        <label class="fc-opt"><input type="radio" name="q1" data-score="0" data-verdict="outside"><span>広島県外にある</span></label>
+      </fieldset>
+
+      <fieldset class="fc-step" data-step="2" hidden>
+        <legend class="fc-q">従業員数（経営者を含む）は何名ですか？</legend>
+        <label class="fc-opt"><input type="radio" name="q2" data-score="2"><span>10名以下</span></label>
+        <label class="fc-opt"><input type="radio" name="q2" data-score="1"><span>11〜20名</span></label>
+        <label class="fc-opt"><input type="radio" name="q2" data-score="0"><span>21名以上</span></label>
+      </fieldset>
+
+      <fieldset class="fc-step" data-step="3" hidden>
+        <legend class="fc-q">主な業務に、いちばん近いものはどれですか？</legend>
+        <label class="fc-opt"><input type="radio" name="q3" data-score="2"><span>理美容（美容室・理容室・エステなど）</span></label>
+        <label class="fc-opt"><input type="radio" name="q3" data-score="2"><span>飲食（飲食店・食品の製造販売など）</span></label>
+        <label class="fc-opt"><input type="radio" name="q3" data-score="2"><span>事務・経理・総務などのバックオフィス業務の比重が大きい</span></label>
+        <label class="fc-opt"><input type="radio" name="q3" data-score="0"><span>上記以外の業種</span></label>
+      </fieldset>
+
+      <fieldset class="fc-step" data-step="4" hidden>
+        <legend class="fc-q">デジタル活用の現在地は、どのあたりですか？</legend>
+        <label class="fc-opt"><input type="radio" name="q4" data-score="2"><span>ほとんど手つかず。何から始めるか分からない</span></label>
+        <label class="fc-opt"><input type="radio" name="q4" data-score="2"><span>一部使っているが、活かしきれていない</span></label>
+        <label class="fc-opt"><input type="radio" name="q4" data-score="0"><span>すでにかなり進んでいる</span></label>
+      </fieldset>
+
+      <fieldset class="fc-step" data-step="5" hidden>
+        <legend class="fc-q">同じ悩みを持つ他の事業者と一緒に取り組むことに、関心はありますか？</legend>
+        <label class="fc-opt"><input type="radio" name="q5" data-score="2"><span>ある。他社の進め方も知りたい</span></label>
+        <label class="fc-opt"><input type="radio" name="q5" data-score="1"><span>内容次第で考えたい</span></label>
+        <label class="fc-opt"><input type="radio" name="q5" data-score="0"><span>自社だけで進めたい</span></label>
+      </fieldset>
+    </form>
+
+    <div class="fc-result" data-fc="result" hidden>
+      <div class="fc-res" data-res="fit" hidden>
+        <span class="fc-badge fc-badge-fit"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-ship"></use></svg></span>
+        <p class="fc-verdict">対象に当てはまりそうです</p>
+        <p class="fc-detail">本プロジェクトが想定している事業者像とよく重なっています。まずは説明会で、実際の進め方をご確認ください。</p>
+      </div>
+      <div class="fc-res" data-res="maybe" hidden>
+        <span class="fc-badge fc-badge-maybe"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-lighthouse"></use></svg></span>
+        <p class="fc-verdict">対象になる可能性があります</p>
+        <p class="fc-detail">いくつかの点で想定と重なっています。条件の一部が外れていても参加いただける場合がありますので、一度ご相談ください。</p>
+      </div>
+      <div class="fc-res" data-res="far" hidden>
+        <span class="fc-badge fc-badge-far"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-lighthouse"></use></svg></span>
+        <p class="fc-verdict">今回の募集とは、少し距離があるかもしれません</p>
+        <p class="fc-detail">今回は「これから始める小規模事業者」を主な対象としています。とはいえ、取り組みたい内容によってはご一緒できる形があるかもしれません。説明会でお話を聞かせてください。</p>
+      </div>
+      <div class="fc-res" data-res="outside" hidden>
+        <span class="fc-badge fc-badge-far"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-pin"></use></svg></span>
+        <p class="fc-verdict">今回の募集は、広島県内の事業者が対象です</p>
+        <p class="fc-detail">県内に事業所・店舗がある場合や、県内の事業者と一緒に取り組む予定がある場合は対象になることがあります。判断に迷う場合はお問い合わせください。</p>
+      </div>
+
+      <p class="fc-actions">
+        <a class="btn btn-accent" href="#entry" data-fc="close">申し込み・お問い合わせへ</a>
+        <button type="button" class="btn btn-ghost" data-fc="restart">もう一度診断する</button>
+      </p>
+    </div>
+
+    <div class="fc-foot">
+      <button type="button" class="fc-back" data-fc="back" hidden>前の質問へ戻る</button>
+      <p class="fc-note">※ この診断は目安です。最終的な対象可否は、説明会や個別のご相談で確認します。当てはまらない結果でも、気になる点があればお気軽にご相談ください。</p>
+    </div>
+  </div>
+</dialog>
+
+<script src="script.js" defer></script>
 
 </body>
 </html>

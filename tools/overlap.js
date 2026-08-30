@@ -105,6 +105,60 @@ window.__overlap = async function () {
     .filter(el => getComputedStyle(el).display !== 'none' && el.naturalWidth);
   for (const el of imgs) await load(el.src);
 
+  /* --- 動く範囲を含めた矩形を出す ---
+     生き物はアニメーションで動くので、いま止まって見えている位置だけを
+     測っても足りない。周期のどこかで文字に掛かるなら、それは掛かる。
+     いったんアニメーションを外して素の位置を取り、そこへ振れ幅の分だけ
+     矩形を広げて、最も外へ出た状態で判定する。 */
+  const px = v => parseFloat(v) || 0;
+  const boxOf = el => {
+    const saved = el.style.animation;
+    el.style.animation = 'none';
+    const b = el.getBoundingClientRect();
+    el.style.animation = saved;
+    const cs = getComputedStyle(el);
+    const amp = px(cs.getPropertyValue('--camp')) || 1;
+    const rot = px(cs.getPropertyValue('--crot')) || 3;
+    const kind = el.classList.contains('a-drift') ? 'drift'
+               : el.classList.contains('a-sway') ? 'sway' : 'swim';
+    let dx = 0, dy = 0;
+    if (kind === 'swim') {
+      dx = Math.abs((px(cs.getPropertyValue('--cax')) || 34) * amp);
+      dy = Math.abs((px(cs.getPropertyValue('--cay')) || -14) * amp * 1.35);
+    } else if (kind === 'drift') {
+      dx = Math.abs((px(cs.getPropertyValue('--cax')) || 10) * amp);
+      dy = Math.abs((px(cs.getPropertyValue('--cay')) || -30) * amp);
+    } else {
+      /* 揺れは回転だけ。根元を軸に振れるので、横は高さ×sinθ ぶん出る */
+      const r = Math.abs(rot) * 1.1 * Math.PI / 180;
+      dx = b.height * Math.sin(r);
+      dy = b.height * (1 - Math.cos(r));
+    }
+    return { left: b.left - dx, right: b.right + dx, top: b.top - dy, bottom: b.bottom + dy,
+             w: b.width, h: b.height, dx, dy };
+  };
+  const boxes = new Map(imgs.map(el => [el, boxOf(el)]));
+
+  /* --- 生き物どうしの重なり ---
+     水彩どうしが重なると、透けて別の生き物に見える濁った塊になる。
+     依頼主から実際に指摘を受けた（クラゲと魚が重なって見えていた）。 */
+  const collisions = [];
+  for (let i = 0; i < imgs.length; i++) {
+    for (let j = i + 1; j < imgs.length; j++) {
+      const a = boxes.get(imgs[i]), b = boxes.get(imgs[j]);
+      const ox = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+      const oy = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+      if (ox <= 0 || oy <= 0) continue;
+      const share = (ox * oy) / Math.min(a.w * a.h, b.w * b.h);
+      if (share < 0.06) continue;   /* 端がわずかに触れる程度は許す */
+      const name = el => (el.closest('section') || {}).id + '/' + el.className.split(' ').pop();
+      collisions.push({
+        組: name(imgs[i]) + ' × ' + name(imgs[j]),
+        重なり: Math.round(share * 100) + '%'
+      });
+    }
+  }
+
   /* --- 背景を持たない文字（地の上に直接置かれたもの） --- */
   const texts = [...document.querySelectorAll('.wrap h2, .wrap .lead, .wrap .eyebrow, .wrap .note, .wrap > p')]
     .filter(el => el.offsetParent !== null &&
@@ -130,7 +184,10 @@ window.__overlap = async function () {
     const lines = [...r.getClientRects()].filter(b => b.width > 1 && b.height > 1);
 
     for (const el of imgs) {
-      const cb = el.getBoundingClientRect();
+      /* 動く範囲まで含めた矩形で当たりを見る。画素を読む座標のほうは、
+         いま表示されている矩形（cbNow）を基準にする。 */
+      const cb = boxes.get(el);
+      const cbNow = el.getBoundingClientRect();
       const flip = (getComputedStyle(el).getPropertyValue('--cfx') || '1').trim() === '-1';
       const cv = canvases[el.src];
       for (const b of lines) {
@@ -138,23 +195,33 @@ window.__overlap = async function () {
         const y1 = Math.max(b.top, cb.top), y2 = Math.min(b.bottom, cb.bottom);
         if (x2 - x1 <= 2 || y2 - y1 <= 2) continue;
 
+        /* 生き物は周期の中で ±(dx,dy) の範囲を動く。文字の1点について、
+           その範囲のどこに絵が来たときが一番読みにくいかを見る。
+           5通り（中央と上下左右の端）で足りる。 */
+        const shifts = [[0, 0], [cb.dx, 0], [-cb.dx, 0], [0, cb.dy], [0, -cb.dy]];
+        const op = parseFloat(getComputedStyle(el).opacity);
         let worst = Infinity, worstAt = null;
         for (let i = 0; i <= 8; i++) {
           for (let j = 0; j <= 4; j++) {
             const vx = x1 + (x2 - x1) * i / 8, vy = y1 + (y2 - y1) * j / 4;
-            let u = (vx - cb.left) / cb.width;
-            if (flip) u = 1 - u;
-            const ix = Math.min(cv.w - 1, Math.max(0, Math.round(u * cv.w)));
-            const iy = Math.min(cv.h - 1, Math.max(0, Math.round((vy - cb.top) / cb.height * cv.h)));
-            const k = (iy * cv.w + ix) * 4;
-            const a = (cv.px[k + 3] / 255) * parseFloat(getComputedStyle(el).opacity);
-            let bg = baseAt(vy + scrollY, deepSec);
-            if (a > 0.004) bg = over([cv.px[k], cv.px[k + 1], cv.px[k + 2]], bg, a);
-            for (let s = stack.length - 1; s >= 0; s--) bg = over(stack[s], bg);
-            const rr = ratio(fg, bg);
-            if (rr < worst) { worst = rr; worstAt = [Math.round(vx), Math.round(vy + scrollY)]; }
+            for (const [sx, sy] of shifts) {
+              let u = (vx - sx - cbNow.left) / cbNow.width;
+              if (flip) u = 1 - u;
+              const v = (vy - sy - cbNow.top) / cbNow.height;
+              if (u < 0 || u > 1 || v < 0 || v > 1) continue;   /* 絵の外＝透明 */
+              const ix = Math.min(cv.w - 1, Math.max(0, Math.round(u * cv.w)));
+              const iy = Math.min(cv.h - 1, Math.max(0, Math.round(v * cv.h)));
+              const k = (iy * cv.w + ix) * 4;
+              const a = (cv.px[k + 3] / 255) * op;
+              let bg = baseAt(vy + scrollY, deepSec);
+              if (a > 0.004) bg = over([cv.px[k], cv.px[k + 1], cv.px[k + 2]], bg, a);
+              for (let s = stack.length - 1; s >= 0; s--) bg = over(stack[s], bg);
+              const rr = ratio(fg, bg);
+              if (rr < worst) { worst = rr; worstAt = [Math.round(vx), Math.round(vy + scrollY)]; }
+            }
           }
         }
+        if (worst === Infinity) continue;
         if (worst < need) {
           findings.push({
             文字: t.textContent.trim().slice(0, 18),
@@ -173,5 +240,11 @@ window.__overlap = async function () {
     if (seen.has(k)) return false;
     seen.add(k); return true;
   });
-  return { pass: uniq.length === 0, 画面: [innerWidth, innerHeight], 生き物: imgs.length, 不足: uniq };
+  return {
+    pass: uniq.length === 0 && collisions.length === 0,
+    画面: [innerWidth, innerHeight],
+    生き物: imgs.length,
+    不足: uniq,
+    生き物どうしの重なり: collisions
+  };
 };

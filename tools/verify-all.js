@@ -17,11 +17,20 @@
 window.__verify = async function () {
   const link = document.querySelector('link[rel=stylesheet][href*="style.css"]');
   if (link) {
-    await new Promise(ok => {
-      link.onload = ok;
-      link.href = link.href.split('?')[0] + '?cb=' + Math.round(performance.now() * 1000);
-      setTimeout(ok, 2500);
-    });
+    const url = link.href.split('?')[0] + '?cb=' + Math.round(performance.now() * 1000);
+    await new Promise(ok => { link.onload = ok; link.href = url; setTimeout(ok, 2500); });
+    /* load イベントだけでは足りない。差し替えの途中に測ると、まだ規則が
+       効いていない状態を「背景が無い」と読んでしまい、ありもしない
+       コントラスト不足を報告する（実際に1件でっち上げた）。
+       規則が実際に読める状態になるまで待つ。 */
+    const t0 = Date.now();
+    while (Date.now() - t0 < 3000) {
+      const sheet = [...document.styleSheets].find(s => s.href === url);
+      let n = 0;
+      try { n = sheet ? sheet.cssRules.length : 0; } catch (e) { n = 0; }
+      if (n > 0) break;
+      await new Promise(r => setTimeout(r, 60));
+    }
   }
 
   const grab = async f => eval(await fetch(f + '?cb=' + Math.round(performance.now() * 1000)).then(r => r.text()));
