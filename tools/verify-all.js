@@ -36,8 +36,17 @@ window.__verify = async function () {
       await new Promise(r => setTimeout(r, 60));
     }
     /* 画面幅を変えた直後は再レイアウトが済んでいないことがある。
-       2フレーム待って、位置が確定してから測る。 */
-    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+       2フレーム待って、位置が確定してから測る。
+       ただしブラウザペインが隠れていると rAF は一切呼ばれず、ここで
+       永久に止まる。測っているのはレイアウトを読むだけなので、
+       一定時間で来なければタイマーで代用して先へ進む。 */
+    const frame = () => new Promise(r => {
+      let done = false;
+      const go = () => { if (!done) { done = true; r(); } };
+      const t = setTimeout(go, 120);
+      requestAnimationFrame(() => { clearTimeout(t); go(); });
+    });
+    await frame(); await frame();
   }
 
   const grab = async f => eval(await fetch(f + '?cb=' + Math.round(performance.now() * 1000)).then(r => r.text()));
