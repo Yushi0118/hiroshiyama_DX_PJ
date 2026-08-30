@@ -34,6 +34,7 @@ $bgPath = Join-Path $LP_ROOT '全体\完成イメージ\ChatGPT Image 2026年8�
 $shipDir = Join-Path $LP_ROOT 'アイテム'
 if (-not (Test-Path $bgPath)) { throw "縦長の背景が見つかりません: $bgPath" }
 
+$MAX_OVERLAP = 9      # 先に置いた船とこれ以上重なったら置き直す（%）
 $HORIZON = 0.655   # これより上は空と紙。船は置かない
 
 # 色では水と見分けられないものは、区画で除外する（比率 x1,y1,x2,y2）
@@ -46,14 +47,14 @@ $KeepOut = @(
 # flip=$true で左右反転。夕日は x=0.63 あたりにあるので、その右の船は
 # 反転させて、全員が光の方を向くようにする。
 $Fleet = @(
-  @{ n=3; x=0.580; y=0.735; w=0.052; flip=$false },
-  @{ n=5; x=0.700; y=0.745; w=0.060; flip=$true  },
-  @{ n=2; x=0.505; y=0.764; w=0.076; flip=$false },
-  @{ n=7; x=0.762; y=0.788; w=0.096; flip=$true  },
-  @{ n=1; x=0.600; y=0.824; w=0.126; flip=$false },
-  @{ n=6; x=0.790; y=0.868; w=0.156; flip=$true  },
-  @{ n=4; x=0.655; y=0.918; w=0.200; flip=$false },
-  @{ n=2; x=0.730; y=0.985; w=0.262; flip=$true  }
+  @{ n=3; x=0.520; y=0.720; w=0.046; flip=$false },
+  @{ n=5; x=0.692; y=0.728; w=0.050; flip=$true  },
+  @{ n=2; x=0.420; y=0.754; w=0.062; flip=$false },
+  @{ n=7; x=0.802; y=0.760; w=0.076; flip=$true  },
+  @{ n=1; x=0.562; y=0.802; w=0.100; flip=$false },
+  @{ n=6; x=0.872; y=0.850; w=0.118; flip=$true  },
+  @{ n=4; x=0.596; y=0.900; w=0.126; flip=$false },
+  @{ n=2; x=0.740; y=0.978; w=0.195; flip=$true  }
 )
 
 # --- 背景を読み込み、32bppARGB の作業面へ ---
@@ -154,6 +155,11 @@ $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQuality
 $g.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
 $g.CompositingQuality = [System.Drawing.Drawing2D.CompositingQuality]::HighQuality
 
+# 船どうしが重なった面積を測るための占有マップ。
+# 矩形では判定にならない ―― 帆の上は透明な余白が広く、外接矩形が重なって
+# いても絵は重なっていないことが多い。逆に細いマストどうしが交差している
+# だけの場合は、矩形なら大きく重なって見える。不透明な画素そのものを数える。
+$occupied = New-Object bool[] ($W * $H)
 $bad = @()
 foreach ($f in $Fleet) {
   $ship = $ships[$f.n]
@@ -184,6 +190,52 @@ foreach ($f in $Fleet) {
     $img = New-Object System.Drawing.Bitmap($ship)
     $img.RotateFlip([System.Drawing.RotateFlipType]::RotateNoneFlipX)
   }
+
+  # 置く大きさに縮めた状態の不透明部分を取り出し、すでに置いた船と
+  # どれだけ重なるかを数える。
+  $stamp = New-Object System.Drawing.Bitmap($dw, $dh, $fmt)
+  $gs = [System.Drawing.Graphics]::FromImage($stamp)
+  $gs.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+  $gs.DrawImage($img, (New-Object System.Drawing.Rectangle(0, 0, $dw, $dh)))
+  $gs.Dispose()
+  $sd = $stamp.LockBits((New-Object System.Drawing.Rectangle(0,0,$dw,$dh)),
+        [System.Drawing.Imaging.ImageLockMode]::ReadOnly, $fmt)
+  $sst = $sd.Stride
+  $spx = New-Object byte[] ($sst * $dh)
+  [System.Runtime.InteropServices.Marshal]::Copy($sd.Scan0, $spx, 0, $spx.Length)
+  $stamp.UnlockBits($sd)
+
+  $own = 0; $hit = 0
+  for ($sy = 0; $sy -lt $dh; $sy++) {
+    $py = $dy + $sy
+    if ($py -lt 0 -or $py -ge $H) { continue }
+    $srow = $sy * $sst; $orow = $py * $W
+    for ($sx = 0; $sx -lt $dw; $sx++) {
+      if ($spx[$srow + $sx * 4 + 3] -lt 60) { continue }
+      $px2 = $dx + $sx
+      if ($px2 -lt 0 -or $px2 -ge $W) { continue }
+      $own++
+      if ($occupied[$orow + $px2]) { $hit++ }
+    }
+  }
+  $ovl = if ($own) { [math]::Round($hit / $own * 100, 1) } else { 0 }
+  "     重なり {0,5:N1}%  （すでに置いた船と）" -f $ovl
+  if ($ovl -gt $MAX_OVERLAP) { $bad += "船{0} (x{1}) の重なり {2}%" -f $f.n, $f.x, $ovl }
+
+  # 占有マップへ足してから描く
+  for ($sy = 0; $sy -lt $dh; $sy++) {
+    $py = $dy + $sy
+    if ($py -lt 0 -or $py -ge $H) { continue }
+    $srow = $sy * $sst; $orow = $py * $W
+    for ($sx = 0; $sx -lt $dw; $sx++) {
+      if ($spx[$srow + $sx * 4 + 3] -lt 60) { continue }
+      $px2 = $dx + $sx
+      if ($px2 -lt 0 -or $px2 -ge $W) { continue }
+      $occupied[$orow + $px2] = $true
+    }
+  }
+  $stamp.Dispose()
+
   $g.DrawImage($img, (New-Object System.Drawing.Rectangle($dx, $dy, $dw, $dh)))
   if ($f.flip) { $img.Dispose() }
 }
@@ -191,7 +243,7 @@ $g.Dispose()
 
 if ($bad.Count) {
   $canvas.Dispose()
-  throw "陸に掛かる船があります:`n  " + ($bad -join "`n  ")
+  throw "船の置き方に問題があります:`n  " + ($bad -join "`n  ")
 }
 
 # --- 書き出し ---
