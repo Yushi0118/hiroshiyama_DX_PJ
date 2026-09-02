@@ -203,7 +203,7 @@ body::after{
 /* 白の半透明を敷くと下地が明るくなり、金の文字が 2.7:1 まで落ちる。
    深海側は逆に「暗い地に金」にして締める。 */
 .tier-deep .eyebrow{
-  background:rgba(6,24,48,.72);
+  background:#0A1E38;
   border:1px solid rgba(198,164,92,.75);
   color:#F0E3C4;
 }
@@ -246,21 +246,29 @@ h2{
   display:flex;flex-direction:column;gap:.5em;
 }
 
+/* カードの地は透かさない。
+
+   以前は .92〜.94 の半透明にして「水の色が透ける」ようにしていた。
+   ところが後ろは上から下へ濃くなるグラデーションなので、カード1枚の
+   中でも上と下で色が変わり、白いはずのカードが青灰色に沈んで見えた
+   （依頼主から「グレーが掛かっている」と指摘を受けた 2026-08-31）。
+   透過を8%残す利点より、カードが濁る不利のほうが大きい。 */
+
 /* 浅瀬：クリームのカードに紺の文字 */
 .tier-shallow .card{
-  background:rgba(253,250,243,.94);
+  background:#FDFAF3;
   color:var(--ink);
   box-shadow:inset 0 0 0 1px rgba(198,164,92,.5), 0 6px 20px rgba(8,30,60,.10);
 }
-/* 中層：白寄りの半透明。水の色が透ける */
+/* 中層：白寄りのカードに紺の文字 */
 .tier-mid .card{
-  background:rgba(250,253,255,.92);
+  background:#FAFDFF;
   color:var(--ink);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.85), 0 8px 22px rgba(8,40,72,.16);
 }
 /* 深海：紺のカードに白の文字。金の細枠で締める */
 .tier-deep .card{
-  background:rgba(10,38,72,.82);
+  background:#0A2648;
   color:var(--paper);
   box-shadow:inset 0 0 0 1px rgba(198,164,92,.45), 0 10px 26px rgba(3,14,32,.34);
 }
@@ -284,9 +292,17 @@ h2{
     background:#FFFFFF;transform:translateY(-3px);
     box-shadow:inset 0 0 0 1.5px var(--gold), 0 14px 30px rgba(8,40,72,.24);
   }
+  /* 深海は「光が差す」表現にする。暗い地の上で少し色を変えるだけでは
+     変化が読み取れない（依頼主から「暗くて見づらい」と指摘 2026-08-31）。
+     地を一段明るい水色へ上げたうえで、金と水色の光を外へ回す。 */
   .tier-deep .card:hover{
-    background:rgba(18,58,104,.92);transform:translateY(-3px);
-    box-shadow:inset 0 0 0 1.5px var(--gold), 0 14px 32px rgba(3,14,32,.46);
+    background:#1B5D9E;transform:translateY(-3px);
+    box-shadow:
+      inset 0 0 0 1.5px var(--gold),
+      inset 0 1px 0 rgba(255,255,255,.30),
+      0 0 26px rgba(198,164,92,.45),
+      0 0 56px rgba(126,196,246,.34),
+      0 16px 34px rgba(3,14,32,.46);
   }
 }
 
@@ -381,7 +397,7 @@ h2{
    どちらも解にならない。明るい下敷きを敷いて「額に入った絵」にする。
    .nodes の丸バッジは元から背景を持つので対象外。 */
 .steps .vignette{
-  background:rgba(250,253,255,.94);
+  background:#FAFDFF;
   border-radius:14px;
   padding:10px;
   box-shadow:0 4px 16px rgba(3,14,32,.34);
@@ -448,6 +464,15 @@ h2{
   background:linear-gradient(var(--gold),var(--gold)) center/100% 2px no-repeat;
 }
 .faq-item summary:hover .card-title{color:var(--gold);}
+/* 見出しの色だけだと、どの行に触れているのか分かりにくい。
+   器ごと一段明るくして、金の光を薄く回す。 */
+.faq-item:hover{
+  background:#154878;
+  box-shadow:
+    inset 0 0 0 1.5px var(--gold),
+    0 0 22px rgba(198,164,92,.32),
+    0 12px 28px rgba(3,14,32,.4);
+}
 .faq-item > p{
   margin:0;padding:0 22px 22px;
   font-size:15.5px;line-height:1.95;color:var(--paper-soft);
@@ -476,7 +501,7 @@ h2{
   padding:20px;border-radius:var(--radius);
   /* 金の淡い地は下地を明るくしてしまい、白系の文字が乗らない。
      紺を敷いて金は枠だけにする。 */
-  background:rgba(6,26,52,.55);
+  background:#0A2445;
   box-shadow:inset 0 0 0 1px rgba(198,164,92,.7);
 }
 .hub-center strong{font-family:var(--serif);font-size:21px;color:#fff;}
@@ -488,7 +513,7 @@ h2{
 .checklist{
   margin-top:34px;padding:30px 30px 30px 34px;
   border-left:5px solid var(--gold);
-  background:rgba(8,32,62,.9);
+  background:#08203E;
   box-shadow:
     inset 0 0 0 1.5px rgba(198,164,92,.85),
     inset 0 1px 0 rgba(255,255,255,.10),
@@ -507,10 +532,12 @@ h2{
 @media (hover:hover){
   .checklist{transition:background-color .2s ease, box-shadow .2s ease, transform .2s ease;}
   .tier-deep .checklist:hover{
-    background:rgba(16,54,98,.94);transform:translateY(-3px);
+    background:#1B5D9E;transform:translateY(-3px);
     box-shadow:
       inset 0 0 0 1.5px var(--gold),
-      inset 0 1px 0 rgba(255,255,255,.16),
+      inset 0 1px 0 rgba(255,255,255,.30),
+      0 0 26px rgba(198,164,92,.45),
+      0 0 56px rgba(126,196,246,.34),
       0 20px 44px rgba(3,14,32,.52);
   }
 }
@@ -579,7 +606,7 @@ h2{
   /* 生き物を幕より上に出したぶん、半透明の地だと絵が透けて文字の
      コントラストが 4.26:1 まで落ちた（狭い画面の注記3か所）。
      透過を減らして、後ろに何が来ても注記が読めるようにする。 */
-  background:rgba(255,255,255,.88);
+  background:#FFFFFF;
   box-shadow:inset 0 0 0 1px rgba(198,164,92,.45);
   color:var(--ink);
 }
@@ -587,7 +614,7 @@ h2{
   /* .6 だと後ろの生き物が透けて地が明るくなり、薄い色の文字が
      4.26:1 まで落ちた（狭い画面のFAQと申込の注記）。生き物を幕より
      上に出したので、ここも透過を減らして後ろに左右されないようにする。 */
-  background:rgba(10,38,72,.88);
+  background:#0A2648;
   box-shadow:inset 0 0 0 1px rgba(198,164,92,.4);
   color:var(--paper-soft);
 }
@@ -653,7 +680,16 @@ h2{
 .cta:hover .chev{border-color:#0A2247;}
 .cta-sub{font-size:13.5px;color:var(--paper-soft);}
 /* 押しても動かないものはリンクにしない。準備中であることを明示する。 */
-.cta.is-pending{cursor:default;opacity:.86;}
+/* 押せない案内なので浮かせない。ただし暗いままだと読みにくいので、
+   薄める処理をやめ、触れたときは静かに光らせる。 */
+.cta.is-pending{cursor:default;opacity:1;}
+.tier-deep .cta.is-pending:hover{
+  background:#15406E;
+  box-shadow:
+    inset 0 0 0 1.5px var(--gold),
+    0 0 22px rgba(198,164,92,.34),
+    0 10px 26px rgba(3,14,32,.4);
+}
 .cta.is-pending:hover{transform:none;}
 .cta-badge{
   position:absolute;right:16px;top:50%;transform:translateY(-50%);
@@ -698,6 +734,23 @@ h2{
   background:url('assets/img/backgrounds/hero-scene-wide.jpg') center 28% / cover no-repeat;
   -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 80%,transparent 100%);
           mask-image:linear-gradient(180deg,#000 0%,#000 80%,transparent 100%);
+  animation:hero-swell 16s ease-in-out infinite;
+}
+
+/* 船団のうねり。
+
+   舟は絵に焼き込んであるので、1隻ずつ動かすことはできない。代わりに
+   絵そのものをゆっくり上下させて、船団が波に乗って進んでいるように見せる。
+
+   動かすのは transform ではなく background-position。transform で拡大縮小
+   すると、絵の中の紙の位置が動いて、その上に乗せた本文との関係が崩れる
+   （tools/onpaper.js は cover の式から紙の位置を計算しているため、
+   検査の前提とも食い違う）。background-position なら cover の幾何は
+   そのままで、絵が縦に少しずれるだけ。振れ幅は 28%→25.4% と小さく取り、
+   両端で本文が紙の上に乗ることを実測して確かめてある。 */
+@keyframes hero-swell{
+  0%,100%{background-position:center 28%;}
+  50%    {background-position:center 25.4%;}
 }
 
 /* 本文は .wrap ではなく画面幅を基準に置く。
@@ -725,11 +778,24 @@ h2{
   color:var(--ink);
   text-shadow:0 2px 18px rgba(251,246,233,.9);
 }
-.hero-brand{display:flex;align-items:center;gap:.5em;margin-top:1em;}
-.hero-mark{width:clamp(38px,3.6vw,52px);height:auto;}
+/* 名前は必ず1行。折り返すと「ひろしま協働DXプロジェ／クト」のように
+   意味の切れない位置で割れて、名前に見えなくなる（依頼主から指摘
+   2026-08-31）。
+
+   字の大きさは画面ではなく「紙の幅」で決まる。文字の総幅は約 13.4em で、
+   印と余白に約44px取られるので、使える幅は「パネル幅 − 44px」。
+   パネルは ≥1280px で min(33vw,620px)、768〜1279px で min(32vw,430px)。
+
+   .hero-panel に container-type:inline-size を付けて cqw で追う手も試したが、
+   パネルは flex の子で内容から幅を得ているため、インライン方向の含みが
+   効いて幅が 0 に潰れた。使わないこと。 */
+.hero-brand{display:flex;align-items:center;gap:.5em;margin-top:1em;flex-wrap:nowrap;}
+.hero-mark{width:clamp(38px,3.6vw,52px);height:auto;flex:0 0 auto;}
 .hero-brand span{
   font-family:var(--serif);font-weight:700;
-  font-size:clamp(20px,2.3vw,30px);color:var(--ink);
+  color:var(--ink);
+  white-space:nowrap;
+  font-size:min(2.15vw, 38px);
 }
 .gold{color:var(--gold-deep);}
 .hero-sub{font-size:clamp(13px,1.2vw,16px);letter-spacing:.04em;color:var(--ink-soft);margin-top:.3em;}
@@ -869,6 +935,9 @@ h2{
   .hero{min-height:clamp(900px, 78vw, 1000px);}
   .hero-inner{padding:76px 4vw 48px 9vw;}
   .hero-panel{max-width:min(32vw,430px);}
+  /* この帯は紙が 32vw と一段狭いので、名前もそのぶん小さくする。
+     1.9vw なら 768px でも 1行に収まる（実測 上限15.0px に対し14.6px）。 */
+  .hero-brand span{font-size:1.9vw;}
   .hero-title{font-size:clamp(24px,3.1vw,38px);}
   /* 紙は下へいくほど狭まる（破れた縁が左へ回り込む）。リード文はその
      一番狭い高さに乗るので、上の行より短く折り返す必要がある。 */
@@ -1016,6 +1085,9 @@ h2{
        bottom ではなく 100% と書くのは、検証ツールが % を読むため。 */
     background-position:50% 100%;
     background-size:cover;
+    /* うねりは横画面だけ。keyframes は center 28% を指定しているので、
+       ここで止めないと下端基準がその値に上書きされ、船団が陸へ上がる。 */
+    animation:none;
     -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 88%,transparent 100%);
             mask-image:linear-gradient(180deg,#000 0%,#000 88%,transparent 100%);
   }
@@ -1230,26 +1302,26 @@ h2{
    負にして半分沈める）。 */
 
 /* 浅瀬：小魚の群れと海藻 */
-.sec-pain .s1{--cr:1%;   --ct:4%;    --cw:clamp(160px,21vw,320px); --co:.95;}
-.sec-pain .s2{--cl:0%;   --cb:-30px; --cw:clamp(70px,8vw,120px);   --co:.80;}
-.sec-pain .s3{--cl:3%;   --ct:48%;   --cw:clamp(90px,11vw,170px);  --co:.70;}
-.sec-pain .s4{--cr:21%;  --cb:23%;    --cw:clamp(80px,9vw,140px);   --co:.60;}
-.sec-pain .s5{--cl:16%;  --cb:-50px; --cw:clamp(50px,6vw,90px);    --co:.55;}
+.sec-pain .s1{--cr:1%;   --ct:4%;    --cw:clamp(160px,21vw,320px); --co:.97;}
+.sec-pain .s2{--cl:0%;   --cb:-30px; --cw:clamp(70px,8vw,120px);   --co:.92;}
+.sec-pain .s3{--cl:3%;   --ct:48%;   --cw:clamp(90px,11vw,170px);  --co:.88;}
+.sec-pain .s4{--cr:21%;  --cb:23%;    --cw:clamp(80px,9vw,140px);   --co:.82;}
+.sec-pain .s5{--cl:16%;  --cb:-50px; --cw:clamp(50px,6vw,90px);    --co:.78;}
 
-.sec-what .s1{--cr:2%;   --ct:12%;    --cw:clamp(150px,19vw,290px); --co:.90;}
-.sec-what .s2{--cl:1%;   --ct:50%;   --cw:clamp(120px,15vw,230px); --co:.75;}
-.sec-what .s3{--cl:1%;   --cb:5%;    --cw:clamp(80px,9vw,140px);   --co:.60;}
-.sec-what .s4{--cr:15%;  --cb:-40px; --cw:clamp(60px,7vw,110px);   --co:.60;}
+.sec-what .s1{--cr:2%;   --ct:12%;    --cw:clamp(150px,19vw,290px); --co:.96;}
+.sec-what .s2{--cl:1%;   --ct:50%;   --cw:clamp(120px,15vw,230px); --co:.90;}
+.sec-what .s3{--cl:1%;   --cb:5%;    --cw:clamp(80px,9vw,140px);   --co:.82;}
+.sec-what .s4{--cr:15%;  --cb:-40px; --cw:clamp(60px,7vw,110px);   --co:.82;}
 
-.sec-benefit .s1{--cr:2%; --ct:10%;   --cw:clamp(160px,20vw,300px); --co:.90;}
-.sec-benefit .s2{--cl:2%; --ct:40%;  --cw:clamp(120px,15vw,220px); --co:.70;}
-.sec-benefit .s3{--cr:4%; --cb:8%;   --cw:clamp(90px,10vw,150px);  --co:.60; --cfx:-1;}
-.sec-benefit .s4{--cl:6%; --cb:4%;   --cw:clamp(60px,7vw,110px);   --co:.55;}
+.sec-benefit .s1{--cr:2%; --ct:10%;   --cw:clamp(160px,20vw,300px); --co:.96;}
+.sec-benefit .s2{--cl:2%; --ct:40%;  --cw:clamp(120px,15vw,220px); --co:.88;}
+.sec-benefit .s3{--cr:4%; --cb:8%;   --cw:clamp(90px,10vw,150px);  --co:.82; --cfx:-1;}
+.sec-benefit .s4{--cl:6%; --cb:4%;   --cw:clamp(60px,7vw,110px);   --co:.78;}
 
-.sec-themes .s1{--cr:2%;  --ct:3%;   --cw:clamp(150px,19vw,290px); --co:.85; --cfx:-1;}
-.sec-themes .s2{--cl:1%;  --ct:54%;  --cw:clamp(130px,16vw,240px); --co:.75;}
-.sec-themes .s3{--cr:3%;  --cb:5%;   --cw:clamp(90px,11vw,160px);  --co:.60;}
-.sec-themes .s4{--cr:22%; --cb:16%;  --cw:clamp(60px,7vw,110px);   --co:.50;}
+.sec-themes .s1{--cr:2%;  --ct:3%;   --cw:clamp(150px,19vw,290px); --co:.95; --cfx:-1;}
+.sec-themes .s2{--cl:1%;  --ct:54%;  --cw:clamp(130px,16vw,240px); --co:.90;}
+.sec-themes .s3{--cr:3%;  --cb:5%;   --cw:clamp(90px,11vw,160px);  --co:.82;}
+.sec-themes .s4{--cr:22%; --cb:16%;  --cw:clamp(60px,7vw,110px);   --co:.74;}
 
 /* 深海：クラゲ・珊瑚・大きめの魚 */
 .sec-flow .s1{--cr:2%;   --ct:4%;    --cw:clamp(90px,11vw,170px);  --co:.95;}
@@ -1527,6 +1599,7 @@ h2{
   html{scroll-behavior:auto;}
   *{transition:none !important;}
   .creature{animation:none !important;}
+  .hero-art{animation:none !important;}
 }
 
 /* ============================================================
