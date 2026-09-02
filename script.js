@@ -137,3 +137,65 @@
     open(trigger);
   });
 })();
+
+
+/* ============================================================
+   昼と夜の切り替え
+   ============================================================
+   ヒーローの名前に3秒マウスを乗せると、ページ全体が夜の海になる。
+   もう一度3秒乗せると昼へ戻る。
+
+   3秒待たせるのは、通し読みの途中でうっかり乗せただけでは変わって
+   ほしくないため。名前の上をただ通り過ぎる動きは1秒に満たない。
+
+   色そのものは CSS の .is-night が持っている（style.css の :root の
+   すぐ下）。ここでやるのは付け外しだけ。検証ツールは :root の変数を
+   読むので、色をこちら側に書いてはいけない。
+
+   マウスの無い環境（スマホ・キーボード）では乗せる動作が起きないので、
+   Enter / Space でも同じことができるようにしてある。 */
+(function () {
+  'use strict';
+  var sw = document.querySelector('[data-nightswitch]');
+  if (!sw) return;
+
+  var HOLD = 3000;
+  var timer = null;
+
+  function toggle() {
+    var night = document.documentElement.classList.toggle('is-night');
+    sw.setAttribute('aria-pressed', night ? 'true' : 'false');
+  }
+  function start() {
+    clearTimeout(timer);
+    timer = setTimeout(toggle, HOLD);
+  }
+  function cancel() { clearTimeout(timer); timer = null; }
+
+  /* 夜の絵は最初にマウスが乗った時点で読み込んでおく。切り替えの瞬間に
+     取りに行くと、一拍おいて絵が差し替わる。ページを開いた時点で読むと、
+     使わない人にも300KB余計に読ませることになるので、ここで読む。 */
+  var warmed = false;
+  function warm() {
+    if (warmed) return;
+    warmed = true;
+    ['hero-night-wide.jpg', 'hero-night-mobile.jpg'].forEach(function (f) {
+      new Image().src = 'assets/img/backgrounds/' + f;
+    });
+  }
+
+  /* pointerenter / pointerleave は入れ子の要素で発火しない。
+     mouseover だと画像と文字の境目でいちいち数え直しになる。 */
+  sw.addEventListener('pointerenter', function () { warm(); start(); });
+  sw.addEventListener('pointerleave', cancel);
+
+  /* キーボード。焦点を当てて3秒でも、その場で決めても切り替わる。 */
+  sw.addEventListener('focus', function () { warm(); start(); });
+  sw.addEventListener('blur', cancel);
+  sw.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+    e.preventDefault();
+    cancel();
+    toggle();
+  });
+})();

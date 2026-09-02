@@ -31,7 +31,12 @@
     <div class="hero-panel">
       <h1 class="hero-title">小さな船も、<br>船団になれば、<br>越えられる潮がある。</h1>
 
-      <p class="hero-brand">
+      <!-- 名前に3秒マウスを乗せると、ページ全体が夜の海に切り替わる
+           （script.js）。もう一度3秒乗せると昼へ戻る。隠し要素だが、
+           キーボードでも Enter / Space で同じことができるようにしてある。
+           JSが動かなくても、ただの見出しとして成立する。 -->
+      <p class="hero-brand" data-nightswitch tabindex="0" role="button"
+         aria-pressed="false" aria-label="ひろしま協働DXプロジェクト。昼と夜の背景を切り替えます">
         <img class="hero-mark" src="assets/img/icons/logo-mark.png" alt="" width="270" height="246">
         <span>ひろしま協働<span class="gold">DX</span>プロジェクト</span>
       </p>

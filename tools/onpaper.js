@@ -69,8 +69,26 @@ window.__onPaper = async function () {
   };
   const parse = s => (String(s).match(/[\d.]+/g) || []).map(Number);
 
+  /* 文字と絵の間に不透明な下敷きがあるなら、絵の色は関係ない。
+     読めるかどうかは下敷きとの対比で決まり、それは tools/check.js が
+     見ている（check.js は宣言された背景色を読む）。ここで判定すると、
+     下敷きの下にある絵を見て「紙から外れた」と誤って報告する。
+     夜の縦画面は、絵の紙が本文を覆いきれないので下敷きを敷いてある。 */
+  const onPanel = el => {
+    for (let n = el; n && n !== document.body; n = n.parentElement) {
+      const cs = getComputedStyle(n);
+      const bg = parse(cs.backgroundColor);
+      if (bg.length >= 3 && (bg[3] === undefined || bg[3] >= 0.75)) return true;
+      /* 下敷きがグラデーションのこともある。ヒーローの絵そのもの
+         （.hero-art）は下敷きではないので数えない。 */
+      if (!n.classList.contains('hero-art') && cs.backgroundImage !== 'none') return true;
+    }
+    return false;
+  };
+
   const rows = [];
   document.querySelectorAll('.hero-title,.hero-brand,.hero-sub,.hero-lead').forEach(el => {
+    if (onPanel(el)) return;
     const ecs = getComputedStyle(el);
     const fg = parse(ecs.color).slice(0, 3);
     const size = parseFloat(ecs.fontSize);

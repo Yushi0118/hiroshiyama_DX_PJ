@@ -91,7 +91,11 @@ window.__verify = async function () {
     サイズ: [innerWidth, innerHeight],
     コントラスト等: a.pass ? 'OK' : a.failures,
     測定ゆらぎ: wobble,
-    生き物と文字: b.pass ? ('OK（' + b.生き物 + '体）') : b.不足,
+    /* 不足（文字が生き物に乗っている）と、生き物どうしの重なりは別物。
+       片方だけ出していたので、重なりで落ちたときに「不合格なのに
+       中身が空」に見えて原因が追えなかった。両方まとめて出す。 */
+    生き物と文字: b.pass ? ('OK（' + b.生き物 + '体）')
+      : { 文字に掛かる: b.不足, 生き物どうし: b.生き物どうしの重なり },
     ヒーローの文字: c.pass === null ? '―' : (c.pass ? 'OK' : c.読みにくい要素),
     ヒーローの絵: /mobile|tall/.test(getComputedStyle(document.querySelector('.hero-art')).backgroundImage) ? '縦長' : '横長',
     ページ丈: H,
