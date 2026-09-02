@@ -148,7 +148,7 @@ body{
   margin:0;
   position:relative;
   font-family:var(--sans);
-  font-size:17px;
+  font-size:18px;
   line-height:1.95;
   color:var(--ink);
   background:var(--sea-0);
@@ -238,9 +238,20 @@ body::after{
   position:absolute;left:0;right:0;
   top:calc(var(--deep-lead) * -1);   /* 深海に入る手前から掛け始める */
   bottom:0;
-  /* z-index:0 は生き物（-1）より上。深海の生き物も水に沈んで見える。
-     -1 にすると生き物が幕の上に浮き、深海だけ妙に明るくなる。 */
-  z-index:0;pointer-events:none;
+  /* z-index は必ず -1。
+
+     0 にしていたとき、幕が中層のカードと文字の上に乗って灰色に曇った
+     （依頼主から「文字やアイコンにグレースケールが掛かる」と指摘
+     2026-09-02）。幕は深海の 600px 手前から始まるので、その帯にある
+     中層のカードと重なる。中層の本文には z-index が無く、位置指定した
+     z-index:0 の擬似要素は通常フローの中身より後に描かれるため、
+     文字の上に幕が乗っていた（実測で16要素が下敷きになっていた）。
+
+     -1 なら通常フローの中身より先に描かれるので、カードにも文字にも
+     絶対に掛からない。ページのグラデーション（-3）と光の筋（-2）よりは
+     上なので、水を暗くする役目は変わらない。
+     深海の生き物は z-index:0 なので幕より上に出る（そのための 0）。 */
+  z-index:-1;pointer-events:none;
   background:linear-gradient(180deg,
     rgba(var(--deep-rgb),0)            0,
     rgba(var(--deep-rgb),var(--deep-a1)) var(--deep-lead),
@@ -257,7 +268,7 @@ body::after{
    ============================================================ */
 .eyebrow{
   display:inline-block;
-  font-size:13.5px;font-weight:700;letter-spacing:.08em;
+  font-size:14.5px;font-weight:700;letter-spacing:.08em;
   padding:.5em 1.4em;border-radius:999px;
   background:#12335C;color:#fff;
 }
@@ -271,14 +282,14 @@ body::after{
 
 h2{
   font-family:var(--serif);
-  font-size:clamp(26px,2.7vw,37px);
+  font-size:clamp(28px,2.9vw,40px);
   font-weight:600;line-height:1.55;letter-spacing:.01em;
   margin:.65em 0 .5em;
 }
 .tier-deep h2{color:#fff;}
 
 .lead{
-  font-size:17.5px;line-height:1.95;max-width:42em;
+  font-size:19px;line-height:1.95;max-width:40em;
   color:var(--ink-soft);
   margin-bottom:2.6rem;
 }
@@ -410,12 +421,12 @@ h2{
 
 .card-title{
   font-family:var(--serif);
-  font-size:20.5px;font-weight:600;line-height:1.5;
+  font-size:23px;font-weight:700;line-height:1.45;
   color:var(--ink);
 }
 .tier-deep .card-title{color:#fff;}
 
-.card p{font-size:15.5px;line-height:1.9;color:var(--ink-soft);}
+.card p{font-size:17px;line-height:1.9;color:var(--ink-soft);}
 /* .when（金地の時期ラベル）は自前の文字色を持つので対象から外す。
    詳細度を上げ合うより、汎用ルールの適用範囲を正しく絞るほうが読みやすい。 */
 .tier-deep .card p:not(.when){color:var(--paper-soft);}
@@ -425,7 +436,7 @@ h2{
   display:inline-grid;place-items:center;
   width:34px;height:34px;flex:none;border-radius:50%;
   background:#12335C;color:#F0E3C4;
-  font-family:var(--serif);font-size:18px;font-weight:600;line-height:1;
+  font-family:var(--serif);font-size:19.5px;font-weight:600;line-height:1;
 }
 .tier-deep .num{background:var(--gold);color:#0A2247;}
 
@@ -513,7 +524,7 @@ h2{
    ============================================================ */
 /* できること：STEP ラベル */
 .step-label{
-  font-family:var(--serif);font-size:15px;font-weight:600;
+  font-family:var(--serif);font-size:16px;font-weight:600;
   letter-spacing:.16em;color:var(--gold-deep);
 }
 
@@ -525,12 +536,17 @@ h2{
 .card-tall .card-head{width:100%;}
 
 /* 募集テーマ */
+.card p.theme-name,
 .theme-name{
-  font-family:var(--serif);font-size:22px;font-weight:600;color:var(--ink);
+  /* .theme-name は <p> なので、`.card p`（0,1,1）に負ける。
+     業種名はカードの題なのに本文と同じ大きさで出ていた
+     （依頼主から「もっと大きく目立つように」2026-09-02）。
+     p を付けて（0,2,1）確実に勝たせる。 */
+  font-family:var(--serif);font-size:27px;font-weight:700;color:var(--ink);
   padding-bottom:.5em;border-bottom:1px solid rgba(198,164,92,.55);
 }
 .label{
-  font-size:13.5px;font-weight:700;letter-spacing:.06em;color:var(--gold-deep);
+  font-size:15px;font-weight:700;letter-spacing:.06em;color:var(--gold-deep);
 }
 .arrow{position:relative;padding-left:1.4em;margin-top:.4em;}
 .arrow::before{
@@ -552,7 +568,7 @@ h2{
   min-height:44px;              /* タップ領域 */
 }
 .faq-item summary::-webkit-details-marker{display:none;}
-.faq-item summary .card-title{flex:1;font-size:18.5px;}
+.faq-item summary .card-title{flex:1;font-size:21px;}
 /* 開閉の目印。開くと縦棒が消えて「−」になる */
 .faq-item summary::after{
   content:"";flex:none;position:relative;
@@ -571,7 +587,7 @@ h2{
    （金地に金文字になっていた 2026-09-02）。 */
 .faq-item > p{
   margin:0;padding:0 22px 22px;
-  font-size:15.5px;line-height:1.95;color:var(--paper-soft);
+  font-size:17px;line-height:1.95;color:var(--paper-soft);
 }
 .faq-item > p strong{color:#fff;}
 /* 参加費無料は一番効く訴求なので、CTA の直前で目立たせる */
@@ -587,8 +603,8 @@ h2{
    文字も中央揃えにして「役割の一覧」として読ませる。 */
 .nodes .card{align-items:center;text-align:center;padding:20px 16px;}
 .nodes .vignette-center{width:auto;max-width:none;height:58px;margin:0 auto .2em;}
-.nodes .card-title{font-size:16.5px;}
-.nodes .card p{font-size:13.5px;}
+.nodes .card-title{font-size:18px;}
+.nodes .card p{font-size:15px;}
 
 /* 支援体制の中心 */
 .hub-center{
@@ -600,8 +616,8 @@ h2{
   background:#0A2445;
   box-shadow:inset 0 0 0 1px rgba(198,164,92,.7);
 }
-.hub-center strong{font-family:var(--serif);font-size:21px;color:#fff;}
-.hub-center span{font-size:13.5px;color:var(--paper-soft);}
+.hub-center strong{font-family:var(--serif);font-size:23px;color:#fff;}
+.hub-center span{font-size:15px;color:var(--paper-soft);}
 
 /* チェックリスト ―「自分が対象かどうか」を確かめる、判断の要になる箱。
    ほかのカードと同じ体裁だと読み飛ばされるので、ここだけ強く見せる。
@@ -616,14 +632,14 @@ h2{
     0 16px 38px rgba(3,14,32,.42);
 }
 .checklist .card-title{
-  font-size:23px;letter-spacing:.02em;
+  font-size:26px;letter-spacing:.02em;
   padding-bottom:.5em;margin-bottom:.2em;
   border-bottom:1px solid rgba(198,164,92,.35);
 }
 .checklist ul{display:grid;gap:.9em;margin-top:.8em;}
 .checklist li{
   position:relative;padding-left:2em;
-  font-size:16.5px;line-height:1.85;color:var(--paper);
+  font-size:18px;line-height:1.85;color:var(--paper);
 }
 @media (hover:hover){
   .checklist{transition:background-color .2s ease, box-shadow .2s ease, transform .2s ease;}
@@ -648,7 +664,7 @@ h2{
   border-left:2px solid #0A2247;border-bottom:2px solid #0A2247;
   transform:rotate(-45deg);
 }
-.checklist .sub{display:block;font-size:14px;color:var(--paper-soft);}
+.checklist .sub{display:block;font-size:15px;color:var(--paper-soft);}
 
 /* スケジュール */
 /* 3列×2段のカードだと、6件が「並んだ塊」に見えて順番が読み取れない。
@@ -669,16 +685,16 @@ h2{
 .timeline .tl-step{
   align-self:flex-start;
   padding:.2em .9em;border-radius:999px;
-  font-family:var(--serif);font-size:12.5px;font-weight:700;letter-spacing:.1em;
+  font-family:var(--serif);font-size:13.5px;font-weight:700;letter-spacing:.1em;
   color:var(--gold);background:#0A2247;white-space:nowrap;
 }
 .timeline .tl-date{
-  font-family:var(--serif);font-size:19px;font-weight:600;line-height:1.35;
+  font-family:var(--serif);font-size:21px;font-weight:600;line-height:1.35;
   color:#0A2247;
 }
 .timeline .tl-body{padding:22px 26px;display:flex;flex-direction:column;justify-content:center;}
-.timeline .card-title{font-size:20px;}
-.timeline .tl-body p{margin-top:.5em;font-size:15px;}
+.timeline .card-title{font-size:22px;}
+.timeline .tl-body p{margin-top:.5em;font-size:16.5px;}
 
 /* 段の色は :nth-child で取る。s1〜s6 のようなクラスを付けてはいけない ――
    生き物の配置クラスと同じ名前で、スマホでは .sec-schedule .s1{display:none}
@@ -693,7 +709,7 @@ h2{
 /* 注記 */
 .note{
   margin-top:2.4rem;padding:18px 24px;border-radius:12px;
-  font-size:15px;line-height:1.85;
+  font-size:16.5px;line-height:1.85;
   /* 幅は器いっぱい。上に並ぶカードの右端と揃わないと、注記だけが
      半端な位置で切れて、面が崩れて見える（以前は 52em で止めていたが、
      依頼主から幅を揃えるよう指摘を受けた 2026-08-31）。
@@ -721,7 +737,7 @@ h2{
 .btn{
   display:inline-flex;align-items:center;justify-content:center;
   min-height:52px;padding:0 30px;border-radius:999px;
-  font-weight:700;font-size:16.5px;letter-spacing:.02em;
+  font-weight:700;font-size:17.5px;letter-spacing:.02em;
   transition:transform .18s ease, box-shadow .18s ease;
 }
 .btn-primary{background:#12335C;color:#fff;box-shadow:0 6px 18px rgba(12,40,76,.28);}
@@ -742,7 +758,7 @@ h2{
    セクションの紺と誤認して「紺地に紺の文字」と判定してしまう。
    艶はその上に重ねる薄い白黒のグラデーションで付ける。 */
 .btn-accent{
-  min-height:62px;padding:0 42px;font-size:17.5px;
+  min-height:64px;padding:0 44px;font-size:19px;
   background-color:#DDBB6E;
   background-image:linear-gradient(180deg,rgba(255,255,255,.34),rgba(0,0,0,.07));
   color:#0A2247;
@@ -774,7 +790,7 @@ h2{
 .cta:hover .card-title{color:#0A2247;}
 .cta:hover .cta-sub{color:#40566F;}
 .cta:hover .chev{border-color:#0A2247;}
-.cta-sub{font-size:13.5px;color:var(--paper-soft);}
+.cta-sub{font-size:15px;color:var(--paper-soft);}
 /* 押しても動かないものはリンクにしない。準備中であることを明示する。 */
 /* 押せない案内なので浮かせない。ただし暗いままだと読みにくいので、
    薄める処理をやめ、触れたときは静かに光らせる。 */
@@ -810,7 +826,12 @@ h2{
    広島城が並ぶ。ヒーローが低いと cover が絵を縮めて建物が上がってきて、
    リード文の下に食い込む（1280pxで 1.52:1 まで落ちた）。高さを確保すると
    絵が拡大され、建物は本文より下へ逃げる。 */
-.hero{padding:0;min-height:clamp(940px, 74vw, 1060px);display:flex;align-items:center;}
+/* 文字を大きくするたびにリード文の最終行が下がり、絵の下の帯にある
+   広島城へ近づく。高さを足すと cover が絵を拡大して建物が下へ逃げる。
+   74vw のとき 1280px で 2.45:1 まで落ちたので 79vw まで上げた。
+   上限も 1100px では 1440px の夜で 4.26:1 と足りず、1160px にした
+   （夜の絵は紙の形が昼と少し違う）。 */
+.hero{padding:0;min-height:clamp(980px, 79vw, 1160px);display:flex;align-items:center;}
 /* ヒーローだけは中央寄せの器を外す。位置は絵に合わせるため画面幅で決める */
 .hero > .wrap{width:100%;}
 
@@ -889,10 +910,10 @@ h2{
   font-size:min(2.15vw, 38px);
 }
 .gold{color:var(--gold-deep);}
-.hero-sub{font-size:clamp(13px,1.2vw,16px);letter-spacing:.04em;color:var(--ink-soft);margin-top:.3em;}
+.hero-sub{font-size:clamp(14px,1.3vw,17.5px);letter-spacing:.04em;color:var(--ink-soft);margin-top:.3em;}
 /* 字を大きくしたぶん1行が伸び、右端が紙の縁を越えて 3.3:1 まで落ちた。
    紙の幅は決まっているので、字を大きくしたら行は短くする。 */
-.hero-lead{font-size:clamp(15px,1.25vw,17.5px);line-height:2;color:var(--ink);margin-top:1.4em;max-width:27em;}
+.hero-lead{font-size:clamp(16px,1.35vw,19px);line-height:1.95;color:var(--ink);margin-top:1.4em;max-width:27em;}
 .hero-cta{display:flex;gap:14px;margin-top:2em;flex-wrap:wrap;}
 
 /* 右上の浮かぶナビ。完成イメージの構成に合わせている */
@@ -924,10 +945,10 @@ h2{
 }
 .foot-brand{
   display:flex;align-items:center;justify-content:center;gap:.5em;
-  font-family:var(--serif);font-size:20px;font-weight:600;color:#fff;
+  font-family:var(--serif);font-size:22px;font-weight:600;color:#fff;
 }
 .foot-mark{width:34px;height:auto;}
-.foot-note{font-size:13.5px;margin-top:.5em;color:var(--paper-soft);}
+.foot-note{font-size:15px;margin-top:.5em;color:var(--paper-soft);}
 
 /* --- 実施主体 ---
    ロゴは白地で使う前提で作られている。紺のフッターに直接置くと、黒い文字が
@@ -984,14 +1005,14 @@ h2{
 }
 .foot-nav a{
   display:inline-flex;align-items:center;min-height:44px;padding:0 .2em;
-  font-size:14px;color:var(--paper-soft);
+  font-size:15px;color:var(--paper-soft);
 }
 .foot-nav a:hover{color:var(--gold);}
 .foot-top{margin-top:1.2em;}
 .foot-top a{
   display:inline-flex;align-items:center;justify-content:center;
   min-height:44px;padding:0 1.6em;border-radius:999px;
-  font-size:14px;font-weight:700;color:var(--paper);
+  font-size:15px;font-weight:700;color:var(--paper);
   box-shadow:inset 0 0 0 1px rgba(198,164,92,.6);
 }
 .foot-top a:hover{background:var(--gold);color:#0A2247;}
@@ -1047,18 +1068,18 @@ h2{
    PC版の縮小ではなく、縦長LPとして組み直す
    ============================================================ */
 @media (max-width:767px){
-  body{font-size:16px;padding-bottom:76px;}  /* 固定CTAのぶんを空ける */
+  body{font-size:17px;padding-bottom:76px;}  /* 固定CTAのぶんを空ける */
   .wrap{width:min(100% - 32px, var(--wrap));}
 
   .section{padding:60px 0;}
   .section + .section{padding-top:52px;}
 
   /* --- 文字：行長が全角24文字前後に収まるサイズへ --- */
-  h2{font-size:clamp(21px,5.7vw,26px);line-height:1.6;}
-  .lead{font-size:15.5px;line-height:1.9;margin-bottom:1.8rem;}
-  .card p{font-size:15px;}
-  .card-title{font-size:18.5px;}
-  .eyebrow{font-size:12.5px;padding:.45em 1.1em;}
+  h2{font-size:clamp(23px,6.2vw,29px);line-height:1.55;}
+  .lead{font-size:17px;line-height:1.9;margin-bottom:1.8rem;}
+  .card p{font-size:16.5px;}
+  .card-title{font-size:21px;}
+  .eyebrow{font-size:13.5px;padding:.45em 1.1em;}
 
   /* 作者が入れた改行は広い画面向け。狭い画面では
      <br> の位置で切ったうえにさらに折り返り、行がガタつく。 */
@@ -1097,14 +1118,14 @@ h2{
     flex-direction:row;align-items:center;gap:.9em;
     padding:12px 18px;
   }
-  .timeline .tl-date{font-size:16.5px;}
+  .timeline .tl-date{font-size:18px;}
   .timeline .tl-body{padding:16px 18px 20px;}
-  .timeline .card-title{font-size:18px;}
-  .timeline .tl-body p{font-size:14.5px;}
+  .timeline .card-title{font-size:20px;}
+  .timeline .tl-body p{font-size:16px;}
 
   /* --- CTA --- */
   .cta{min-height:84px;padding:18px 44px 18px 20px;}
-  .note{padding:16px 18px;font-size:14.5px;}
+  .note{padding:16px 18px;font-size:16px;}
 
   /* --- 画面下に固定するCTA --- */
   /* 追従CTA。position:fixed だと最初の一画面から出てしまい、ヒーローの
@@ -1131,7 +1152,7 @@ h2{
 @media (max-width:389px){
   .wrap{width:min(100% - 24px, var(--wrap));}
   .section{padding:52px 0;}
-  h2{font-size:20.5px;}
+  h2{font-size:22px;}
   .hero-title{font-size:25px;}
   .hero-nav a{flex:1 1 100%;}
   .card{padding:18px 16px;}
