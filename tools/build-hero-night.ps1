@@ -1,16 +1,19 @@
 ﻿<#
-  build-hero-night.ps1 ― 夜のヒーロー背景を書き出す
+  build-hero-night.ps1 ― ヒーローの絵を書き出す（昼・夜）
 
-  依頼主から夜の絵を2点もらった。どちらも舟や灯りが最初から描き込まれて
-  いるので、こちらで合成するものは何もない。やることは寸法を揃えて JPEG
-  にするだけ。
+  依頼主からもらった絵は、どれも舟や灯りが最初から描き込まれている。
+  こちらで合成するものは何もない。やることは寸法を揃えて JPEG にするだけ。
 
-    横（PC）    1672x941  → hero-night-wide.jpg    1600x900
-    縦（スマホ） 941x1672  → hero-night-mobile.jpg   900x1599
+    横・昼   1672x941  → hero-scene-wide.jpg    1600x900
+    横・夜   1672x941  → hero-night-wide.jpg    1600x900
+    縦・夜    941x1672 → hero-night-mobile.jpg   900x1599
 
-  昼の絵と同じ寸法・同じ比率にしておくこと。CSS は昼夜で
+  縦・昼（hero-mobile.jpg）だけは、舟の描かれていない絵に舟アイコンを
+  合成して作っている（tools/build-hero-mobile.ps1）。
+
+  **昼と夜は必ず同じ寸法・同じ比率にすること。** CSS は昼夜で
   background-position を共有しているので、比率がずれると夜だけ
-  切り取り位置が変わる。
+  切り取り位置が変わる。0.02 以上ずれたらこの script が止まる。
 #>
 param([switch]$Force)
 
@@ -26,8 +29,9 @@ $outDir = Join-Path $root 'assets\img\backgrounds'
 $srcDir = Join-Path $LP_ROOT '背景画像'
 
 $jobs = @(
-  @{ src = 'ChatGPT Image 2026年8月31日 17_41_16.png'; out = 'hero-night-wide.jpg';   w = 1600; h = 900  },
-  @{ src = 'ChatGPT Image 2026年8月31日 17_44_28.png'; out = 'hero-night-mobile.jpg'; w = 900;  h = 1599 }
+  @{ src = 'ChatGPT Image 2026年8月21日 18_04_41 (3).png'; out = 'hero-scene-wide.jpg';  w = 1600; h = 900  },
+  @{ src = 'ChatGPT Image 2026年8月31日 17_41_16.png';     out = 'hero-night-wide.jpg';  w = 1600; h = 900  },
+  @{ src = 'ChatGPT Image 2026年8月31日 17_44_28.png';     out = 'hero-night-mobile.jpg'; w = 900; h = 1599 }
 )
 
 # JPEG の符号化器と品質
