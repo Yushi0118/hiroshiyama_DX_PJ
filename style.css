@@ -127,16 +127,6 @@ body::after{
           mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.45) 45%,transparent 100%);
 }
 
-/* 漂う粒子。SVGのノイズを薄く全面に敷く */
-.particles{
-  position:absolute; inset:0; z-index:-1; pointer-events:none;
-  /* 粒子は「言われないと気づかない」強さに留める。
-     強いと圧縮ノイズや砂嵐に見え、紺地では文字の可読性まで落ちる。 */
-  opacity:.14;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='340' height='340'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 -28 12'/%3E%3C/filter%3E%3Crect width='340' height='340' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size:320px 320px;
-}
-
 /* ============================================================
    セクションの器
    ============================================================ */
@@ -514,28 +504,54 @@ h2{
 .checklist .sub{display:block;font-size:14px;color:var(--paper-soft);}
 
 /* スケジュール */
-/* 6列だと1枚あたり約170pxで、日本語が「ワークシ／ョップ」のように
-   拗音1文字で折り返す。3列×2段にして1枚の幅を確保する。 */
-.timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-.timeline .card{padding:22px 16px;text-align:center;align-items:center;}
-.timeline .card-title{font-size:17px;}
-.timeline p{font-size:13.5px;}
-/* .tier-deep .card p（詳細度 0,2,1）に負けると金地に水色の文字になり
-   読めなくなる。セレクタを .timeline .when にして確実に勝たせる。 */
-.timeline .when{
-  display:inline-block;padding:.25em 1em;border-radius:999px;
-  font-size:13px;font-weight:700;color:#0A2247;background:var(--gold);
-  white-space:nowrap;
+/* 3列×2段のカードだと、6件が「並んだ塊」に見えて順番が読み取れない。
+   1件1行にして、左に時期・右に内容を置く。左端の色が段々と濃くなるので、
+   上から下へ進んでいくことが色でも分かる。 */
+.timeline{display:flex;flex-direction:column;gap:16px;}
+.timeline .card{
+  display:grid;grid-template-columns:minmax(176px,23%) 1fr;
+  align-items:stretch;padding:0;overflow:hidden;text-align:left;
 }
+/* 左の帯。金の濃さを1→6で深くして、進行を色でも見せる（下の .s1〜.s6）。
+   文字は必ず紺。金地に水色だと読めない（.tier-deep .card p に負けるので、
+   .timeline を頭に付けて詳細度で勝たせている）。 */
+.timeline .tl-when{
+  display:flex;flex-direction:column;justify-content:center;gap:.45em;
+  padding:22px 20px;color:#0A2247;background:var(--gold);
+}
+.timeline .tl-step{
+  align-self:flex-start;
+  padding:.2em .9em;border-radius:999px;
+  font-family:var(--serif);font-size:12.5px;font-weight:700;letter-spacing:.1em;
+  color:var(--gold);background:#0A2247;white-space:nowrap;
+}
+.timeline .tl-date{
+  font-family:var(--serif);font-size:19px;font-weight:600;line-height:1.35;
+  color:#0A2247;
+}
+.timeline .tl-body{padding:22px 26px;display:flex;flex-direction:column;justify-content:center;}
+.timeline .card-title{font-size:20px;}
+.timeline .tl-body p{margin-top:.5em;font-size:15px;}
+
+/* 段の色は :nth-child で取る。s1〜s6 のようなクラスを付けてはいけない ――
+   生き物の配置クラスと同じ名前で、スマホでは .sec-schedule .s1{display:none}
+   に巻き込まれてカードが1枚まるごと消えた（2026-08-31）。 */
+.timeline .card:nth-child(1) .tl-when{background:#E8CE8E;}
+.timeline .card:nth-child(2) .tl-when{background:#E0C07A;}
+.timeline .card:nth-child(3) .tl-when{background:#D8B267;}
+.timeline .card:nth-child(4) .tl-when{background:#CFA455;}
+.timeline .card:nth-child(5) .tl-when{background:#C39647;}
+.timeline .card:nth-child(6) .tl-when{background:#B5883C;}
 
 /* 注記 */
 .note{
   margin-top:2.4rem;padding:18px 24px;border-radius:12px;
   font-size:15px;line-height:1.85;
-  /* 幅を止めないと1行が1060pxまで伸び、14pxの文字で1行75字を超える。
-     読点で目が迷って行を取り違えやすくなるうえ、セクション下端の
-     左右いっぱいに広がるので、装飾を置ける水域も無くなる。 */
-  max-width:52em;
+  /* 幅は器いっぱい。上に並ぶカードの右端と揃わないと、注記だけが
+     半端な位置で切れて、面が崩れて見える（以前は 52em で止めていたが、
+     依頼主から幅を揃えるよう指摘を受けた 2026-08-31）。
+     注記はどれも1〜2行なので、行が長くなる問題は起きない。 */
+  max-width:none;
   background:rgba(255,255,255,.72);
   box-shadow:inset 0 0 0 1px rgba(198,164,92,.45);
   color:var(--ink);
@@ -882,25 +898,19 @@ h2{
   .hero-nav{flex-direction:row;flex-wrap:wrap;width:100%;margin-top:20px;}
   .hero-nav a{flex:1 1 46%;min-width:0;justify-content:center;padding:0 30px 0 14px;font-size:12.5px;}
 
-  /* --- スケジュール：左に線が通る縦のステッパー --- */
-  .timeline{grid-template-columns:1fr;gap:0;}
-  .timeline .card{
-    display:grid;grid-template-columns:34px 1fr;
-    column-gap:14px;row-gap:0;text-align:left;align-items:start;
-    background:transparent;box-shadow:none;border-radius:0;
-    padding:0 0 26px;
+  /* --- スケジュール：左右2段を上下2段に折る --- */
+  /* 幅が狭いと左の帯が23%＝80px程度になり、「2026年」で折り返して
+     4行になる。横並びをやめ、時期を上、内容を下に積む。 */
+  .timeline{gap:14px;}
+  .timeline .card{grid-template-columns:1fr;}
+  .timeline .tl-when{
+    flex-direction:row;align-items:center;gap:.9em;
+    padding:12px 18px;
   }
-  .timeline .card:last-child{padding-bottom:0;}
-  /* 縦の接続線 */
-  .timeline .card:not(:last-child)::before{
-    content:'';position:absolute;left:16px;top:40px;bottom:0;
-    width:1.5px;background:rgba(198,164,92,.45);
-  }
-  .timeline .num{grid-column:1;grid-row:1;}
-  .timeline .when{grid-column:2;grid-row:1;justify-self:start;align-self:center;}
-  .timeline .card-title{grid-column:2;grid-row:2;margin-top:.4em;}
-  /* .card-title も <p> なので、除外しないと本文と同じ行に置かれて重なる */
-  .timeline .card p:not(.when):not(.card-title){grid-column:2;grid-row:3;font-size:14px;}
+  .timeline .tl-date{font-size:16.5px;}
+  .timeline .tl-body{padding:16px 18px 20px;}
+  .timeline .card-title{font-size:18px;}
+  .timeline .tl-body p{font-size:14.5px;}
 
   /* --- CTA --- */
   .cta{min-height:84px;padding:18px 44px 18px 20px;}
@@ -1482,7 +1492,7 @@ h2{
    印刷
    ============================================================ */
 @media print{
-  body::before,body::after,.particles,.sticky-cta,.hero-art{display:none;}
+  body::before,body::after,.sticky-cta,.hero-art{display:none;}
   .card{box-shadow:none;border:1px solid #999;}
   /* 個別に上書きすると詳細度の高いルール（.tier-deep .card p:not(.when) など）が
      残り、白紙に薄い水色で印刷されてしまう。まとめて黒に倒す。 */
