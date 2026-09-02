@@ -34,14 +34,35 @@
      コントラストが足りなくなる（実際に5件の未達を出した）。
 
      色と位置は tools/check.js も読む。片方だけ変えないこと。 */
+  /* 素の海。ページ丈に対する%で色が決まるので、ここだけで
+     「中層は紺の字が読める明るさ／深海は白の字が読める暗さ」を
+     両立させることはできない。実測すると、中層の最後の地の文と
+     深海の最初の地の文の間に空く谷は、画面幅によって
+     39.6→47.6%（1024px）から 45.1→52.0%（775px）まで動く。
+     交差は 45.1→47.6% しかなく、そこで一気に潜らせると
+     200pxほどで急に暗くなって、それ自体が帯に見える。
+     だからここは緩やかな一本の坂に留め、深さは .deep-zone の幕で足す。 */
   --sea-0:#FBF6E9;  --sea-p0:0%;     /* 水面 */
-  --sea-1:#E4EFE9;  --sea-p1:10%;
-  --sea-2:#C6E2EC;  --sea-p2:20%;
-  --sea-3:#A5D0E2;  --sea-p3:28%;    /* 中層のはじまり */
-  --sea-4:#79B2D2;  --sea-p4:42%;
-  --sea-5:#4C8CBC;  --sea-p5:54%;
-  --sea-6:#245C93;  --sea-p6:62%;    /* 深海。ここから一気に暗くする */
-  --sea-7:#071C3C;  --sea-p7:100%;   /* 最深部 */
+  --sea-1:#E4EFE9;  --sea-p1:8%;
+  --sea-2:#C6E2EC;  --sea-p2:16%;
+  --sea-3:#A5D0E2;  --sea-p3:24%;    /* 中層のはじまり */
+  --sea-4:#8FBEDC;  --sea-p4:34%;
+  --sea-5:#6FA6CB;  --sea-p5:46%;
+  --sea-6:#3E7DAE;  --sea-p6:62%;
+  --sea-7:#0E2C50;  --sea-p7:100%;   /* 最深部 */
+
+  /* 深海の器に掛ける幕。深海の入口より --deep-lead だけ手前から
+     掛け始めるので、入口の見出しに届く頃にはもう暗い。
+     tools/check.js が同じ値を読んで同じ式で合成する。片方だけ変えない。 */
+  --deep-rgb:6,26,52;
+  /* 幕を掛け始める位置（深海の器の上端より手前）。中層の最後の地の文と
+     器の上端の間は、どの画面幅でも 722px 以上空いている（実測）。
+     600px なら文字に掛からず、沈む距離は 1200px 取れる。短くすると
+     暗くなり方が急になり、それ自体が帯に見えはじめる。 */
+  --deep-lead:600px;
+  --deep-a1:.55;   /* 深海の入口ちょうど */
+  --deep-a2:.78;   /* さらに --deep-lead 下がったところ */
+  --deep-a3:.88;   /* 最下部 */
 
   --ink:#12335C;        /* 浅瀬側の文字 */
   --ink-soft:#40566F;   /* 浅瀬側の補助文字 */
@@ -52,12 +73,6 @@
 
   --serif:"Noto Serif JP","Yu Mincho",YuMincho,"Hiragino Mincho ProN",serif;
   --sans:"Noto Sans JP","Yu Gothic",YuGothic,"Hiragino Sans","Meiryo",sans-serif;
-
-  /* 深海セクション上部の幕。tools/check.js もこの値を読むので、
-     ここを変えれば判定も自動で追随する。片方だけ変えないこと。 */
-  --scrim-rgb:6,26,52;
-  --scrim-a:.68;
-  --scrim-h:560px;
 
   --wrap:1120px;
   --radius:16px;
@@ -142,28 +157,37 @@ body::after{
 
 .tier-deep{color:var(--paper);}
 
-/* 深海セクションの上部だけを局所的に暗く落とす。
+/* 深海セクションの上部に暗い幕を1枚ずつ掛けてはいけない。
 
-   背景は「ページ全高に対する%」で色が決まるため、内容が増えて
-   ページが伸びると、各セクションはグラデーション上の別の位置へずれる。
-   実際 FAQ を足しただけで 8,261px → 10,142px に伸び、深海セクションの
-   見出しが明るい水の上に乗ってコントラストが 2.5:1 まで落ちた。
+   以前は .tier-deep::before で先頭 560px を暗く落としていた。1枚では
+   目立たないが、深海のセクションは5つ続く。セクションごとに「上が暗く、
+   下へ向かって明るく戻る」を繰り返すので、境目に横縞が5本できて、
+   ページが独立したブロックの連なりに見えた。幕の色（6,26,52）が中層の
+   明るい水に乗ると彩度が落ちるため、その帯だけ灰色がかっても見えた。
+   依頼主から「セクションごとに切れて見える」「背景のグレースケールが
+   要らない」と両方を指摘されて撤去した（2026-08-31）。
 
-   セクションの先頭を局所的に暗くしておけば、ページ丈が変わっても
-   白い見出しは必ず暗い地の上に乗る。下へ向かって消えるので、
-   境目に帯は見えない。 */
-.tier-deep::before{
+   代わりに、深海の5節をまとめた .deep-zone に幕を1枚だけ掛ける。
+   境目は器の上端の1か所しかなく、そこも手前 320px から掛け始めて
+   ゆっくり濃くなるので、線には見えない。器の中は下へ向かって
+   濃くなり続けるだけなので、明るく戻る場所がない＝縞ができない。 */
+.deep-zone{position:relative;}
+.deep-zone::before{
   content:"";
-  position:absolute;inset:0 0 auto;
-  height:min(62%, var(--scrim-h));
+  position:absolute;left:0;right:0;
+  top:calc(var(--deep-lead) * -1);   /* 深海に入る手前から掛け始める */
+  bottom:0;
+  /* z-index:0 は生き物（-1）より上。深海の生き物も水に沈んで見える。
+     -1 にすると生き物が幕の上に浮き、深海だけ妙に明るくなる。 */
+  z-index:0;pointer-events:none;
   background:linear-gradient(180deg,
-    rgba(var(--scrim-rgb),var(--scrim-a)) 0%,
-    rgba(var(--scrim-rgb),calc(var(--scrim-a) * .74)) 60%,
-    rgba(var(--scrim-rgb),0) 100%);
-  pointer-events:none;z-index:0;
+    rgba(var(--deep-rgb),0)            0,
+    rgba(var(--deep-rgb),var(--deep-a1)) var(--deep-lead),
+    rgba(var(--deep-rgb),var(--deep-a2)) calc(var(--deep-lead) * 2),
+    rgba(var(--deep-rgb),var(--deep-a3)) 100%);
 }
 /* 本文は幕より上に置く。位置指定した擬似要素は、位置指定していない
-   通常フローの要素より後に描かれるため、これが無いと文字が隠れる。 */
+   通常フローの要素より後に描かれるため、これが無いと文字が沈む。 */
 .tier-deep > .wrap{position:relative;z-index:1;}
 
 
@@ -1038,7 +1062,12 @@ h2{
    カードの下に潜った生き物は見えなくなるが、それでよい。
    z-index:-1 なので、勝手に「空いている所だけ見える」状態になる。
    ============================================================ */
-.creatures{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;}
+/* overflow:hidden にしてはいけない。セクションの端に置いた生き物が
+   境目でスパッと切れ、そこに線があるように見える（上部のカニが半分に
+   切れていると指摘を受けた 2026-08-31）。またいで泳がせることが、
+   セクションどうしを繋いで1枚の海に見せる仕掛けでもある。
+   横あふれは body の overflow-x:clip が受け止める。 */
+.creatures{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:visible;}
 .creature{
   position:absolute;
   top:var(--ct,auto); right:var(--cr,auto); bottom:var(--cb,auto); left:var(--cl,auto);

@@ -70,33 +70,39 @@ window.__check = function () {
     return SEA[SEA.length - 1][1];
   };
   const pageH = () => Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, 1);
-  /* 深海セクションの上部には局所的な暗い幕（.tier-deep::before）が
-     掛かっている。擬似要素なので祖先の背景として読めず、これを
-     無視すると「明るい水の上に白文字」と誤判定してしまう。
-     CSS と同じ値を :root から読み、同じ式で合成する。 */
+  /* 下地は「ページ全体のグラデーション」＋「深海の器に掛けた幕1枚」。
+     幕は擬似要素なので祖先の背景としては読めない。CSS と同じ値を
+     :root から読み、同じ式で合成する。以前は深海セクションごとに
+     幕が1枚ずつ掛かっていて、それが横縞に見えたので器1つにまとめた。 */
   const rs0 = getComputedStyle(document.documentElement);
-  const SCRIM = {
-    rgb: (rs0.getPropertyValue("--scrim-rgb") || "6,26,52").split(",").map(Number),
-    a: parseFloat(rs0.getPropertyValue("--scrim-a")) || 0.62,
-    h: parseFloat(rs0.getPropertyValue("--scrim-h")) || 420
+  const DEEP = {
+    rgb: (rs0.getPropertyValue("--deep-rgb") || "6,26,52").split(",").map(Number),
+    lead: parseFloat(rs0.getPropertyValue("--deep-lead")) || 320,
+    a1: parseFloat(rs0.getPropertyValue("--deep-a1")) || 0.55,
+    a2: parseFloat(rs0.getPropertyValue("--deep-a2")) || 0.78,
+    a3: parseFloat(rs0.getPropertyValue("--deep-a3")) || 0.88
+  };
+  const deepAlpha = mid => {
+    const zone = document.querySelector(".deep-zone");
+    if (!zone) return 0;
+    const zr = zone.getBoundingClientRect();
+    const top = zr.top + scrollY - DEEP.lead;       /* 幕の上端 */
+    const h = zr.height + DEEP.lead;                /* 幕の高さ */
+    const d = mid - top;
+    if (d <= 0) return 0;
+    if (d >= h) return DEEP.a3;
+    /* CSS の停止位置と同じ3区間で線形に補間する */
+    if (d < DEEP.lead) return DEEP.a1 * (d / DEEP.lead);
+    if (d < DEEP.lead * 2) return DEEP.a1 + (DEEP.a2 - DEEP.a1) * ((d - DEEP.lead) / DEEP.lead);
+    return DEEP.a2 + (DEEP.a3 - DEEP.a2) * ((d - DEEP.lead * 2) / (h - DEEP.lead * 2));
   };
   const baseOf = el => {
     const b = el.getBoundingClientRect();
     const mid = b.top + scrollY + b.height / 2;
-    let base = seaAt(mid / pageH());
-    const deep = el.closest(".tier-deep");
-    if (deep) {
-      const h = Math.min(deep.offsetHeight * 0.62, SCRIM.h);
-      const d = mid - deep.offsetTop;
-      if (d >= 0 && d < h) {
-        const t = d / h;
-        const a = t < 0.6
-          ? SCRIM.a + (SCRIM.a * 0.74 - SCRIM.a) * (t / 0.6)
-          : SCRIM.a * 0.74 * (1 - (t - 0.6) / 0.4);
-        base = base.map((v, i) => Math.round(SCRIM.rgb[i] * a + v * (1 - a)));
-      }
-    }
-    return base;
+    const base = seaAt(mid / pageH());
+    const a = deepAlpha(mid);
+    if (a <= 0) return base;
+    return base.map((v, i) => Math.round(DEEP.rgb[i] * a + v * (1 - a)));
   };
 
   const bgOf = el => {
@@ -139,9 +145,33 @@ window.__check = function () {
   });
   low.forEach(x => F.push(`コントラスト ${x.r}:1（要 ${x.need}:1） "${x.txt}"`));
 
-  /* --- 2. 横スクロール --- */
-  const sw = document.documentElement.scrollWidth;
-  if (sw > innerWidth + 1) F.push(`横スクロール発生 ${sw} > ${innerWidth}`);
+  /* --- 2. 横あふれ --- */
+  /* scrollWidth だけで見てはいけない。body は overflow-x:clip なので
+     実際には横へ動かないが、装飾（生き物）が画面の外へ泳ぎ出ていると
+     scrollWidth だけが伸びて、ありもしない横スクロールを報告する。
+     見るべきは2つ。
+       ・本当に横へ動くか（動けば内容に手が届かなくなる）
+       ・中身（aria-hidden でない要素）が画面からはみ出していないか
+     画面の端から泳ぎ出す生き物は意図した見せ方なので数えない。 */
+  const de = document.documentElement;
+  const keep = de.scrollLeft;
+  de.scrollLeft = 9999;
+  const movable = de.scrollLeft > 0;
+  de.scrollLeft = keep;
+  if (movable) F.push(`横スクロール発生 ${de.scrollWidth} > ${innerWidth}`);
+
+  let worst = null;
+  [...document.querySelectorAll('main *, header *, footer *')].forEach(el => {
+    if (el.closest('[aria-hidden="true"]') || el.closest('.sprite') || el.closest('dialog')) return;
+    const cs = getComputedStyle(el);
+    if (cs.display === 'none' || cs.visibility === 'hidden' || cs.position === 'fixed') return;
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0) return;
+    if (r.right > innerWidth + 1 && (!worst || r.right > worst.right)) {
+      worst = { right: Math.round(r.right), cls: el.className || el.tagName };
+    }
+  });
+  if (worst) F.push(`中身が画面からはみ出している ${worst.right} > ${innerWidth}（${worst.cls}）`);
 
   /* --- 3. タップ領域 --- */
   [...document.querySelectorAll('a, button')].forEach(el => {
@@ -170,7 +200,7 @@ window.__check = function () {
   return {
     pass: F.length === 0,
     failures: F,
-    details: { viewport: [innerWidth, innerHeight], scrollWidth: sw, 検査した文字要素: texts.length, コントラスト不足: low.length }
+    details: { viewport: [innerWidth, innerHeight], scrollWidth: de.scrollWidth, 横へ動くか: movable, 検査した文字要素: texts.length, コントラスト不足: low.length }
   };
 };
 
