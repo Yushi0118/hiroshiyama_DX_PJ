@@ -359,15 +359,52 @@ h2{
   }
   /* 深海は「光が差す」表現にする。暗い地の上で少し色を変えるだけでは
      変化が読み取れない（依頼主から「暗くて見づらい」と指摘 2026-08-31）。
-     地を一段明るい水色へ上げたうえで、金と水色の光を外へ回す。 */
-  .tier-deep .card:hover{
-    background:#1B5D9E;transform:translateY(-3px);
+
+     地を明るい水色に変える案は、中の文字（白と金）が地に近づいて
+     かえって読みにくくなった（依頼主から再度指摘 2026-09-02）。
+     いまは**元の配色をそのまま反転**させる ―― 紺地に白文字を、
+     紙地に紺文字へ。金と水色の光は外に回したまま残す。
+
+     文字色を動かすので、中の要素も一つずつ入れ替える必要がある。
+     .tier-deep .card-title などが個別に色を持っているため、
+     親の color を変えるだけでは白いまま残る。 */
+  .tier-deep .card:hover,
+  .tier-deep .checklist:hover{
+    background:var(--paper);transform:translateY(-3px);
     box-shadow:
       inset 0 0 0 1.5px var(--gold),
-      inset 0 1px 0 rgba(255,255,255,.30),
       0 0 26px rgba(198,164,92,.45),
       0 0 56px rgba(126,196,246,.34),
       0 16px 34px rgba(3,14,32,.46);
+  }
+  .tier-deep .card:hover .card-title,
+  .tier-deep .checklist:hover .card-title,
+  .tier-deep .card:hover .faq-q,
+  .faq-item:hover summary .card-title{color:#0A2247;}
+  .tier-deep .card:hover p:not(.when),
+  .tier-deep .card:hover li,
+  .tier-deep .checklist:hover li,
+  .tier-deep .checklist:hover .sub,
+  .tier-deep .card:hover .cta-sub{color:#33455C;}
+  .tier-deep .card:hover strong{color:#0A2247;}
+  /* 番号バッジは金地に紺字。反転させて紺地に金字にする。
+     「準備中」の札も同じ。薄い金地に淡い金字のままだと、
+     紙地の上で 1.32:1 まで落ちて消える。 */
+  .tier-deep .card:hover .num,
+  .tier-deep .card:hover .cta-badge{
+    background:#0A2247;color:var(--gold);border-color:#0A2247;
+  }
+  /* チェックリストの丸と鉤も同じ考えで入れ替える */
+  .tier-deep .checklist:hover li::before{background:#0A2247;}
+  .tier-deep .checklist:hover li::after{border-color:var(--gold);}
+  /* FAQ の ＋ 印は金の線でできている。紙地の上では紺にする */
+  .faq-item:hover summary::after{
+    background:
+      linear-gradient(#0A2247,#0A2247) center/100% 2px no-repeat,
+      linear-gradient(#0A2247,#0A2247) center/2px 100% no-repeat;
+  }
+  .faq-item[open]:hover summary::after{
+    background:linear-gradient(#0A2247,#0A2247) center/100% 2px no-repeat;
   }
 }
 
@@ -528,16 +565,10 @@ h2{
 .faq-item[open] summary::after{
   background:linear-gradient(var(--gold),var(--gold)) center/100% 2px no-repeat;
 }
-.faq-item summary:hover .card-title{color:var(--gold);}
-/* 見出しの色だけだと、どの行に触れているのか分かりにくい。
-   器ごと一段明るくして、金の光を薄く回す。 */
-.faq-item:hover{
-  background:#154878;
-  box-shadow:
-    inset 0 0 0 1.5px var(--gold),
-    0 0 22px rgba(198,164,92,.32),
-    0 12px 28px rgba(3,14,32,.4);
-}
+/* FAQ の器は .card でもあるので、ホバーの見た目は
+   「深海のカードのホバー」（@media (hover:hover) の中）がまとめて持つ。
+   ここで地の色や見出しの色を足すと、反転と食い違って読めなくなる
+   （金地に金文字になっていた 2026-09-02）。 */
 .faq-item > p{
   margin:0;padding:0 22px 22px;
   font-size:15.5px;line-height:1.95;color:var(--paper-soft);
@@ -596,11 +627,11 @@ h2{
 }
 @media (hover:hover){
   .checklist{transition:background-color .2s ease, box-shadow .2s ease, transform .2s ease;}
+  /* 地と文字の入れ替えは「深海のカードのホバー」がまとめて持っている。
+     ここは影の強さだけを、チェックリストの大きさに合わせて足す。 */
   .tier-deep .checklist:hover{
-    background:#1B5D9E;transform:translateY(-3px);
     box-shadow:
       inset 0 0 0 1.5px var(--gold),
-      inset 0 1px 0 rgba(255,255,255,.30),
       0 0 26px rgba(198,164,92,.45),
       0 0 56px rgba(126,196,246,.34),
       0 20px 44px rgba(3,14,32,.52);
@@ -748,8 +779,9 @@ h2{
 /* 押せない案内なので浮かせない。ただし暗いままだと読みにくいので、
    薄める処理をやめ、触れたときは静かに光らせる。 */
 .cta.is-pending{cursor:default;opacity:1;}
+/* 地と文字の入れ替えは .cta:hover と「深海のカードのホバー」が持つ。
+   ここで暗い地に戻すと、紺文字が紺地に乗って消える。 */
 .tier-deep .cta.is-pending:hover{
-  background:#15406E;
   box-shadow:
     inset 0 0 0 1.5px var(--gold),
     0 0 22px rgba(198,164,92,.34),
