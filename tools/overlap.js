@@ -53,10 +53,16 @@ window.__overlap = async function () {
     const p = parseFloat(rs.getPropertyValue(`--sea-p${i}`));
     if (c.length >= 3 && !isNaN(p)) SEA.push([p / 100, c.slice(0, 3)]);
   }
-  const SCRIM = {
-    rgb: (rs.getPropertyValue('--scrim-rgb') || '6,26,52').split(',').map(Number),
-    a: parseFloat(rs.getPropertyValue('--scrim-a')) || 0.62,
-    h: parseFloat(rs.getPropertyValue('--scrim-h')) || 420
+  /* 深海の器に掛けた幕。以前はセクションごとに1枚ずつだったが、境目に
+     横縞が並ぶので器1つにまとめた。値は :root から読む（写さない）。
+     幕は生き物の下にある（.deep-zone .creatures が z-index:0 で幕より
+     後に描かれる）ので、合成の順番は 海 → 幕 → 生き物。 */
+  const DEEP = {
+    rgb: (rs.getPropertyValue('--deep-rgb') || '6,26,52').split(',').map(Number),
+    lead: parseFloat(rs.getPropertyValue('--deep-lead')) || 600,
+    a1: parseFloat(rs.getPropertyValue('--deep-a1')) || 0.55,
+    a2: parseFloat(rs.getPropertyValue('--deep-a2')) || 0.78,
+    a3: parseFloat(rs.getPropertyValue('--deep-a3')) || 0.88
   };
   const pageH = () => Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, 1);
   const seaAt = t => {
@@ -70,19 +76,23 @@ window.__overlap = async function () {
     }
     return SEA[SEA.length - 1][1];
   };
-  const baseAt = (pageY, deepSec) => {
-    let base = seaAt(pageY / pageH());
-    if (deepSec) {
-      const h = Math.min(deepSec.offsetHeight * 0.62, SCRIM.h);
-      const d = pageY - deepSec.offsetTop;
-      if (d >= 0 && d < h) {
-        const t = d / h;
-        const a = t < 0.6 ? SCRIM.a + (SCRIM.a * 0.74 - SCRIM.a) * (t / 0.6)
-                          : SCRIM.a * 0.74 * (1 - (t - 0.6) / 0.4);
-        base = over(SCRIM.rgb, base, a);
-      }
-    }
-    return base;
+  const deepAlpha = pageY => {
+    const zone = document.querySelector('.deep-zone');
+    if (!zone) return 0;
+    const zr = zone.getBoundingClientRect();
+    const top = zr.top + scrollY - DEEP.lead;
+    const h = zr.height + DEEP.lead;
+    const d = pageY - top;
+    if (d <= 0) return 0;
+    if (d >= h) return DEEP.a3;
+    if (d < DEEP.lead) return DEEP.a1 * (d / DEEP.lead);
+    if (d < DEEP.lead * 2) return DEEP.a1 + (DEEP.a2 - DEEP.a1) * ((d - DEEP.lead) / DEEP.lead);
+    return DEEP.a2 + (DEEP.a3 - DEEP.a2) * ((d - DEEP.lead * 2) / (h - DEEP.lead * 2));
+  };
+  const baseAt = pageY => {
+    const base = seaAt(pageY / pageH());
+    const a = deepAlpha(pageY);
+    return a > 0 ? over(DEEP.rgb, base, a) : base;
   };
 
   /* --- 生き物の画像を canvas に取り込む（同じURLは1回だけ） --- */
@@ -177,8 +187,6 @@ window.__overlap = async function () {
       if (c.length >= 3 && (c[3] === undefined || c[3] > 0.01)) stack.push(c);
       if (c.length >= 3 && (c[3] === undefined || c[3] >= 0.999)) break;
     }
-    const deepSec = t.closest('.tier-deep');
-
     const r = document.createRange();
     r.selectNodeContents(t);
     const lines = [...r.getClientRects()].filter(b => b.width > 1 && b.height > 1);
@@ -213,7 +221,7 @@ window.__overlap = async function () {
               const iy = Math.min(cv.h - 1, Math.max(0, Math.round(v * cv.h)));
               const k = (iy * cv.w + ix) * 4;
               const a = (cv.px[k + 3] / 255) * op;
-              let bg = baseAt(vy + scrollY, deepSec);
+              let bg = baseAt(vy + scrollY);
               if (a > 0.004) bg = over([cv.px[k], cv.px[k + 1], cv.px[k + 2]], bg, a);
               for (let s = stack.length - 1; s >= 0; s--) bg = over(stack[s], bg);
               const rr = ratio(fg, bg);

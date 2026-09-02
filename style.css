@@ -576,12 +576,18 @@ h2{
      依頼主から幅を揃えるよう指摘を受けた 2026-08-31）。
      注記はどれも1〜2行なので、行が長くなる問題は起きない。 */
   max-width:none;
-  background:rgba(255,255,255,.72);
+  /* 生き物を幕より上に出したぶん、半透明の地だと絵が透けて文字の
+     コントラストが 4.26:1 まで落ちた（狭い画面の注記3か所）。
+     透過を減らして、後ろに何が来ても注記が読めるようにする。 */
+  background:rgba(255,255,255,.88);
   box-shadow:inset 0 0 0 1px rgba(198,164,92,.45);
   color:var(--ink);
 }
 .tier-deep .note{
-  background:rgba(10,38,72,.6);
+  /* .6 だと後ろの生き物が透けて地が明るくなり、薄い色の文字が
+     4.26:1 まで落ちた（狭い画面のFAQと申込の注記）。生き物を幕より
+     上に出したので、ここも透過を減らして後ろに左右されないようにする。 */
+  background:rgba(10,38,72,.88);
   box-shadow:inset 0 0 0 1px rgba(198,164,92,.4);
   color:var(--paper-soft);
 }
@@ -1068,6 +1074,12 @@ h2{
    セクションどうしを繋いで1枚の海に見せる仕掛けでもある。
    横あふれは body の overflow-x:clip が受け止める。 */
 .creatures{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:visible;}
+/* 深海では幕（.deep-zone::before, z-index:0）より上に出す。
+   幕の下に置くと、濃さ .78〜.88 の紺が生き物の上に乗って、魚もクラゲも
+   ほとんど溶けて消える（依頼主から「薄い」と指摘を受けた 2026-08-31）。
+   幕と同じ z-index:0 で、DOM順が幕より後なので生き物が上に来る。
+   本文は .tier-deep > .wrap が z-index:1 なので、さらにその上にいる。 */
+.deep-zone .creatures{z-index:0;}
 .creature{
   position:absolute;
   top:var(--ct,auto); right:var(--cr,auto); bottom:var(--cb,auto); left:var(--cl,auto);
@@ -1205,7 +1217,7 @@ h2{
    余白ではなく「絵が入る場所」として取っている。 */
 .sec-benefit{padding-bottom:clamp(230px,21vw,360px);}
 .sec-themes   .b1{--cl:4%;  --cb:-26px; --cw:clamp(115px,15vw,235px); --co:.88; --cfx:-1;}
-.sec-schedule .b1{--cl:46%; --cb:-96px; --cw:clamp(210px,28vw,430px); --co:.85;}
+.sec-schedule .b1{--cl:46%; --cb:-96px; --cw:clamp(210px,28vw,430px); --co:.95;}
 /* 最深部の火山だけは、注記のパネルと必ず高さが重なる。注記はセクションの
    一番下にあり、火山は下から生えているので、位置ではよけられない。
    濃さを落として、白い文字の下地を明るくしすぎないようにする。 */
@@ -1240,31 +1252,31 @@ h2{
 .sec-themes .s4{--cr:22%; --cb:16%;  --cw:clamp(60px,7vw,110px);   --co:.50;}
 
 /* 深海：クラゲ・珊瑚・大きめの魚 */
-.sec-flow .s1{--cr:2%;   --ct:4%;    --cw:clamp(90px,11vw,170px);  --co:.85;}
-.sec-flow .s2{--cr:12%;  --ct:52%;   --cw:clamp(80px,10vw,150px);  --co:.60;}
-.sec-flow .s3{--cl:16%;  --cb:6%;    --cw:clamp(120px,14vw,210px); --co:.55; --cfx:-1;}
-.sec-flow .s4{--cl:0%;   --cb:-30px; --cw:clamp(60px,7vw,110px);   --co:.50;}
+.sec-flow .s1{--cr:2%;   --ct:4%;    --cw:clamp(90px,11vw,170px);  --co:.95;}
+.sec-flow .s2{--cr:12%;  --ct:52%;   --cw:clamp(80px,10vw,150px);  --co:.80;}
+.sec-flow .s3{--cl:16%;  --cb:6%;    --cw:clamp(120px,14vw,210px); --co:.76; --cfx:-1;}
+.sec-flow .s4{--cl:0%;   --cb:-30px; --cw:clamp(60px,7vw,110px);   --co:.72;}
 
-.sec-target .s1{--cr:2%; --ct:3%;    --cw:clamp(140px,18vw,270px); --co:.85;}
-.sec-target .s2{--cl:0%; --cb:-20px; --cw:clamp(150px,19vw,300px); --co:.90;}
-.sec-target .s3{--cr:3%; --ct:38%;   --cw:clamp(70px,9vw,140px);   --co:.55;}
-.sec-target .s4{--cl:7%; --cb:36%;    --cw:clamp(90px,11vw,160px);  --co:.55;}
+.sec-target .s1{--cr:2%; --ct:3%;    --cw:clamp(140px,18vw,270px); --co:.95;}
+.sec-target .s2{--cl:0%; --cb:-20px; --cw:clamp(150px,19vw,300px); --co:.96;}
+.sec-target .s3{--cr:3%; --ct:38%;   --cw:clamp(70px,9vw,140px);   --co:.76;}
+.sec-target .s4{--cl:7%; --cb:36%;    --cw:clamp(90px,11vw,160px);  --co:.76;}
 
-.sec-schedule .s1{--cr:2%; --ct:4%;    --cw:clamp(90px,11vw,180px);  --co:.85;}
-.sec-schedule .s2{--cr:0%; --cb:-24px; --cw:clamp(120px,15vw,240px); --co:.70; --cfx:-1;}
-.sec-schedule .s3{--cr:18%; --ct:34%;   --cw:clamp(70px,8vw,130px);   --co:.55;}
-.sec-schedule .s4{--cl:1%; --cb:30%;   --cw:clamp(110px,13vw,200px); --co:.50;}
+.sec-schedule .s1{--cr:2%; --ct:4%;    --cw:clamp(90px,11vw,180px);  --co:.95;}
+.sec-schedule .s2{--cr:0%; --cb:-24px; --cw:clamp(120px,15vw,240px); --co:.86; --cfx:-1;}
+.sec-schedule .s3{--cr:18%; --ct:34%;   --cw:clamp(70px,8vw,130px);   --co:.76;}
+.sec-schedule .s4{--cl:1%; --cb:30%;   --cw:clamp(110px,13vw,200px); --co:.72;}
 
-.sec-faq .s1{--cr:2%;  --ct:5%;    --cw:clamp(80px,10vw,160px);  --co:.75;}
-.sec-faq .s2{--cr:14%; --cb:-40px; --cw:clamp(70px,8vw,130px);   --co:.55;}
-.sec-faq .s3{--cr:3%;  --ct:34%;   --cw:clamp(100px,12vw,180px); --co:.50;}
+.sec-faq .s1{--cr:2%;  --ct:5%;    --cw:clamp(80px,10vw,160px);  --co:.88;}
+.sec-faq .s2{--cr:14%; --cb:-40px; --cw:clamp(70px,8vw,130px);   --co:.76;}
+.sec-faq .s3{--cr:3%;  --ct:34%;   --cw:clamp(100px,12vw,180px); --co:.72;}
 
-.sec-entry .s1{--cr:-4%; --cb:-20px; --cw:clamp(140px,17vw,270px); --co:.85; --cfx:-1;}
+.sec-entry .s1{--cr:-4%; --cb:-20px; --cw:clamp(140px,17vw,270px); --co:.95; --cfx:-1;}
 /* 珊瑚はどちらも右下に寄せて重ね、岩場に見せる。左下は注記の指定席で、
    狭い画面では .wrap が画面いっぱいに広がるため空き水域が残らない。 */
-.sec-entry .s2{--cr:16%; --cb:-46px; --cw:clamp(110px,14vw,220px); --co:.70;}
-.sec-entry .s3{--cr:4%; --ct:6%;    --cw:clamp(80px,10vw,150px);  --co:.60;}
-.sec-entry .s4{--cl:2%; --cb:34%;   --cw:clamp(90px,11vw,160px);  --co:.50;}
+.sec-entry .s2{--cr:16%; --cb:-46px; --cw:clamp(110px,14vw,220px); --co:.86;}
+.sec-entry .s3{--cr:4%; --ct:6%;    --cw:clamp(80px,10vw,150px);  --co:.80;}
+.sec-entry .s4{--cl:2%; --cb:34%;   --cw:clamp(90px,11vw,160px);  --co:.72;}
 
 /* 768〜1099px：リード文が右へ伸びて上段の生き物と当たる。
    幅44emの本文が画面のほぼ端まで届くので、右上の生き物を下げる。 */
