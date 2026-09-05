@@ -187,9 +187,21 @@
   }
   function start() {
     clearTimeout(timer);
-    timer = setTimeout(toggle, HOLD);
+    /* 数え始めたことを見せる。指で押さえている間は何の反応も無いと、
+       3秒待つ理由が分からない（スマホでは「乗せ続ける」動作自体が
+       目に見えないぶん、これが唯一の手がかりになる）。
+       光は CSS 側で3秒かけて強まる。 */
+    sw.classList.add('is-charging');
+    timer = setTimeout(function () {
+      sw.classList.remove('is-charging');
+      toggle();
+    }, HOLD);
   }
-  function cancel() { clearTimeout(timer); timer = null; }
+  function cancel() {
+    clearTimeout(timer);
+    timer = null;
+    sw.classList.remove('is-charging');
+  }
 
   /* 夜の絵は最初にマウスが乗った時点で読み込んでおく。切り替えの瞬間に
      取りに行くと、一拍おいて絵が差し替わる。ページを開いた時点で読むと、
@@ -207,6 +219,19 @@
      mouseover だと画像と文字の境目でいちいち数え直しになる。 */
   sw.addEventListener('pointerenter', function () { warm(); start(); });
   sw.addEventListener('pointerleave', cancel);
+
+  /* 指で押さえたままでも切り替わるようにする。
+
+     タッチでは pointerenter / pointerleave が触れた瞬間と離した瞬間に
+     ほぼ同時に起きるので、乗せ続ける仕掛けはそのままでは成立しない
+     （実測でも touchstart のまま3.4秒待って切り替わらなかった）。
+     touchstart で数え始め、指が動いたら（＝スクロールしたいだけ）やめる。
+
+     passive: true にしてあるので、押さえている間もページは普通に動く。 */
+  sw.addEventListener('touchstart', function () { warm(); start(); }, { passive: true });
+  ['touchend', 'touchcancel', 'touchmove'].forEach(function (t) {
+    sw.addEventListener(t, cancel, { passive: true });
+  });
 
   /* キーボード。Enter / Space で切り替える。
      焦点を当てただけで数え始めてはいけない。Tab で辿って読んでいる

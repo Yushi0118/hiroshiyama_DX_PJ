@@ -1018,6 +1018,20 @@ h2 .h-rule{
    .hero-panel に container-type:inline-size を付けて cqw で追う手も試したが、
    パネルは flex の子で内容から幅を得ているため、インライン方向の含みが
    効いて幅が 0 に潰れた。使わないこと。 */
+/* 昼夜の切り替えスイッチ（ヒーローの名前）。
+
+   指で押さえている間は光を強めて、数えていることを見せる。3秒かけて
+   強まるので、待つ長さがそのまま見える。長押しでiOSの「コピー」の
+   吹き出しが出ると数えが中断されるので、選択と吹き出しを止める。 */
+[data-nightswitch]{
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;user-select:none;
+  border-radius:12px;
+}
+[data-nightswitch].is-charging{
+  box-shadow:0 0 0 2px rgba(198,164,92,.85), 0 0 24px rgba(198,164,92,.55);
+  transition:box-shadow 3s linear;
+}
 .hero-brand{display:flex;align-items:center;gap:.5em;margin-top:1em;flex-wrap:nowrap;}
 .hero-mark{width:clamp(38px,3.6vw,52px);height:auto;flex:0 0 auto;}
 .hero-brand span{

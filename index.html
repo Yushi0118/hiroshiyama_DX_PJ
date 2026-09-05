@@ -9,6 +9,17 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<!-- ヒーローの絵はCSSの background-image なので、ブラウザは style.css を
+     読み終えるまで存在に気づけない。外部のフォントの読み込みも間に挟まるので、
+     遅い回線では最初に見える絵の取得が後ろへずれる。先に取りに行かせる。
+     media で昼の横／縦を出し分ける（CSSの切り替え条件と同じ形）。
+     夜の絵は使う人だけが読むよう、script.js 側の先読みに任せる。 -->
+<link rel="preload" as="image" fetchpriority="high"
+      href="assets/img/backgrounds/hero-scene-wide.jpg"
+      media="(min-width:1100px), (min-width:768px) and (min-aspect-ratio:13/10)">
+<link rel="preload" as="image" fetchpriority="high"
+      href="assets/img/backgrounds/hero-mobile.jpg"
+      media="(max-aspect-ratio:13/10) and (max-width:1099px), (max-width:767px)">
 <link rel="icon" href="assets/img/icons/logo-mark.png" type="image/png">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ひろしま協働DXプロジェクト｜小さな船も、船団になれば、越えられる潮がある。">
@@ -69,12 +80,12 @@
      ============================================================ -->
 <section id="pain" class="section sec-pain tier-shallow" aria-labelledby="pain-h">
   <div class="creatures" aria-hidden="true">
-    <img class="creature a-swim s1" src="assets/img/creatures/fish-school-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-sway s2" src="assets/img/creatures/seaweed.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-swim s3" src="assets/img/creatures/fish-school-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-swim s4" src="assets/img/creatures/fish-school-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-sway s5" src="assets/img/creatures/seaweed.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-crawl b1" src="assets/img/creatures/crab-blue.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s1" src="assets/img/creatures/fish-school-1.png" width="340" height="176" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-sway s2" src="assets/img/creatures/seaweed.png" width="230" height="723" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s3" src="assets/img/creatures/fish-school-2.png" width="340" height="144" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s4" src="assets/img/creatures/fish-school-1.png" width="340" height="176" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-sway s5" src="assets/img/creatures/seaweed.png" width="230" height="723" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-crawl b1" src="assets/img/creatures/crab-blue.png" width="460" height="285" alt="" loading="lazy" decoding="async" onerror="this.remove()">
   </div>
   <div class="wrap">
     <p class="eyebrow">こんな困りごとはありませんか？</p>
@@ -85,32 +96,32 @@
       <li class="card">
         <div class="card-head"><span class="num">1</span><h3 class="card-title">予約・問い合わせ対応</h3></div>
         <p>電話や紙、複数のサイトに予約・問い合わせ情報が散らばっていて、対応に追われてしまう。</p>
-        <img class="vignette" src="assets/img/icons/pain/icon-1.webp" alt="" loading="lazy" decoding="async">
+        <img class="vignette" src="assets/img/icons/pain/icon-1.webp" width="360" height="346" alt="" loading="lazy" decoding="async">
       </li>
       <li class="card">
         <div class="card-head"><span class="num">2</span><h3 class="card-title">紙・Excel管理</h3></div>
         <p>顧客情報や台帳が紙やExcelのままで、担当者しか内容がわからず、引き継ぎが不安。</p>
-        <img class="vignette" src="assets/img/icons/pain/icon-2.webp" alt="" loading="lazy" decoding="async">
+        <img class="vignette" src="assets/img/icons/pain/icon-2.webp" width="360" height="323" alt="" loading="lazy" decoding="async">
       </li>
       <li class="card">
         <div class="card-head"><span class="num">3</span><h3 class="card-title">発注・在庫の勘頼み</h3></div>
         <p>発注や仕入れの判断が「店長の勘と経験」に頼りきりで、数字として残っていない。</p>
-        <img class="vignette" src="assets/img/icons/pain/icon-3.webp" alt="" loading="lazy" decoding="async">
+        <img class="vignette" src="assets/img/icons/pain/icon-3.webp" width="360" height="335" alt="" loading="lazy" decoding="async">
       </li>
       <li class="card">
         <div class="card-head"><span class="num">4</span><h3 class="card-title">日報・現場記録</h3></div>
         <p>日報や記録づけが属人化していて、忙しいと後回しになり、正確な記録が残らない。</p>
-        <img class="vignette" src="assets/img/icons/pain/icon-4.webp" alt="" loading="lazy" decoding="async">
+        <img class="vignette" src="assets/img/icons/pain/icon-4.webp" width="360" height="281" alt="" loading="lazy" decoding="async">
       </li>
       <li class="card">
         <div class="card-head"><span class="num">5</span><h3 class="card-title">熟練者の勘とコツ</h3></div>
         <p>ベテランのやり方や判断が言葉にできず、若手やパート・アルバイトに伝えづらい。</p>
-        <img class="vignette" src="assets/img/icons/pain/icon-5.webp" alt="" loading="lazy" decoding="async">
+        <img class="vignette" src="assets/img/icons/pain/icon-5.webp" width="360" height="301" alt="" loading="lazy" decoding="async">
       </li>
       <li class="card">
         <div class="card-head"><span class="num">6</span><h3 class="card-title">何から始めるか</h3></div>
         <p>AIやデジタル活用に興味はあるものの、何から手をつければよいのか分からない。</p>
-        <img class="vignette" src="assets/img/icons/pain/icon-6.webp" alt="" loading="lazy" decoding="async">
+        <img class="vignette" src="assets/img/icons/pain/icon-6.webp" width="360" height="323" alt="" loading="lazy" decoding="async">
       </li>
     </ul>
   </div>
@@ -121,10 +132,10 @@
      ============================================================ -->
 <section id="what" class="section sec-what tier-mid" aria-labelledby="what-h">
   <div class="creatures" aria-hidden="true">
-    <img class="creature a-swim s1" src="assets/img/creatures/fish-school-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-swim s2" src="assets/img/creatures/fish-large.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-swim s3" src="assets/img/creatures/fish-school-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-sway s4" src="assets/img/creatures/seaweed.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s1" src="assets/img/creatures/fish-school-2.png" width="340" height="144" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s2" src="assets/img/creatures/fish-large.png" width="360" height="217" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s3" src="assets/img/creatures/fish-school-1.png" width="340" height="176" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-sway s4" src="assets/img/creatures/seaweed.png" width="230" height="723" alt="" loading="lazy" decoding="async" onerror="this.remove()">
   </div>
   <div class="wrap">
     <p class="eyebrow">本プロジェクトでできること</p>
@@ -136,19 +147,19 @@
         <p class="step-label">STEP 01</p>
         <h3 class="card-title">見える化する</h3>
         <p>日々の業務の中に埋もれている困りごとを、専門家や仲間と一緒に整理し、共通の課題として言語化します。</p>
-        <img class="vignette" src="assets/img/icons/what/illus-1.png" alt="" loading="lazy" decoding="async">
+        <img class="vignette" src="assets/img/icons/what/illus-1.png" width="131" height="200" alt="" loading="lazy" decoding="async">
       </li>
       <li class="card">
         <p class="step-label">STEP 02</p>
         <h3 class="card-title">小さく試す</h3>
         <p>いきなり大きな投資はせず、AIやデジタルツールを使って、まずは小さな範囲・短い期間で試してみます。</p>
-        <img class="vignette" src="assets/img/icons/what/illus-2.png" alt="" loading="lazy" decoding="async">
+        <img class="vignette" src="assets/img/icons/what/illus-2.png" width="146" height="237" alt="" loading="lazy" decoding="async">
       </li>
       <li class="card">
         <p class="step-label">STEP 03</p>
         <h3 class="card-title">地域に広げる</h3>
         <p>取り組みの成果や工夫を、事例・テンプレートとして地域に共有し、次に挑戦する事業者の背中を押します。</p>
-        <img class="vignette" src="assets/img/icons/what/illus-3.png" alt="" loading="lazy" decoding="async">
+        <img class="vignette" src="assets/img/icons/what/illus-3.png" width="185" height="164" alt="" loading="lazy" decoding="async">
       </li>
     </ol>
 
@@ -163,8 +174,8 @@
      ============================================================ -->
 <section id="benefit" class="section sec-benefit tier-mid" aria-labelledby="benefit-h">
   <div class="creatures" aria-hidden="true">
-    <img class="creature a-swim s1" src="assets/img/creatures/turtle.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-glide b1" src="assets/img/creatures/whale.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s1" src="assets/img/creatures/turtle.png" width="400" height="329" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-glide b1" src="assets/img/creatures/whale.png" width="640" height="445" alt="" loading="lazy" decoding="async" onerror="this.remove()">
   </div>
   <div class="wrap">
     <p class="eyebrow">参加すると得られること</p>
@@ -174,27 +185,27 @@
     <ul class="grid grid-3">
       <li class="card card-tall">
         <div class="card-head"><span class="num">1</span><h3 class="card-title">困りごとの整理ができる</h3></div>
-        <img class="vignette vignette-center" src="assets/img/icons/benefit/illus-1.png" alt="" loading="lazy" decoding="async">
+        <img class="vignette vignette-center" src="assets/img/icons/benefit/illus-1.png" width="224" height="156" alt="" loading="lazy" decoding="async">
         <p>課題を見える化し、何から始めるかを整理できる。</p>
       </li>
       <li class="card card-tall">
         <div class="card-head"><span class="num">2</span><h3 class="card-title">他社の工夫やノウハウを知れる</h3></div>
-        <img class="vignette vignette-center" src="assets/img/icons/benefit/illus-2.png" alt="" loading="lazy" decoding="async">
+        <img class="vignette vignette-center" src="assets/img/icons/benefit/illus-2.png" width="224" height="156" alt="" loading="lazy" decoding="async">
         <p>同じ悩みを持つ事業者の工夫や進め方を学べる。</p>
       </li>
       <li class="card card-tall">
         <div class="card-head"><span class="num">3</span><h3 class="card-title">専門家と一緒に小さく試せる</h3></div>
-        <img class="vignette vignette-center" src="assets/img/icons/benefit/illus-3.png" alt="" loading="lazy" decoding="async">
+        <img class="vignette vignette-center" src="assets/img/icons/benefit/illus-3.png" width="224" height="156" alt="" loading="lazy" decoding="async">
         <p>専門家と伴走しながら、小さな実証から始められる。</p>
       </li>
       <li class="card card-tall">
         <div class="card-head"><span class="num">4</span><h3 class="card-title">低コストでDXに着手できる</h3></div>
-        <img class="vignette vignette-center" src="assets/img/icons/benefit/illus-4.png" alt="" loading="lazy" decoding="async">
+        <img class="vignette vignette-center" src="assets/img/icons/benefit/illus-4.png" width="224" height="156" alt="" loading="lazy" decoding="async">
         <p>大きな投資の前に、低コストで可能性を確かめられる。</p>
       </li>
       <li class="card card-tall">
         <div class="card-head"><span class="num">5</span><h3 class="card-title">県内の取組事例として発信される</h3></div>
-        <img class="vignette vignette-center" src="assets/img/icons/benefit/illus-5.png" alt="" loading="lazy" decoding="async">
+        <img class="vignette vignette-center" src="assets/img/icons/benefit/illus-5.png" width="224" height="156" alt="" loading="lazy" decoding="async">
         <p>成果や工夫が地域に共有され、次の挑戦につながる。</p>
       </li>
     </ul>
@@ -206,11 +217,11 @@
      ============================================================ -->
 <section id="themes" class="section sec-themes tier-mid" aria-labelledby="themes-h">
   <div class="creatures" aria-hidden="true">
-    <img class="creature a-swim s1" src="assets/img/creatures/fish-school-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-swim s2" src="assets/img/creatures/fish-large.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-swim s3" src="assets/img/creatures/fish-school-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-drift s4" src="assets/img/creatures/jelly-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-crawl b1" src="assets/img/creatures/crab-red.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s1" src="assets/img/creatures/fish-school-1.png" width="340" height="176" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s2" src="assets/img/creatures/fish-large.png" width="360" height="217" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s3" src="assets/img/creatures/fish-school-2.png" width="340" height="144" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-drift s4" src="assets/img/creatures/jelly-1.png" width="230" height="373" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-crawl b1" src="assets/img/creatures/crab-red.png" width="460" height="272" alt="" loading="lazy" decoding="async" onerror="this.remove()">
   </div>
   <div class="wrap">
     <p class="eyebrow">募集テーマ</p>
@@ -264,10 +275,10 @@
      ============================================================ -->
 <section id="flow" class="section sec-flow tier-deep" aria-labelledby="flow-h">
   <div class="creatures" aria-hidden="true">
-    <img class="creature a-drift s1" src="assets/img/creatures/jelly-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-drift s2" src="assets/img/creatures/jelly-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-swim s3" src="assets/img/creatures/fish-large.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-sway s4" src="assets/img/creatures/seaweed.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-drift s1" src="assets/img/creatures/jelly-1.png" width="230" height="373" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-drift s2" src="assets/img/creatures/jelly-2.png" width="260" height="457" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s3" src="assets/img/creatures/fish-large.png" width="360" height="217" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-sway s4" src="assets/img/creatures/seaweed.png" width="230" height="723" alt="" loading="lazy" decoding="async" onerror="this.remove()">
   </div>
   <div class="wrap">
     <p class="eyebrow">進め方</p>
@@ -277,17 +288,17 @@
     <ol class="grid grid-3 steps">
       <li class="card">
         <div class="card-head"><span class="num">1</span><h3 class="card-title">学ぶ</h3></div>
-        <img class="vignette vignette-center" src="assets/img/icons/flow/illus-1.png" alt="" loading="lazy" decoding="async">
+        <img class="vignette vignette-center" src="assets/img/icons/flow/illus-1.png" width="253" height="200" alt="" loading="lazy" decoding="async">
         <p>基礎知識をセミナー・研修で習得</p>
       </li>
       <li class="card">
         <div class="card-head"><span class="num">2</span><h3 class="card-title">見える化する</h3></div>
-        <img class="vignette vignette-center" src="assets/img/icons/flow/illus-2.png" alt="" loading="lazy" decoding="async">
+        <img class="vignette vignette-center" src="assets/img/icons/flow/illus-2.png" width="298" height="206" alt="" loading="lazy" decoding="async">
         <p>困りごとを仲間と一緒に整理</p>
       </li>
       <li class="card">
         <div class="card-head"><span class="num">3</span><h3 class="card-title">小さく試す</h3></div>
-        <img class="vignette vignette-center" src="assets/img/icons/flow/illus-3.png" alt="" loading="lazy" decoding="async">
+        <img class="vignette vignette-center" src="assets/img/icons/flow/illus-3.png" width="283" height="206" alt="" loading="lazy" decoding="async">
         <p>低コストでAI・デジタルを試行</p>
       </li>
     </ol>
@@ -300,10 +311,10 @@
      ============================================================ -->
 <section id="target" class="section sec-target tier-deep" aria-labelledby="target-h">
   <div class="creatures" aria-hidden="true">
-    <img class="creature a-swim s1" src="assets/img/creatures/fish-large.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-sway s2" src="assets/img/creatures/coral.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-drift s3" src="assets/img/creatures/jelly-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-swim s4" src="assets/img/creatures/fish-school-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s1" src="assets/img/creatures/fish-large.png" width="360" height="217" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-sway s2" src="assets/img/creatures/coral.png" width="420" height="391" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-drift s3" src="assets/img/creatures/jelly-2.png" width="260" height="457" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s4" src="assets/img/creatures/fish-school-1.png" width="340" height="176" alt="" loading="lazy" decoding="async" onerror="this.remove()">
   </div>
   <div class="wrap">
       <p class="eyebrow">支援対象・参加対象</p>
@@ -314,27 +325,27 @@
 
       <ul class="grid grid-5 nodes">
         <li class="card">
-          <img class="vignette vignette-center" src="assets/img/icons/flow/hub-peer.png" alt="" loading="lazy" decoding="async">
+          <img class="vignette vignette-center" src="assets/img/icons/flow/hub-peer.png" width="320" height="320" alt="" loading="lazy" decoding="async">
           <h3 class="card-title">同じ悩みを持つ仲間</h3>
           <p>同一テーマの参加事業者</p>
         </li>
         <li class="card">
-          <img class="vignette vignette-center" src="assets/img/icons/flow/hub-student.png" alt="" loading="lazy" decoding="async">
+          <img class="vignette vignette-center" src="assets/img/icons/flow/hub-student.png" width="320" height="320" alt="" loading="lazy" decoding="async">
           <h3 class="card-title">学生・若手人材</h3>
           <p>開発・改善の担い手</p>
         </li>
         <li class="card">
-          <img class="vignette vignette-center" src="assets/img/icons/flow/hub-support.png" alt="" loading="lazy" decoding="async">
+          <img class="vignette vignette-center" src="assets/img/icons/flow/hub-support.png" width="320" height="320" alt="" loading="lazy" decoding="async">
           <h3 class="card-title">支援機関・業界団体</h3>
           <p>募集・フォローアップ</p>
         </li>
         <li class="card">
-          <img class="vignette vignette-center" src="assets/img/icons/flow/hub-hiroshima.png" alt="" loading="lazy" decoding="async">
+          <img class="vignette vignette-center" src="assets/img/icons/flow/hub-hiroshima.png" width="320" height="320" alt="" loading="lazy" decoding="async">
           <h3 class="card-title">広島県</h3>
           <p>事業の運営・広報</p>
         </li>
         <li class="card">
-          <img class="vignette vignette-center" src="assets/img/icons/flow/hub-itdx.png" alt="" loading="lazy" decoding="async">
+          <img class="vignette vignette-center" src="assets/img/icons/flow/hub-itdx.png" width="320" height="320" alt="" loading="lazy" decoding="async">
           <h3 class="card-title">IT・DX専門家</h3>
           <p>伴走支援・技術指導</p>
         </li>
@@ -357,11 +368,11 @@
      ============================================================ -->
 <section id="schedule" class="section sec-schedule tier-deep" aria-labelledby="schedule-h">
   <div class="creatures" aria-hidden="true">
-    <img class="creature a-drift s1" src="assets/img/creatures/jelly-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-sway s2" src="assets/img/creatures/coral.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-drift s3" src="assets/img/creatures/jelly-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-swim s4" src="assets/img/creatures/fish-large.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-plume b1" src="assets/img/creatures/vent.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-drift s1" src="assets/img/creatures/jelly-2.png" width="260" height="457" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-sway s2" src="assets/img/creatures/coral.png" width="420" height="391" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-drift s3" src="assets/img/creatures/jelly-1.png" width="230" height="373" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s4" src="assets/img/creatures/fish-large.png" width="360" height="217" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-plume b1" src="assets/img/creatures/vent.png" width="680" height="503" alt="" loading="lazy" decoding="async" onerror="this.remove()">
   </div>
   <div class="wrap">
     <p class="eyebrow">スケジュール</p>
@@ -444,9 +455,9 @@
      ============================================================ -->
 <section id="faq" class="section sec-faq tier-deep" aria-labelledby="faq-h">
   <div class="creatures" aria-hidden="true">
-    <img class="creature a-drift s1" src="assets/img/creatures/jelly-1.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-sway s2" src="assets/img/creatures/seaweed.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-swim s3" src="assets/img/creatures/fish-school-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-drift s1" src="assets/img/creatures/jelly-1.png" width="230" height="373" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-sway s2" src="assets/img/creatures/seaweed.png" width="230" height="723" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-swim s3" src="assets/img/creatures/fish-school-2.png" width="340" height="144" alt="" loading="lazy" decoding="async" onerror="this.remove()">
   </div>
   <div class="wrap">
     <p class="eyebrow">よくあるご質問</p>
@@ -500,9 +511,9 @@
      ============================================================ -->
 <section id="entry" class="section sec-entry tier-deep" aria-labelledby="entry-h">
   <div class="creatures" aria-hidden="true">
-    <img class="creature a-sway s1" src="assets/img/creatures/coral.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-drift s3" src="assets/img/creatures/jelly-2.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-plume b1" src="assets/img/creatures/volcano.png" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-sway s1" src="assets/img/creatures/coral.png" width="420" height="391" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-drift s3" src="assets/img/creatures/jelly-2.png" width="260" height="457" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+    <img class="creature a-plume b1" src="assets/img/creatures/volcano.png" width="460" height="651" alt="" loading="lazy" decoding="async" onerror="this.remove()">
   </div>
   <div class="wrap entry-inner">
     <p class="eyebrow">まずは一歩、踏み出してみませんか</p>
