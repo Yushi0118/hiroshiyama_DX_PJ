@@ -303,46 +303,49 @@ h2{
 
 /* --- 見出しの下線（スクロールで左から引かれる） ---
    hiroshima-colorful.com の見出しに倣った依頼（2026-09-05）。
+   行ごとに引く（2行・3行の見出しはその行それぞれに）＝追加の依頼（同日）。
 
-   幅は見出しの文字幅に合わせる（width:fit-content）。.wrap の幅いっぱいに
-   引くと、短い見出しでは線だけが文字の先まで伸びて、区切り線に見える。
-   <br> のある見出しは長いほうの行に合わせて引かれる。
+   線は擬似要素ではなく、見出しの中身を包む <span class="h-rule"> の背景。
+   インライン要素は行ごとに分かれるので、box-decoration-break:clone を付けると
+   分かれた断片それぞれが背景を持つ＝行ごとに、その行の文字幅だけ線が引かれる。
+   ::after を1本置く方式では、どれだけ行が増えても最後の行の下に1本しか
+   引けなかった。
 
-   動きは生き物と同じくスクロール連動（animation-timeline:view()）で、JSは
-   使わない。script.js は対象診断専用のままにしておきたいのと、対応して
-   いないブラウザ（今の Safari / Firefox）では fill:both の終端＝引き終わった
-   状態で静止するだけで、線が消えることはないため。 */
+   引く動きは background-size の横幅（0%→100%）。% は断片ごとの幅を基準に
+   解決されるので、行の長さが違っても同時に引き終わる。
+
+   スクロール連動は生き物と同じ仕組みで、JSは使わない。script.js は対象診断
+   専用のままにしておきたいのと、対応していないブラウザ（今の Safari /
+   Firefox）では fill:both の終端＝引き終わった状態で静止するだけで、線が
+   消えることはないため。 */
 @keyframes head-rule{
-  from{ transform:scaleX(0); }
-  to  { transform:scaleX(1); }
+  from{ background-size:0% var(--rule-w); }
+  to  { background-size:100% var(--rule-w); }
 }
-h2:not(.fc-title){
-  position:relative;
-  width:fit-content;max-width:100%;
-  padding-bottom:.3em;
-}
-h2:not(.fc-title)::after{
-  content:"";
-  position:absolute;left:0;bottom:0;
-  width:100%;height:5px;border-radius:3px;
-  background:linear-gradient(90deg,
-    var(--gold) 0%, var(--gold) 72%, rgba(198,164,92,0) 100%);
-  transform:scaleX(1);transform-origin:left center;
+h2 .h-rule{
+  --rule-w:5px;
+  display:inline;
+  -webkit-box-decoration-break:clone;
+  box-decoration-break:clone;
+  background-image:linear-gradient(var(--gold),var(--gold));
+  background-repeat:no-repeat;
+  background-position:0 100%;
+  background-size:100% var(--rule-w);
+  padding-bottom:.16em;
 }
 @supports (animation-timeline: view()){
   @media (prefers-reduced-motion:no-preference){
-    /* 進み具合は「見出しが画面を通り抜ける割合」で測る。
-       ::after に view() を直接書くと、時間軸の基準がその線自身（高さ4px）に
-       なってしまい、4px ぶんスクロールした瞬間に引き終わる＝実質動かない
-       （実測で currentTime が 0.29% のまま張り付いていた）。
-       見出しの側に名前付きの時間軸を作り、線はそれを参照する。 */
-    h2:not(.fc-title){view-timeline-name:--head-in;}
-    h2:not(.fc-title)::after{
+    /* 進み具合は「見出しが画面を通り抜ける割合」で測る。線の側に view() を
+       直接書くと、時間軸の基準がその線自身になってしまい、数pxスクロール
+       した瞬間に引き終わる＝実質動かない（実測で currentTime が 0.29% の
+       まま張り付いていた）。見出しに名前付きの時間軸を作り、参照する。 */
+    h2{view-timeline-name:--head-in;}
+    h2 .h-rule{
       animation:head-rule linear both;
       animation-timeline:--head-in;
       /* cover は「見出しが画面下端に現れてから上端を抜けるまで」。
          見出しの高さによらず一定の速さで引けるので、1行の見出しでも
-         2行の見出しでも同じ体感になる。 */
+         3行の見出しでも同じ体感になる。 */
       animation-range:cover 18% cover 48%;
     }
   }
@@ -1229,7 +1232,7 @@ h2:not(.fc-title)::after{
 
   /* --- 文字：行長が全角24文字前後に収まるサイズへ --- */
   h2{font-size:clamp(23px,6.2vw,29px);line-height:1.55;}
-  h2:not(.fc-title)::after{height:4px;}
+  h2 .h-rule{--rule-w:4px;}
   .lead{font-size:17px;line-height:1.9;margin-bottom:1.8rem;}
   .card p{font-size:16.5px;}
   .card-title{font-size:21px;}
