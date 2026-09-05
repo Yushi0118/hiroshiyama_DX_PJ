@@ -1552,7 +1552,7 @@ h2{
    余白ではなく「絵が入る場所」として取っている。 */
 .sec-benefit{padding-bottom:clamp(230px,21vw,360px);}
 .sec-themes   .b1{--cl:4%;  --cb:-26px; --cw:clamp(115px,15vw,235px); --co:.88; --cfx:-1;}
-.sec-schedule .b1{--cl:46%; --cb:-96px; --cw:clamp(210px,28vw,430px); --co:.95;}
+.sec-schedule .b1{--cl:1.5%; --cb:-96px; --cw:clamp(210px,28vw,430px); --co:.95;}
 /* 最深部の火山だけは、注記のパネルと必ず高さが重なる。注記はセクションの
    一番下にあり、火山は下から生えているので、位置ではよけられない。
    濃さを落として、白い文字の下地を明るくしすぎないようにする。 */
@@ -1567,10 +1567,7 @@ h2{
    そこから下へ食み出させる。ボタンもカードも注記も、この帯より上にある。
    値は実測から。1440/1280/1100/810 のどれでも火山の上端が注記の下端より
    下に来ることを確かめてある。 */
-/* 海底火山は画面の左端へ寄せる。中央寄りだと「参加を相談する」の
-   ボタンと重なる（依頼主 2026-09-05）。左へはみ出すぶんは
-   body の overflow-x:clip が切る。 */
-.sec-entry    .b1{--cl:-5%; --cb:-160px; --cw:clamp(120px,12vw,180px); --co:.58;}
+.sec-entry    .b1{--cl:3%; --cb:-160px; --cw:clamp(120px,12vw,180px); --co:.58;}
 
 /* --- 配置 ---
    置き場所は「カードが無い水域」を狙う。見出しとリード文は左寄せで
@@ -1580,7 +1577,7 @@ h2{
 
 /* 浅瀬：小魚の群れと海藻 */
 .sec-pain .s1{--cr:1%;   --ct:4%;    --cw:clamp(160px,21vw,320px); --co:.97;}
-.sec-pain .s2{--cl:0%;   --cb:-30px; --cw:clamp(70px,8vw,120px);   --co:.92;}
+.sec-pain .s2{--cl:1.1%;   --cb:-30px; --cw:clamp(70px,8vw,120px);   --co:.92;}
 .sec-pain .s3{--cl:3%;   --ct:48%;   --cw:clamp(90px,11vw,170px);  --co:.88;}
 .sec-pain .s4{--cr:21%;  --cb:23%;    --cw:clamp(80px,9vw,140px);   --co:.82;}
 .sec-pain .s5{--cl:16%;  --cb:-50px; --cw:clamp(50px,6vw,90px);    --co:.78;}
@@ -1604,15 +1601,15 @@ h2{
 .sec-flow .s1{--cr:2%;   --ct:4%;    --cw:clamp(90px,11vw,170px);  --co:.95;}
 .sec-flow .s2{--cr:12%;  --ct:52%;   --cw:clamp(80px,10vw,150px);  --co:.80;}
 .sec-flow .s3{--cl:16%;  --cb:6%;    --cw:clamp(120px,14vw,210px); --co:.76; --cfx:-1;}
-.sec-flow .s4{--cl:0%;   --cb:-30px; --cw:clamp(60px,7vw,110px);   --co:.72;}
+.sec-flow .s4{--cl:1.5%;   --cb:-30px; --cw:clamp(60px,7vw,110px);   --co:.72;}
 
 .sec-target .s1{--cr:2%; --ct:3%;    --cw:clamp(140px,18vw,270px); --co:.95;}
-.sec-target .s2{--cl:0%; --cb:-20px; --cw:clamp(150px,19vw,300px); --co:.96;}
+.sec-target .s2{--cl:1.5%; --cb:-20px; --cw:clamp(150px,19vw,300px); --co:.96;}
 .sec-target .s3{--cr:3%; --ct:38%;   --cw:clamp(70px,9vw,140px);   --co:.76;}
 .sec-target .s4{--cl:7%; --cb:36%;    --cw:clamp(90px,11vw,160px);  --co:.76;}
 
 .sec-schedule .s1{--cr:2%; --ct:4%;    --cw:clamp(90px,11vw,180px);  --co:.95;}
-.sec-schedule .s2{--cr:0%; --cb:-24px; --cw:clamp(120px,15vw,240px); --co:.86; --cfx:-1;}
+.sec-schedule .s2{--cr:1.5%; --cb:-24px; --cw:clamp(120px,15vw,240px); --co:.86; --cfx:-1;}
 .sec-schedule .s3{--cr:18%; --ct:34%;   --cw:clamp(70px,8vw,130px);   --co:.76;}
 .sec-schedule .s4{--cl:1%; --cb:30%;   --cw:clamp(110px,13vw,200px); --co:.72;}
 
@@ -1620,7 +1617,7 @@ h2{
 .sec-faq .s2{--cr:14%; --cb:-40px; --cw:clamp(70px,8vw,130px);   --co:.76;}
 .sec-faq .s3{--cr:3%;  --ct:34%;   --cw:clamp(100px,12vw,180px); --co:.72;}
 
-.sec-entry .s1{--cr:-4%; --cb:-20px; --cw:clamp(140px,17vw,270px); --co:.95; --cfx:-1;}
+.sec-entry .s1{--cr:1.5%; --cb:-20px; --cw:clamp(140px,17vw,270px); --co:.95; --cfx:-1;}
 /* 珊瑚はどちらも右下に寄せて重ね、岩場に見せる。左下は注記の指定席で、
    狭い画面では .wrap が画面いっぱいに広がるため空き水域が残らない。 */
 .sec-entry .s2{--cr:16%; --cb:-46px; --cw:clamp(110px,14vw,220px); --co:.86;}
@@ -1665,7 +1662,7 @@ h2{
   .sec-target   .s1{--cr:1%; --ct:auto; --cb:-40px; --cw:34%;}
   .sec-target   .s2{--cl:0%; --cb:-14px; --cw:44%;}
   .sec-schedule .s1{--cr:36%; --ct:auto; --cb:-56px; --cw:16%;}
-  .sec-schedule .s2{--cr:0%; --cb:-14px; --cw:30%;}
+  .sec-schedule .s2{--cr:1.5%; --cb:-14px; --cw:30%;}
   .sec-faq      .s1{--cr:2%; --ct:auto; --cb:-28px; --cw:18%;}
   .sec-faq      .s2{--cr:32%; --cb:-16px; --cw:16%;}
   .sec-entry    .s1{--cr:0%; --cb:-10px; --cw:40%;}
@@ -1684,8 +1681,8 @@ h2{
   .sec-benefit  .b1{--cl:2%;  --ct:auto; --cb:18px;  --cw:88%; --co:.62;}
   .sec-benefit{padding-bottom:250px;}
   .sec-themes   .b1{--cl:2%;  --ct:auto; --cb:14%; --cw:38%;}
-  .sec-schedule .b1{--cl:12%; --cb:-64px; --cw:78%;}
-  .sec-entry    .b1{--cl:-10%; --cb:-46px; --cw:46%;}   /* 左端へ（ボタンを避ける） */
+  .sec-schedule .b1{--cl:0%; --cb:-64px; --cw:78%;}
+  .sec-entry    .b1{--cl:2%;  --cb:-46px; --cw:46%;}
 }
 /* ============================================================
    対象診断のポップアップ
