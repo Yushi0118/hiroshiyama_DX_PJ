@@ -25,6 +25,8 @@
   var TOTAL = steps.length;
   var at = 0;              /* いま表示している質問の番号（0始まり） */
   var opener = null;       /* 閉じたときにフォーカスを返す先 */
+  var advance = null;      /* 「選んだら次へ」のタイマー。必ず1本だけ持つ */
+  var lastStep = 0;        /* 結果へ進む直前に見せていた質問 */
 
   /* 対象の条件は3つ。県内であること、従業員9名以下であること、業種が
      理美容・飲食・バックオフィスのいずれかであること。どれかを外したら
@@ -61,6 +63,10 @@
   }
 
   function finish() {
+    /* 打ち切り（県外など）で結果へ飛んだときは、最後に見せた質問が
+       Q5 とは限らない。控えておかないと「前の質問へ戻る」で、
+       本人がまだ見ていない質問に飛ばされる。 */
+    lastStep = at;
     var s = score();
     var key = s.verdict ? s.verdict : (s.sum >= FIT ? 'fit' : 'maybe');
 
@@ -80,6 +86,7 @@
   }
 
   function reset() {
+    window.clearTimeout(advance);
     form.reset();
     result.removeAttribute('role');
     /* 中の結果も畳んでおく。親を隠すだけだと、次の診断で別の結果を
@@ -90,8 +97,11 @@
 
   function open(from) {
     opener = from || null;
-    reset();
+    /* 先に開くこと。showModal() の前は display:none なので、
+       reset() の中の focus() が何もせずに終わり、実際の初期位置が
+       ブラウザ既定（閉じるボタン）になってしまう。 */
     dlg.showModal();
+    reset();
   }
 
   /* --- 選ぶと次へ進む ---
@@ -102,10 +112,19 @@
     /* その場で結論が出る選択肢（県外）は、残りを聞かずに結果へ。
        答えが結果を変えないと分かっている質問を続けさせない。 */
     var decisive = e.target.hasAttribute('data-verdict');
-    window.setTimeout(function () {
+    /* 前のタイマーを必ず捨てる。180ms 以内にもう一度選ぶと
+       （矢印キーで選択肢を見て回ると必ず起きる）タイマーが2本走り、
+       間の質問を飛ばしたまま結果へ進んでいた。飛ばされた質問は
+       未回答のまま点数に数えられないので、操作の速さだけで
+       「対象に当てはまりそうです」が「可能性があります」に化けた。 */
+    window.clearTimeout(advance);
+    advance = window.setTimeout(function () {
+      advance = null;
       if (!decisive && at + 1 < TOTAL) show(at + 1); else finish();
     }, 180);   /* 選んだことが目に見えるだけの間を置く */
   });
+
+  dlg.addEventListener('close', function () { window.clearTimeout(advance); });
 
   dlg.addEventListener('click', function (e) {
     var act = e.target.closest('[data-fc]');
@@ -115,7 +134,7 @@
       if (kind === 'restart') { e.preventDefault(); reset(); return; }
       if (kind === 'back') {
         e.preventDefault();
-        if (!result.hidden) { result.hidden = true; show(TOTAL - 1); }
+        if (!result.hidden) { result.hidden = true; show(lastStep); }
         else if (at > 0) show(at - 1);
         return;
       }
@@ -189,8 +208,11 @@
   sw.addEventListener('pointerenter', function () { warm(); start(); });
   sw.addEventListener('pointerleave', cancel);
 
-  /* キーボード。焦点を当てて3秒でも、その場で決めても切り替わる。 */
-  sw.addEventListener('focus', function () { warm(); start(); });
+  /* キーボード。Enter / Space で切り替える。
+     焦点を当てただけで数え始めてはいけない。Tab で辿って読んでいる
+     だけの人が、3秒後に勝手にページ全体を夜にされてしまう。
+     マウスの「乗せ続ける」は意図的な滞留だが、焦点の滞留は違う。 */
+  sw.addEventListener('focus', warm);
   sw.addEventListener('blur', cancel);
   sw.addEventListener('keydown', function (e) {
     if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
