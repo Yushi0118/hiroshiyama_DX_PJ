@@ -558,17 +558,23 @@
     <div class="credit">
       <p class="credit-label">主催・運営</p>
       <div class="lockup">
-        <span class="lockup-item">
+        <!-- ロゴから各公式サイトへ。別タブで開くのは、読んでいる途中の
+             このページを閉じさせないため。rel は別タブ経由の乗っ取り対策。 -->
+        <a class="lockup-item" href="https://www.pref.hiroshima.lg.jp/"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="広島県公式ホームページ（新しいタブで開きます）">
           <img src="assets/img/logos/hiroshima-pref.png" alt="" width="143" height="72" onerror="this.remove()">
           <span class="lockup-name">広島県</span>
-        </span>
+        </a>
         <span class="lockup-x" aria-hidden="true">
           <svg viewBox="0 0 40 40" role="img"><use href="#ic-cross"></use></svg>
         </span>
-        <span class="lockup-item">
+        <a class="lockup-item" href="https://lt-s.jp/"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="株式会社エル・ティー・エス 公式サイト（新しいタブで開きます）">
           <img src="assets/img/logos/lts.png" alt="" width="388" height="192" onerror="this.remove()">
           <span class="lockup-name">株式会社エル・ティー・エス</span>
-        </span>
+        </a>
       </div>
       <p class="credit-note">本プロジェクトは広島県が実施し、株式会社エル・ティー・エスが運営しています。</p>
     </div>
