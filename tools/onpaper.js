@@ -49,10 +49,25 @@ window.__onPaper = async function () {
      <p> の枠は段落の幅いっぱいに広がるので、最終行が短くても右端まで
      測ってしまい、紙からはみ出していると誤って報告する。
      Range の getClientRects() なら行ごとの、文字に密着した矩形が取れる。 */
+  /* 測るのは「文字が実際に置かれている行」だけ。
+
+     selectNodeContents(el).getClientRects() は、要素の中身をまるごと
+     囲むので、置換要素（<img>）の箱まで文字の行として返す。
+     .hero-brand は左に印の画像を抱えていて文字は子の <span> の中に
+     あるため、印の上の絵の色を「文字の下地」として測っていた。
+     900x1200 でちょうど印が絵の中間調に乗り、3.46:1 の不合格が出た
+     （実際にはそこに文字は無く、印の絵が乗っているので読める）。
+     文字ノードだけを辿れば、この取り違えは起きない。 */
   const lineRects = el => {
-    const r = document.createRange();
-    r.selectNodeContents(el);
-    return [...r.getClientRects()].filter(b => b.width > 1 && b.height > 1);
+    const out = [];
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let n = w.nextNode(); n; n = w.nextNode()) {
+      if (!n.textContent.trim()) continue;
+      const r = document.createRange();
+      r.selectNodeContents(n);
+      for (const b of r.getClientRects()) if (b.width > 1 && b.height > 1) out.push(b);
+    }
+    return out;
   };
 
   /* 「紙の上か」ではなく「実際に読めるか」で判定する。
