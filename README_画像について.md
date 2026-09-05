@@ -136,11 +136,30 @@ powershell -File tools/build-hero-mobile.ps1 -Map
 | ファイル | 使用箇所 |
 |---|---|
 | `icons/pain/icon-1.webp` 〜 `icon-6.webp` | 困りごと 6枚 |
-| `icons/what/illus-1.png` 〜 `illus-3.png` | できること STEP 01〜03 |
-| `icons/benefit/illus-1.png` 〜 `illus-5.png` | メリット 5枚 |
-| `icons/flow/illus-1.png` 〜 `illus-3.png` | 進め方 3ステップ |
-| `icons/flow/hub-*.png` | 支援体制 5ノード |
+| `icons/what/illus-1.webp` 〜 `illus-3.webp` | できること STEP 01〜03 |
+| `icons/benefit/illus-1.webp` 〜 `illus-5.webp` | メリット 5枚 |
+| `icons/flow/illus-1.webp` 〜 `illus-3.webp` | 進め方 3ステップ |
+| `icons/flow/hub-*.webp` | 支援体制 5ノード |
+| `themes/beauty.webp` `food.webp` `backoffice.webp` | 募集テーマ 3枚 |
+| `creatures/*.webp` | 海の生き物（装飾）12種 |
 | `icons/logo-mark.png` | ヒーローとフッターのロゴマーク |
+| `logos/hiroshima-pref.png` `logos/lts.png` | フッターのロゴ |
+
+## 画像の形式（2026-09-05 にWebPへ移行）
+
+装飾の画像はすべて **WebP**（品質0.92）です。PNGのままだと、生き物と挿絵だけで
+5.0MB あり、スマホの回線では重すぎました。変換後は 1.25MB（-75%）です。
+透明度は元と完全に一致し、色の差は平均 1.5〜2.9／255（画面では見分けられない）
+であることを画素単位で測って確認しています。
+
+PNGのまま残しているのは、ロゴマーク（favicon にも使うため）と、いただいた
+2つのロゴだけです。
+
+**差し替えるときも WebP にしてください。** ファイル名と保存先は変えないこと
+（HTML が名前を直接指定しています）。変換の道具は `tools/webp-bridge.js` に
+説明があります。この環境には cwebp も ImageMagick も無いので、ブラウザの
+エンコーダを使います。
+
 
 ## 挿絵の合成について
 
