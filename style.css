@@ -543,7 +543,22 @@ h2{
      （依頼主から「もっと大きく目立つように」2026-09-02）。
      p を付けて（0,2,1）確実に勝たせる。 */
   font-family:var(--serif);font-size:27px;font-weight:700;color:var(--ink);
-  padding-bottom:.5em;border-bottom:1px solid rgba(198,164,92,.55);
+}
+/* 業種名の右が空いていたので、業種の絵を並べて置く（依頼主 2026-09-05）。
+   絶対配置ではなく flex にしてあるのは、「バックオフィス」のように長い
+   名前でも絵と重ならないようにするため。金の罫は名前だけでなく
+   見出しの帯の下に引く（カード幅いっぱいに通す）。 */
+.theme-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding-bottom:.4em;border-bottom:1px solid rgba(198,164,92,.55);
+}
+.theme-head .theme-name{padding-bottom:0;border-bottom:0;}
+.theme-icon{
+  flex:0 0 auto;
+  width:clamp(58px, 7.2vw, 92px);
+  height:auto;
+  /* 絵の下辺が名前の下辺より少し下がると、罫に食い込んで窮屈に見える */
+  margin-block:-4px;
 }
 .label{
   font-size:15px;font-weight:700;letter-spacing:.06em;color:var(--gold-deep);
@@ -609,7 +624,12 @@ h2{
 /* 支援体制の中心 */
 .hub-center{
   display:flex;flex-direction:column;align-items:center;gap:.1em;
-  max-width:280px;margin:0 auto 26px;
+  /* 幅は下の5枚と揃える。280px の決め打ちだと、下の枠のどの列とも
+     縁が合わず「ずれている」ように見えた（依頼主 2026-09-05）。
+     下は .grid（gap:24px）の5列なので、1列ぶんはこの式になる。
+     列数が変わる幅では、下のメディアクエリで式も切り替える。 */
+  width:calc((100% - 4 * 24px) / 5);
+  max-width:none;margin:0 auto 26px;
   padding:20px;border-radius:var(--radius);
   /* 金の淡い地は下地を明るくしてしまい、白系の文字が乗らない。
      紺を敷いて金は枠だけにする。 */
@@ -826,12 +846,25 @@ h2{
    広島城が並ぶ。ヒーローが低いと cover が絵を縮めて建物が上がってきて、
    リード文の下に食い込む（1280pxで 1.52:1 まで落ちた）。高さを確保すると
    絵が拡大され、建物は本文より下へ逃げる。 */
-/* 文字を大きくするたびにリード文の最終行が下がり、絵の下の帯にある
-   広島城へ近づく。高さを足すと cover が絵を拡大して建物が下へ逃げる。
-   74vw のとき 1280px で 2.45:1 まで落ちたので 79vw まで上げた。
-   上限も 1100px では 1440px の夜で 4.26:1 と足りず、1160px にした
-   （夜の絵は紙の形が昼と少し違う）。 */
-.hero{padding:0;min-height:clamp(980px, 79vw, 1160px);display:flex;align-items:center;}
+/* ヒーローの高さは「画面に収まること」を最優先にする。
+
+   絵で決めていた頃（clamp(980px,79vw,1160px)）は、1160px が画面高より
+   高くなり、100%表示で下が切れた。80%表示にすると収まって良く見える、
+   という指摘を受けた（依頼主 2026-09-05）＝つまり画面高に収めるのが正。
+
+   ただし縮めると cover が絵を縮小して、絵の下の帯にある広島城が
+   上がってきてリード文に掛かる。そこで高さではなく
+   background-position で切り取り位置を上へ寄せて逃がす（.hero-art）。
+   両者は連動しているので、片方だけ変えないこと。 */
+.hero{
+  padding:0;
+  min-height:min(clamp(620px, 79vw, 1160px), calc(100svh - 8px));
+  /* 本文は上に寄せる。中央に置くと、画面が低いとき（1440x800 など）に
+     文字の帯がちょうど絵の下の帯＝広島城の高さへ降りてきて、
+     リード文が 1.22:1 まで落ちた。上寄せなら絵の高さに関わらず、
+     文字は常に絵の上半分（空と紙）の側にいる。 */
+  display:flex;align-items:flex-start;
+}
 /* ヒーローだけは中央寄せの器を外す。位置は絵に合わせるため画面幅で決める */
 .hero > .wrap{width:100%;}
 
@@ -917,7 +950,10 @@ h2{
 .hero-cta{display:flex;gap:14px;margin-top:2em;flex-wrap:wrap;}
 
 /* 右上の浮かぶナビ。完成イメージの構成に合わせている */
-.hero-nav{display:flex;flex-direction:column;gap:10px;flex:none;margin-top:8px;}
+/* 縦の中央に置くと、ちょうど絵のしまなみの橋と重なる高さに来る。
+   橋より上（絵の空の部分）へ上げる（依頼主 2026-09-05）。 */
+.hero-nav{display:flex;flex-direction:column;gap:10px;flex:none;
+  align-self:flex-start;margin-top:0;}
 .hero-nav a{
   position:relative;
   display:flex;align-items:center;
@@ -1031,6 +1067,7 @@ h2{
   .section{padding:88px 0;}
   .section + .section{padding-top:72px;}
   .grid-5{grid-template-columns:repeat(3,1fr);}
+  .hub-center{width:calc((100% - 2 * 24px) / 3);}   /* 3列ぶんの1列 */
   .hero-nav a{min-width:180px;font-size:12.5px;}
 }
 
@@ -1043,6 +1080,37 @@ h2{
    116/255 まで落ちていた。
 
    左を 13vw まで寄せているのは、その原爆ドームの尖塔を避けるため。 */
+/* 画面が低いとき（ノートPCの 1440x800 / 1366x768 / 1280x720 など）。
+
+   依頼主から「100%表示だと下が切れる、80%表示だと良い」と指摘を受けた
+   （2026-09-05）。80%表示は要するに「窓に対して中身が小さくなる」こと
+   なので、画面が低いときは同じことをする ―― ヒーローの字と余白を
+   画面の高さ（vh）で決めて、絵の入る余地を残す。
+
+   高さを詰めないと二重に困る。1つは下が切れること。もう1つは、絵が
+   ほとんど切り取られないぶん、絵の下の帯（原爆ドーム・広島城）が
+   画面の中に入ってきて、リード文がその上に乗ること（1440x800 で
+   1.22:1 まで落ちた）。字を詰めれば文字の帯が上へ寄り、建物より上で
+   終わる。 */
+@media (min-width:768px) and (max-height:900px){
+  .hero-inner{
+    /* 上を詰めすぎると、今度は見出しが紙の上端を越えて空へ出る。
+       夜は空が暗いので紺の見出しが 2.64:1 まで落ちた。
+       下限 62px は、その手前で止まる値（実測）。 */
+    padding-top:clamp(62px, 8.5vh, 104px);
+    padding-bottom:clamp(20px, 4.5vh, 64px);
+  }
+  .hero-title{font-size:clamp(23px, 4.6vh, 54px);line-height:1.5;}
+  .hero-brand span{font-size:min(1.85vw, 30px);}
+  .hero-mark{width:clamp(30px, 3vw, 44px);}
+  .hero-sub{font-size:clamp(12px, 1.7vh, 16px);}
+  .hero-lead{font-size:clamp(13.5px, 2vh, 18px);line-height:1.8;margin-top:.9em;}
+  .hero-cta{margin-top:1.1em;}
+  /* 44px を割ってはいけない。指で押す領域の下限で、tools/check.js も
+     ここを見ている（40px にして3つとも弾かれた）。 */
+  .hero-nav a{min-height:44px;font-size:13.5px;}
+}
+
 @media (min-width:768px) and (max-width:1279px){
   .hero{min-height:clamp(900px, 78vw, 1000px);}
   .hero-inner{padding:76px 4vw 48px 9vw;}
@@ -1060,6 +1128,7 @@ h2{
 @media (max-width:900px){
   .grid-3{grid-template-columns:repeat(2,1fr);}
   .grid-5{grid-template-columns:repeat(2,1fr);}
+  .hub-center{width:calc((100% - 24px) / 2);}   /* 2列ぶんの1列 */
   .cta-grid{grid-template-columns:1fr;}
 }
 
@@ -1087,6 +1156,7 @@ h2{
 
   /* --- すべて1列に --- */
   .grid-3,.grid-5{grid-template-columns:1fr;gap:14px;}
+  .hub-center{width:100%;}   /* 1列なので枠いっぱい */
   .card{padding:20px 18px;}
 
   /* 1列になって横幅に余裕が出るので、挿絵はむしろ大きくしてよい */
@@ -1283,6 +1353,39 @@ h2{
    セクションどうしを繋いで1枚の海に見せる仕掛けでもある。
    横あふれは body の overflow-x:clip が受け止める。 */
 .creatures{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:visible;}
+
+/* スクロールに連れて泳ぐ（依頼主から「スクロールで際立つ動きに」2026-09-05）
+
+   仕掛けは、生き物を入れている器（.creatures）のほうを、セクションが
+   画面を通り抜ける間だけ動かすこと。生き物1体ずつが持っている揺れは
+   transform で、こちらは translate という別のプロパティなので、
+   互いに打ち消さずに重なる。器を動かすので1行で済み、体ごとに
+   アニメーションを足し直す必要もない。
+
+   animation-timeline: view() が使えるブラウザだけに掛ける。使えない
+   ブラウザ（今の Safari / Firefox）は、これまでどおり揺れるだけで、
+   欠けて見えることはない。
+
+   振れ幅は控えめにしてある。大きく振ると、生き物が隣のセクションの
+   文字の上まで流れてきて、tools/overlap.js の見立て（揺れの分だけ
+   矩形を広げて当たりを見る）から外れる。 */
+@keyframes creature-cruise{
+  from{ translate:var(--cruise-x, 3.2vw) 46px; }
+  to  { translate:calc(var(--cruise-x, 3.2vw) * -1) -46px; }
+}
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion:no-preference){
+    .creatures{
+      animation:creature-cruise linear both;
+      animation-timeline:view();
+      animation-range:cover 0% cover 100%;
+    }
+    /* 一つおきに向きを変える。全部が同じ向きへ流れると、
+       ページ全体が横に滑っているように見えて落ち着かない。 */
+    .sec-what .creatures,.sec-themes .creatures,
+    .sec-target .creatures,.sec-faq .creatures{--cruise-x:-3.2vw;}
+  }
+}
 /* 深海では幕（.deep-zone::before, z-index:0）より上に出す。
    幕の下に置くと、濃さ .78〜.88 の紺が生き物の上に乗って、魚もクラゲも
    ほとんど溶けて消える（依頼主から「薄い」と指摘を受けた 2026-08-31）。
