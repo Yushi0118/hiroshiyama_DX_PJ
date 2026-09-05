@@ -834,12 +834,18 @@ h2 .h-rule{
 }
 .btn-primary{background:#12335C;color:#fff;box-shadow:0 6px 18px rgba(12,40,76,.28);}
 .btn-ghost{background:rgba(255,255,255,.9);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--gold);}
-.btn:hover{transform:translateY(-2px);}
 /* ホバーで地と文字を入れ替える。浮くだけの変化では「押せる」ことが
    伝わりにくい。反転後も紺と白の組み合わせなので約12:1あり、
    どちらの状態でも読める。 */
-.btn-primary:hover{background:#fff;color:#12335C;box-shadow:inset 0 0 0 2px #12335C, 0 8px 22px rgba(12,40,76,.3);}
-.btn-ghost:hover{background:#12335C;color:#fff;box-shadow:inset 0 0 0 1.5px #12335C, 0 8px 22px rgba(12,40,76,.3);}
+/* 触れる端末では :hover が「触った状態のまま」残る。囲わないと、
+   指を離してもボタンが反転したままになる（とくに画面下に居続ける
+   .sticky-cta は、一度押すと以降ずっと白地のまま）。カードのホバーは
+   最初から囲ってあったが、ボタン類が漏れていた（2026-09-05）。 */
+@media (hover:hover){
+  .btn:hover{transform:translateY(-2px);}
+  .btn-primary:hover{background:#fff;color:#12335C;box-shadow:inset 0 0 0 2px #12335C, 0 8px 22px rgba(12,40,76,.3);}
+  .btn-ghost:hover{background:#12335C;color:#fff;box-shadow:inset 0 0 0 1.5px #12335C, 0 8px 22px rgba(12,40,76,.3);}
+}
 
 /* 深い紺の水の上に置くボタン。
    紺地に紺のボタン、あるいは白い縁取りだけのボタンでは、まわりの水に
@@ -860,11 +866,13 @@ h2 .h-rule{
     0 2px 0 rgba(0,0,0,.12);
 }
 /* 反転しても 8.6:1 → 10.1:1 で、どちらの状態でも十分読める */
-.btn-accent:hover{
-  background-color:#0A2247;
-  background-image:none;
-  color:#E9CE8A;
-  box-shadow:inset 0 0 0 2px var(--gold), 0 12px 30px rgba(3,14,32,.5);
+@media (hover:hover){
+  .btn-accent:hover{
+    background-color:#0A2247;
+    background-image:none;
+    color:#E9CE8A;
+    box-shadow:inset 0 0 0 2px var(--gold), 0 12px 30px rgba(3,14,32,.5);
+  }
 }
 
 /* セクション末尾の導線。デスクトップは固定CTAが無いため、
@@ -878,10 +886,12 @@ h2 .h-rule{
   transition:transform .18s ease;
 }
 /* 紺のカードを明るい地に反転させる。文字色もまとめて入れ替える */
-.cta:hover{transform:translateY(-3px);background:rgba(248,252,255,.96);}
-.cta:hover .card-title{color:#0A2247;}
-.cta:hover .cta-sub{color:#40566F;}
-.cta:hover .chev{border-color:#0A2247;}
+@media (hover:hover){
+  .cta:hover{transform:translateY(-3px);background:rgba(248,252,255,.96);}
+  .cta:hover .card-title{color:#0A2247;}
+  .cta:hover .cta-sub{color:#40566F;}
+  .cta:hover .chev{border-color:#0A2247;}
+}
 .cta-sub{font-size:15px;color:var(--paper-soft);}
 /* 押しても動かないものはリンクにしない。準備中であることを明示する。 */
 /* 押せない案内なので浮かせない。ただし暗いままだと読みにくいので、
@@ -889,13 +899,15 @@ h2 .h-rule{
 .cta.is-pending{cursor:default;opacity:1;}
 /* 地と文字の入れ替えは .cta:hover と「深海のカードのホバー」が持つ。
    ここで暗い地に戻すと、紺文字が紺地に乗って消える。 */
-.tier-deep .cta.is-pending:hover{
-  box-shadow:
-    inset 0 0 0 1.5px var(--gold),
-    0 0 22px rgba(198,164,92,.34),
-    0 10px 26px rgba(3,14,32,.4);
+@media (hover:hover){
+  .tier-deep .cta.is-pending:hover{
+    box-shadow:
+      inset 0 0 0 1.5px var(--gold),
+      0 0 22px rgba(198,164,92,.34),
+      0 10px 26px rgba(3,14,32,.4);
+  }
+  .cta.is-pending:hover{transform:none;}
 }
-.cta.is-pending:hover{transform:none;}
 .cta-badge{
   position:absolute;right:16px;top:50%;transform:translateY(-50%);
   padding:.25em .9em;border-radius:999px;
@@ -1035,8 +1047,10 @@ h2 .h-rule{
   background:rgba(18,51,92,.9);color:#fff;
   transition:background .18s ease;
 }
-.hero-nav a:hover{background:#fff;color:#12335C;box-shadow:inset 0 0 0 1.5px #12335C;}
-.hero-nav a:hover .chev{border-color:#12335C;}
+@media (hover:hover){
+  .hero-nav a:hover{background:#fff;color:#12335C;box-shadow:inset 0 0 0 1.5px #12335C;}
+  .hero-nav a:hover .chev{border-color:#12335C;}
+}
 .hero-nav .chev{border-color:#fff;right:18px;}
 
 /* ============================================================
@@ -1125,7 +1139,7 @@ h2 .h-rule{
   display:inline-flex;align-items:center;min-height:44px;padding:0 .2em;
   font-size:15px;color:var(--paper-soft);
 }
-.foot-nav a:hover{color:var(--gold);}
+@media (hover:hover){ .foot-nav a:hover{color:var(--gold);} }
 .foot-top{margin-top:1.2em;}
 .foot-top a{
   display:inline-flex;align-items:center;justify-content:center;
@@ -1133,7 +1147,7 @@ h2 .h-rule{
   font-size:15px;font-weight:700;color:var(--paper);
   box-shadow:inset 0 0 0 1px rgba(198,164,92,.6);
 }
-.foot-top a:hover{background:var(--gold);color:#0A2247;}
+@media (hover:hover){ .foot-top a:hover{background:var(--gold);color:#0A2247;} }
 /* --gold-deep は明るい地の前提の色。最深部の紺では 3.1:1 しか出ない */
 .site-footer .gold{color:#E3C880;}
 
@@ -1295,7 +1309,9 @@ h2 .h-rule{
     background:#12335C;color:#fff;
     box-shadow:0 8px 24px rgba(4,18,40,.4);
   }
-  .sticky-cta:hover{background:#fff;color:#12335C;box-shadow:inset 0 0 0 2px #12335C, 0 8px 24px rgba(4,18,40,.4);}
+  @media (hover:hover){
+    .sticky-cta:hover{background:#fff;color:#12335C;box-shadow:inset 0 0 0 2px #12335C, 0 8px 24px rgba(4,18,40,.4);}
+  }
 }
 
 /* --- 390px 未満：もう一段詰める --- */
@@ -1811,7 +1827,7 @@ h2 .h-rule{
   transition:background-color .18s ease, color .18s ease;
 }
 .fc-close svg{width:20px;height:20px;}
-.fc-close:hover{background:var(--gold);color:#0A2247;}
+@media (hover:hover){ .fc-close:hover{background:var(--gold);color:#0A2247;} }
 
 .fc-head{text-align:center;padding:0 44px;}
 .fc-mark{
@@ -1927,7 +1943,7 @@ h2 .h-rule{
   font-size:14px;font-weight:700;font-family:inherit;
   transition:background-color .18s ease, color .18s ease;
 }
-.fc-back:hover{background:var(--gold);color:#0A2247;}
+@media (hover:hover){ .fc-back:hover{background:var(--gold);color:#0A2247;} }
 .fc-note{
   margin-top:1em;padding:0;background:none;box-shadow:none;max-width:none;
   font-size:13px;line-height:1.8;color:var(--paper-soft);
