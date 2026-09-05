@@ -77,6 +77,15 @@
 
   --wrap:1120px;
   --radius:16px;
+
+  /* スクロールに連れて生き物が流れる距離（@keyframes creature-cruise）。
+     tools/overlap.js も読む。片方だけ変えないこと。 */
+  /* 縦は文字の行間へ直に効くので小さく。横は水域が広いぶん取れる。
+     3.2vw/46px にしていたとき、熱水噴出孔がFAQの見出しに乗って
+     1.1:1 まで落ちていた（検査が連動ぶんを見ていなかったので
+     長らく気づけなかった）。 */
+  --cruise-dx:1.0vw;
+  --cruise-dy:6px;
 }
 
 /* ============================================================
@@ -247,11 +256,15 @@ body::after{
      z-index:0 の擬似要素は通常フローの中身より後に描かれるため、
      文字の上に幕が乗っていた（実測で16要素が下敷きになっていた）。
 
-     -1 なら通常フローの中身より先に描かれるので、カードにも文字にも
-     絶対に掛からない。ページのグラデーション（-3）と光の筋（-2）よりは
-     上なので、水を暗くする役目は変わらない。
-     深海の生き物は z-index:0 なので幕より上に出る（そのための 0）。 */
-  z-index:-1;pointer-events:none;
+     通常フローの中身より先に描かれる負の値にすれば、カードにも文字にも
+     絶対に掛からない。
+
+     -2 にするのは、生き物（-1）より下へ回すため。-1 にしていたら、
+     幕は深海の器の子で DOM 順があとになるぶん、同じ -1 の生き物の上に
+     乗ってしまい、中層のカニが幕の下に沈んで見えた（依頼主 2026-09-05）。
+     ページのグラデーション（-3）よりは上なので、水を暗くする役目は
+     変わらない。 */
+  z-index:-2;pointer-events:none;
   background:linear-gradient(180deg,
     rgba(var(--deep-rgb),0)            0,
     rgba(var(--deep-rgb),var(--deep-a1)) var(--deep-lead),
@@ -617,24 +630,35 @@ h2{
    そのまま大きく出すとカードを占領してしまう。小さく中央に置き、
    文字も中央揃えにして「役割の一覧」として読ませる。 */
 .nodes .card{align-items:center;text-align:center;padding:20px 16px;}
-.nodes .vignette-center{width:auto;max-width:none;height:58px;margin:0 auto .2em;}
+/* 支援体制の絵は白地の正方形（tools/build-node-icons.ps1）。紺のカードに
+   四角のまま置くと浮くので、円に切って金の輪で締める。
+   もとの丸バッジと同じ見え方になり、絵だけ差し替えられる。 */
+.nodes .vignette-center{
+  width:clamp(64px, 7.4vw, 92px);height:auto;max-width:none;
+  aspect-ratio:1;object-fit:cover;
+  margin:0 auto .35em;
+  border-radius:50%;
+  box-shadow:0 0 0 2px rgba(198,164,92,.85), 0 4px 14px rgba(3,14,32,.4);
+}
 .nodes .card-title{font-size:18px;}
 .nodes .card p{font-size:15px;}
 
 /* 支援体制の中心 */
 .hub-center{
   display:flex;flex-direction:column;align-items:center;gap:.1em;
-  /* 幅は下の5枚と揃える。280px の決め打ちだと、下の枠のどの列とも
-     縁が合わず「ずれている」ように見えた（依頼主 2026-09-05）。
-     下は .grid（gap:24px）の5列なので、1列ぶんはこの式になる。
-     列数が変わる幅では、下のメディアクエリで式も切り替える。 */
-  width:calc((100% - 4 * 24px) / 5);
+  /* 幅は下の5枚の並び全体と揃える ―― 一番左の枠の左端から、一番右の
+     枠の右端まで。280px の決め打ちだと下のどの枠とも縁が合わず、
+     ずれて見えた（依頼主 2026-09-05）。
+     下の .grid は .wrap の幅いっぱいなので、100% で端がぴたりと合う。 */
+  width:100%;
   max-width:none;margin:0 auto 26px;
   padding:20px;border-radius:var(--radius);
   /* 金の淡い地は下地を明るくしてしまい、白系の文字が乗らない。
      紺を敷いて金は枠だけにする。 */
   background:#0A2445;
-  box-shadow:inset 0 0 0 1px rgba(198,164,92,.7);
+  /* 枠の濃さはカード（.45）と揃える。.7 にしていたら、同じ1pxでも
+     この箱だけ線が太く見えると指摘を受けた（2026-09-05）。 */
+  box-shadow:inset 0 0 0 1px rgba(198,164,92,.45);
 }
 .hub-center strong{font-family:var(--serif);font-size:23px;color:#fff;}
 .hub-center span{font-size:15px;color:var(--paper-soft);}
@@ -1067,7 +1091,6 @@ h2{
   .section{padding:88px 0;}
   .section + .section{padding-top:72px;}
   .grid-5{grid-template-columns:repeat(3,1fr);}
-  .hub-center{width:calc((100% - 2 * 24px) / 3);}   /* 3列ぶんの1列 */
   .hero-nav a{min-width:180px;font-size:12.5px;}
 }
 
@@ -1128,7 +1151,6 @@ h2{
 @media (max-width:900px){
   .grid-3{grid-template-columns:repeat(2,1fr);}
   .grid-5{grid-template-columns:repeat(2,1fr);}
-  .hub-center{width:calc((100% - 24px) / 2);}   /* 2列ぶんの1列 */
   .cta-grid{grid-template-columns:1fr;}
 }
 
@@ -1156,7 +1178,6 @@ h2{
 
   /* --- すべて1列に --- */
   .grid-3,.grid-5{grid-template-columns:1fr;gap:14px;}
-  .hub-center{width:100%;}   /* 1列なので枠いっぱい */
   .card{padding:20px 18px;}
 
   /* 1列になって横幅に余裕が出るので、挿絵はむしろ大きくしてよい */
@@ -1369,9 +1390,13 @@ h2{
    振れ幅は控えめにしてある。大きく振ると、生き物が隣のセクションの
    文字の上まで流れてきて、tools/overlap.js の見立て（揺れの分だけ
    矩形を広げて当たりを見る）から外れる。 */
+/* 振れ幅は :root に置く。tools/overlap.js が同じ値を読んで、生き物の
+   当たり判定をこのぶん広げる。片方だけ変えると、文字の上を通っても
+   検査が気づかない（実際 3.2vw / 46px のとき、スマホでFAQの見出しに
+   熱水噴出孔が乗って 1.1:1 まで落ちていたのを検査が見逃していた）。 */
 @keyframes creature-cruise{
-  from{ translate:var(--cruise-x, 3.2vw) 46px; }
-  to  { translate:calc(var(--cruise-x, 3.2vw) * -1) -46px; }
+  from{ translate:var(--cruise-x, var(--cruise-dx)) var(--cruise-dy); }
+  to  { translate:calc(var(--cruise-x, var(--cruise-dx)) * -1) calc(var(--cruise-dy) * -1); }
 }
 @supports (animation-timeline: view()){
   @media (prefers-reduced-motion:no-preference){
@@ -1383,15 +1408,13 @@ h2{
     /* 一つおきに向きを変える。全部が同じ向きへ流れると、
        ページ全体が横に滑っているように見えて落ち着かない。 */
     .sec-what .creatures,.sec-themes .creatures,
-    .sec-target .creatures,.sec-faq .creatures{--cruise-x:-3.2vw;}
+    .sec-target .creatures,.sec-faq .creatures{--cruise-x:calc(var(--cruise-dx) * -1);}
   }
 }
-/* 深海では幕（.deep-zone::before, z-index:0）より上に出す。
-   幕の下に置くと、濃さ .78〜.88 の紺が生き物の上に乗って、魚もクラゲも
-   ほとんど溶けて消える（依頼主から「薄い」と指摘を受けた 2026-08-31）。
-   幕と同じ z-index:0 で、DOM順が幕より後なので生き物が上に来る。
-   本文は .tier-deep > .wrap が z-index:1 なので、さらにその上にいる。 */
-.deep-zone .creatures{z-index:0;}
+/* 生き物は必ず幕より上（幕は z-index:-2、生き物は -1）。
+   幕の下に置くと、濃い紺が生き物の上に乗って魚もクラゲも溶けて消える
+   （依頼主から「薄い」2026-08-31／「カニが幕の下」2026-09-05）。
+   本文は通常フローなので、負の z-index の生き物より必ず上にいる。 */
 .creature{
   position:absolute;
   top:var(--ct,auto); right:var(--cr,auto); bottom:var(--cb,auto); left:var(--cl,auto);
@@ -1544,7 +1567,10 @@ h2{
    そこから下へ食み出させる。ボタンもカードも注記も、この帯より上にある。
    値は実測から。1440/1280/1100/810 のどれでも火山の上端が注記の下端より
    下に来ることを確かめてある。 */
-.sec-entry    .b1{--cl:3%; --cb:-160px; --cw:clamp(120px,12vw,180px); --co:.58;}
+/* 海底火山は画面の左端へ寄せる。中央寄りだと「参加を相談する」の
+   ボタンと重なる（依頼主 2026-09-05）。左へはみ出すぶんは
+   body の overflow-x:clip が切る。 */
+.sec-entry    .b1{--cl:-5%; --cb:-160px; --cw:clamp(120px,12vw,180px); --co:.58;}
 
 /* --- 配置 ---
    置き場所は「カードが無い水域」を狙う。見出しとリード文は左寄せで
@@ -1659,7 +1685,7 @@ h2{
   .sec-benefit{padding-bottom:250px;}
   .sec-themes   .b1{--cl:2%;  --ct:auto; --cb:14%; --cw:38%;}
   .sec-schedule .b1{--cl:12%; --cb:-64px; --cw:78%;}
-  .sec-entry    .b1{--cl:2%;  --cb:-46px; --cw:46%;}
+  .sec-entry    .b1{--cl:-10%; --cb:-46px; --cw:46%;}   /* 左端へ（ボタンを避ける） */
 }
 /* ============================================================
    対象診断のポップアップ

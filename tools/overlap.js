@@ -144,6 +144,26 @@ window.__overlap = async function () {
       dx = b.height * Math.sin(r);
       dy = b.height * (1 - Math.cos(r));
     }
+    /* 生き物を入れている器（.creatures）は、スクロールに連れて
+       ±--cruise-dx / ±--cruise-dy だけ流れる（style.css の
+       @keyframes creature-cruise）。個々の揺れとは別に、この分も
+       当たり判定へ足さないと、文字の上を通る瞬間を見逃す。
+       値は :root から読む。CSS 側と同じ変数を見ること。 */
+    /* px() は parseFloat なので vw を解決しない。1.6vw が 1.6px に
+       なってしまい、ほとんど広げないまま通してしまう。 */
+    const len = v => {
+      const s = String(v).trim();
+      const n = parseFloat(s) || 0;
+      if (s.endsWith('vw')) return n * innerWidth / 100;
+      if (s.endsWith('vh')) return n * innerHeight / 100;
+      return n;
+    };
+    const rootCs = getComputedStyle(document.documentElement);
+    const cruiseX = Math.abs(len(rootCs.getPropertyValue('--cruise-dx')));
+    const cruiseY = Math.abs(len(rootCs.getPropertyValue('--cruise-dy')));
+    dx += cruiseX;
+    dy += cruiseY;
+
     return { left: b.left - dx, right: b.right + dx, top: b.top - dy, bottom: b.bottom + dy,
              w: b.width, h: b.height, dx, dy };
   };

@@ -51,7 +51,10 @@ $MIN_WATER   = 97      # 喫水線がこれ未満の水率なら置き直す（%
   ところが島・城・橋は夜の海と同じ「暗い青」で、色では分けられない。
   そこは区画で除外するしかない。
 #>
-$WATER_BR = 10   # 青が赤をこれ以上上回れば水
+# 青が赤をこれ以上上回れば水。木立(b-r -4)と原爆ドーム(b-r -6)が
+# 陸に残る範囲で、できるだけ低くする。月光の道の照り返しは暖色寄りに
+# なる画素があり、10 では海の一部を陸と読んで舟が弾かれた。
+$WATER_BR = 2
 
 # 色では見分けられないものは区画で除外する（比率 x1,y1,x2,y2）
 $KeepOut = @(
@@ -64,20 +67,39 @@ $ShipFiles = 1..10 | ForEach-Object {
   Join-Path $shipDir ("ChatGPT Image 2026年9月4日 10_29_13 ({0}).png" -f $_)
 }
 
-# 舟の配置。x は中心、y は喫水線（船底）、w は画像幅に対する舟の幅。
-# 月光の道は x=0.62 あたりに落ちているので、そこへ向かって遠ざかる並びにする。
+<#
+  舟の配置。x は中心、y は喫水線（船底）、w は画像幅に対する舟の幅。
+
+  当てずっぽうで置くと片端から陸に乗る。先に「行ごとに水が続いている
+  範囲」を実測してから決めた（3px刻みで走査）：
+
+    y0.68〜0.78   x0.55〜0.74            ← 左は岬、右は島と橋で塞がれている
+    y0.80         x0.55〜0.63, 0.66〜1.00
+    y0.82〜0.84   x0.55〜1.00
+    y0.86         x0.13〜1.00
+    y0.88〜0.90   x0.42〜1.00（左は岬の縁がまだ残る）
+    y0.92〜1.00   x0.00〜1.00
+
+  上へ行くほど水が細くなるので、遠くの舟ほど中央の細い水路へ寄せる。
+  舟の高さは幅の1.25倍。段の間隔はその高さぶん空けないと、下の段の
+  マストが上の段の舟へ突き上げる。
+#>
 $Fleet = @(
-  @{ n=10; x=0.470; y=0.686; w=0.052; flip=$false },
-  @{ n=10; x=0.560; y=0.690; w=0.048; flip=$true  },
-  @{ n=10; x=0.660; y=0.688; w=0.055; flip=$false },
-  @{ n=10; x=0.755; y=0.694; w=0.050; flip=$true  },
-  @{ n=8;  x=0.520; y=0.742; w=0.105; flip=$false },
-  @{ n=7;  x=0.700; y=0.752; w=0.115; flip=$true  },
-  @{ n=6;  x=0.845; y=0.746; w=0.100; flip=$true  },
-  @{ n=5;  x=0.420; y=0.836; w=0.165; flip=$false },
-  @{ n=3;  x=0.660; y=0.858; w=0.185; flip=$true  },
-  @{ n=1;  x=0.300; y=0.952; w=0.250; flip=$false },
-  @{ n=2;  x=0.640; y=0.985; w=0.280; flip=$true  }
+  # 遠景：月光の道の細い水路へ
+  @{ n=10; x=0.600; y=0.715; w=0.038; flip=$false },
+  @{ n=10; x=0.702; y=0.723; w=0.036; flip=$true  },
+  @{ n=10; x=0.595; y=0.770; w=0.046; flip=$false },
+  @{ n=10; x=0.706; y=0.762; w=0.043; flip=$true  },
+  # 中景：水が右へ開けてくる高さ
+  @{ n=8;  x=0.610; y=0.836; w=0.070; flip=$false },
+  @{ n=7;  x=0.760; y=0.836; w=0.075; flip=$true  },
+  @{ n=6;  x=0.905; y=0.836; w=0.072; flip=$true  },
+  # 中近景
+  @{ n=5;  x=0.580; y=0.925; w=0.105; flip=$false },
+  @{ n=4;  x=0.880; y=0.915; w=0.100; flip=$true  },
+  # 手前：全幅が水になる高さ
+  @{ n=1;  x=0.250; y=0.985; w=0.200; flip=$false },
+  @{ n=2;  x=0.735; y=0.998; w=0.205; flip=$true  }
 )
 
 # ---------- 背景を書き出しの大きさで用意する ----------
@@ -117,7 +139,45 @@ for ($y = $yTop; $y -lt $H; $y++) {
     $water[$wrow + $x] = (($b - $r) -ge $WATER_BR) -or ($lum -ge 120)
   }
 }
-# 区画での除外
+<#
+  地図をならす。
+
+  1画素ずつ色で見ると、夜の波の陰影を拾って水の中に陸の点が散る。
+  実際に舟の喫水線の下を出力させたところ、陸判定は塊ではなく
+  ごま塩状に散っていて、それだけで水率が 73〜90% まで落ちていた。
+  陸は必ず大きな塊なので、周りが水なら水に倒してよい。
+
+  9x9 の窓で「周りの55%以上が水なら水」とする。総和表（積分画像）を
+  使って窓の合計を一度に出す。素直に81画素ずつ数えると4千万回になる。
+#>
+$R = 4
+$SW1 = $W + 1
+$sum = New-Object int[] ($SW1 * ($H + 1))
+for ($y = 0; $y -lt $H; $y++) {
+  $rowUp = $y * $SW1
+  $rowDn = ($y + 1) * $SW1
+  $run = 0
+  $wrow = $y * $W
+  for ($x = 0; $x -lt $W; $x++) {
+    if ($water[$wrow + $x]) { $run++ }
+    $sum[$rowDn + $x + 1] = $sum[$rowUp + $x + 1] + $run
+  }
+}
+$smooth = New-Object bool[] ($W * $H)
+for ($y = $yTop; $y -lt $H; $y++) {
+  $y1 = [math]::Max(0, $y - $R); $y2 = [math]::Min($H - 1, $y + $R)
+  $wrow = $y * $W
+  $rUp = $y1 * $SW1; $rDn = ($y2 + 1) * $SW1
+  for ($x = 0; $x -lt $W; $x++) {
+    $x1 = [math]::Max(0, $x - $R); $x2 = [math]::Min($W - 1, $x + $R)
+    $tot = ($y2 - $y1 + 1) * ($x2 - $x1 + 1)
+    $cnt = $sum[$rDn + $x2 + 1] - $sum[$rUp + $x2 + 1] - $sum[$rDn + $x1] + $sum[$rUp + $x1]
+    $smooth[$wrow + $x] = ($cnt * 100) -ge ($tot * 55)
+  }
+}
+$water = $smooth
+
+# 区画での除外（ならしたあとに掛ける。区画は境界をぼかしたくない）
 foreach ($k in $KeepOut) {
   $x1 = [int]($k[0] * $W); $y1 = [int]($k[1] * $H)
   $x2 = [int]($k[2] * $W); $y2 = [int]($k[3] * $H)
@@ -150,11 +210,57 @@ if ($Map) {
 
 # ---------- 舟を置く ----------
 Write-Host ("舟 {0}点を読み込み" -f $ShipFiles.Count)
+<#
+  読み込むときに透明な余白を切り落とす。
+
+  絵によって余白がまるで違う。実測すると、舟10 は絵が中央の一部
+  （横 0.364〜0.690、縦 0.240〜0.745）しかなく、下に 25.5% も余白がある。
+  切らずに置くと、指定した喫水線より遥か上に浮き、幅も見た目より
+  ずっと小さくなる。切っておけば y は本当に船底、w は本当に舟の幅になる。
+#>
+function Trim-Ship([string]$path) {
+  $src = [System.Drawing.Bitmap]::FromFile($path)
+  $sw = $src.Width; $sh = $src.Height
+  $f32 = [System.Drawing.Imaging.PixelFormat]::Format32bppArgb
+  $d = $src.LockBits((New-Object System.Drawing.Rectangle(0,0,$sw,$sh)),
+       [System.Drawing.Imaging.ImageLockMode]::ReadOnly, $f32)
+  $st = $d.Stride
+  $px = New-Object byte[] ($st * $sh)
+  [System.Runtime.InteropServices.Marshal]::Copy($d.Scan0, $px, 0, $px.Length)
+  $src.UnlockBits($d)
+
+  $x1 = $sw; $x2 = -1; $y1 = $sh; $y2 = -1
+  for ($y = 0; $y -lt $sh; $y++) {
+    $row = $y * $st
+    for ($x = 0; $x -lt $sw; $x++) {
+      if ($px[$row + $x * 4 + 3] -lt 60) { continue }
+      if ($x -lt $x1) { $x1 = $x }
+      if ($x -gt $x2) { $x2 = $x }
+      if ($y -lt $y1) { $y1 = $y }
+      if ($y -gt $y2) { $y2 = $y }
+    }
+  }
+  if ($x2 -lt 0) { $src.Dispose(); throw "中身が空です: $path" }
+
+  $cw = $x2 - $x1 + 1; $ch = $y2 - $y1 + 1
+  $dst = New-Object System.Drawing.Bitmap($cw, $ch, $f32)
+  $gg = [System.Drawing.Graphics]::FromImage($dst)
+  $gg.CompositingMode = [System.Drawing.Drawing2D.CompositingMode]::SourceCopy
+  $gg.DrawImage($src,
+    (New-Object System.Drawing.Rectangle(0, 0, $cw, $ch)),
+    (New-Object System.Drawing.Rectangle($x1, $y1, $cw, $ch)),
+    [System.Drawing.GraphicsUnit]::Pixel)
+  $gg.Dispose()
+  $src.Dispose()
+  return $dst
+}
+
 $ships = @{}
 foreach ($n in ($Fleet | ForEach-Object { $_.n } | Sort-Object -Unique)) {
   $p = $ShipFiles[$n - 1]
   if (-not (Test-Path $p)) { throw "舟の絵がありません: $p" }
-  $ships[$n] = [System.Drawing.Bitmap]::FromFile($p)
+  $ships[$n] = Trim-Ship $p
+  "  舟{0,2} 切り抜き {1}x{2}" -f $n, $ships[$n].Width, $ships[$n].Height
 }
 
 $occupied = New-Object bool[] ($W * $H)
@@ -223,7 +329,26 @@ foreach ($f in $Fleet) {
   $ngO = $ovl -gt $MAX_OVERLAP
   "{0}   舟{1,2}  x{2:N3} y{3:N3}  幅{4,4}px   水率{5,6:N1}%   重なり{6,5:N1}%" -f `
     $(if ($ngW -or $ngO) { 'NG' } else { 'OK' }), $f.n, $f.x, $f.y, $dw, $wpct, $ovl
-  if ($ngW) { $bad += "舟{0} (x{1}, y{2}) 水率{3}%" -f $f.n, $f.x, $f.y, $wpct }
+  if ($ngW) {
+    $bad += "舟{0} (x{1}, y{2}) 水率{3}%" -f $f.n, $f.x, $f.y, $wpct
+    # 落ちたときは、喫水線の下がどうなっているかを見せる。
+    # 「#=水」「.=陸」「空白=舟の絵が無い」。原因の切り分けはこれが要る。
+    "     喫水線の下（#水 .陸 空白=絵なし）"
+    for ($sy = [int]($dh * 0.70); $sy -lt $dh; $sy += [math]::Max(1, [int](($dh * 0.30) / 8))) {
+      $py = $dy + $sy
+      if ($py -lt 0 -or $py -ge $H) { continue }
+      $srow = $sy * $sst
+      $line = ''
+      for ($sx = 0; $sx -lt $dw; $sx += [math]::Max(1, [int]($dw / 40))) {
+        $px2 = $dx + $sx
+        if ($px2 -lt 0 -or $px2 -ge $W) { $line += '?'; continue }
+        if ($spx[$srow + $sx * 4 + 3] -lt 60) { $line += ' ' }
+        elseif ($water[$py * $W + $px2]) { $line += '#' }
+        else { $line += '.' }
+      }
+      "     {0,5} {1}" -f $py, $line
+    }
+  }
   if ($ngO) { $bad += "舟{0} (x{1}, y{2}) 重なり{3}%" -f $f.n, $f.x, $f.y, $ovl }
 
   # 占有マップへ足してから描く
