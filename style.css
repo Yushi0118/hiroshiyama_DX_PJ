@@ -12,8 +12,9 @@
    深さに応じてカードの明暗を反転させる（浅瀬＝明るいカードに紺の文字、
    深海＝紺のカードに白の文字）。これがスクロールの体験を作る。
 
-   動くのは海の生き物だけ（CSSの @keyframes 3種）。レイアウトには一切
-   関わらない装飾なので、transform と opacity しか動かさない。
+   動くのは海の生き物（@keyframes 6種）と、見出しの下線（1種）、
+   スクロールに連れて器ごと流れる分（1種）だけ。どれもレイアウトには
+   関わらない。生き物は transform と opacity しか動かさない。
    深さで動き方を変える ―― 浅瀬は大きく速く、深海はゆっくり小さく。
    モーション低減の指定があるときは、hover の transition と smooth scroll
    ごとまとめて止める。
@@ -69,8 +70,18 @@
   --mid-ink:#0A1F3C;    /* 中層で地の上に直に置く文字（見出し・リード） */
   --paper:#F4F9FC;      /* 深海側の文字 */
   --paper-soft:#D6E7F2; /* 深海側の補助文字。#C8DCEC では 4.46:1 で AA に僅かに届かなかった */
-  --gold:#C6A45C;
+  /* 金は透過版をあちこちで手書きしていた（31か所）。素の数値を持たせて
+     rgba(var(--gold-rgb), .45) の形で使う。--gold もここから作る。 */
+  --gold-rgb:198,164,92;
+  --gold:rgb(var(--gold-rgb));
   --gold-deep:#8A6A2A;
+
+  /* 昼夜で入れ替えない紺。--ink は夜に明るいほうへ振るので、ボタンの地や
+     反転ホバーの文字のように「夜でもこの紺のまま」であってほしいものは
+     こちらを使う。値は今まで直に書いていたものと同じ。 */
+  --brand:#12335C;      /* 浅瀬の主色（ボタンの地、ヒーローのナビ） */
+  --ink-deep:#0A2247;   /* 深海で反転したときの文字、番号バッジの地 */
+  --card-deep:#0A2648;  /* 深海のカードの地 */
 
   --serif:"Noto Serif JP","Yu Mincho",YuMincho,"Hiragino Mincho ProN",serif;
   --sans:"Noto Sans JP","Yu Gothic",YuGothic,"Hiragino Sans","Meiryo",sans-serif;
@@ -238,7 +249,7 @@ body::after{
    要らない」と両方を指摘されて撤去した（2026-08-31）。
 
    代わりに、深海の5節をまとめた .deep-zone に幕を1枚だけ掛ける。
-   境目は器の上端の1か所しかなく、そこも手前 320px から掛け始めて
+   境目は器の上端の1か所しかなく、そこも手前 --deep-lead（600px）から掛け始めて
    ゆっくり濃くなるので、線には見えない。器の中は下へ向かって
    濃くなり続けるだけなので、明るく戻る場所がない＝縞ができない。 */
 .deep-zone{position:relative;}
@@ -247,7 +258,7 @@ body::after{
   position:absolute;left:0;right:0;
   top:calc(var(--deep-lead) * -1);   /* 深海に入る手前から掛け始める */
   bottom:0;
-  /* z-index は必ず -1。
+  /* z-index は必ず負。いまは -2（生き物の -1 より下）。
 
      0 にしていたとき、幕が中層のカードと文字の上に乗って灰色に曇った
      （依頼主から「文字やアイコンにグレースケールが掛かる」と指摘
@@ -283,13 +294,13 @@ body::after{
   display:inline-block;
   font-size:14.5px;font-weight:700;letter-spacing:.08em;
   padding:.5em 1.4em;border-radius:999px;
-  background:#12335C;color:#fff;
+  background:var(--brand);color:#fff;
 }
 /* 白の半透明を敷くと下地が明るくなり、金の文字が 2.7:1 まで落ちる。
    深海側は逆に「暗い地に金」にして締める。 */
 .tier-deep .eyebrow{
   background:#0A1E38;
-  border:1px solid rgba(198,164,92,.75);
+  border:1px solid rgba(var(--gold-rgb),.75);
   color:#F0E3C4;
 }
 
@@ -397,7 +408,7 @@ h2 .h-rule{
 .tier-shallow .card{
   background:#FDFAF3;
   color:var(--ink);
-  box-shadow:inset 0 0 0 1px rgba(198,164,92,.5), 0 6px 20px rgba(8,30,60,.10);
+  box-shadow:inset 0 0 0 1px rgba(var(--gold-rgb),.5), 0 6px 20px rgba(8,30,60,.10);
 }
 /* 中層：白寄りのカードに紺の文字 */
 .tier-mid .card{
@@ -407,9 +418,9 @@ h2 .h-rule{
 }
 /* 深海：紺のカードに白の文字。金の細枠で締める */
 .tier-deep .card{
-  background:#0A2648;
+  background:var(--card-deep);
   color:var(--paper);
-  box-shadow:inset 0 0 0 1px rgba(198,164,92,.45), 0 10px 26px rgba(3,14,32,.34);
+  box-shadow:inset 0 0 0 1px rgba(var(--gold-rgb),.45), 0 10px 26px rgba(3,14,32,.34);
 }
 
 /* カードにマウスを乗せたときの強調。
@@ -447,38 +458,37 @@ h2 .h-rule{
     background:var(--paper);transform:translateY(-3px);
     box-shadow:
       inset 0 0 0 1.5px var(--gold),
-      0 0 26px rgba(198,164,92,.45),
+      0 0 26px rgba(var(--gold-rgb),.45),
       0 0 56px rgba(126,196,246,.34),
       0 16px 34px rgba(3,14,32,.46);
   }
   .tier-deep .card:hover .card-title,
   .tier-deep .checklist:hover .card-title,
-  .tier-deep .card:hover .faq-q,
-  .faq-item:hover summary .card-title{color:#0A2247;}
-  .tier-deep .card:hover p:not(.when),
+  .faq-item:hover summary .card-title{color:var(--ink-deep);}
+  .tier-deep .card:hover p,
   .tier-deep .card:hover li,
   .tier-deep .checklist:hover li,
   .tier-deep .checklist:hover .sub,
   .tier-deep .card:hover .cta-sub{color:#33455C;}
-  .tier-deep .card:hover strong{color:#0A2247;}
+  .tier-deep .card:hover strong{color:var(--ink-deep);}
   /* 番号バッジは金地に紺字。反転させて紺地に金字にする。
      「準備中」の札も同じ。薄い金地に淡い金字のままだと、
      紙地の上で 1.32:1 まで落ちて消える。 */
   .tier-deep .card:hover .num,
   .tier-deep .card:hover .cta-badge{
-    background:#0A2247;color:var(--gold);border-color:#0A2247;
+    background:var(--ink-deep);color:var(--gold);border-color:var(--ink-deep);
   }
   /* チェックリストの丸と鉤も同じ考えで入れ替える */
-  .tier-deep .checklist:hover li::before{background:#0A2247;}
+  .tier-deep .checklist:hover li::before{background:var(--ink-deep);}
   .tier-deep .checklist:hover li::after{border-color:var(--gold);}
   /* FAQ の ＋ 印は金の線でできている。紙地の上では紺にする */
   .faq-item:hover summary::after{
     background:
-      linear-gradient(#0A2247,#0A2247) center/100% 2px no-repeat,
-      linear-gradient(#0A2247,#0A2247) center/2px 100% no-repeat;
+      linear-gradient(var(--ink-deep),var(--ink-deep)) center/100% 2px no-repeat,
+      linear-gradient(var(--ink-deep),var(--ink-deep)) center/2px 100% no-repeat;
   }
   .faq-item[open]:hover summary::after{
-    background:linear-gradient(#0A2247,#0A2247) center/100% 2px no-repeat;
+    background:linear-gradient(var(--ink-deep),var(--ink-deep)) center/100% 2px no-repeat;
   }
 }
 
@@ -490,18 +500,19 @@ h2 .h-rule{
 .tier-deep .card-title{color:#fff;}
 
 .card p{font-size:17px;line-height:1.9;color:var(--ink-soft);}
-/* .when（金地の時期ラベル）は自前の文字色を持つので対象から外す。
-   詳細度を上げ合うより、汎用ルールの適用範囲を正しく絞るほうが読みやすい。 */
-.tier-deep .card p:not(.when){color:var(--paper-soft);}
+/* かつて金地の時期ラベルを :not(.when) で除いていたが、.when というクラスは
+   もう無い（時期は .tl-when という div の中の span で、p ではない）。
+   常に真の除外を書いておくと、詳細度だけが上がって読み手を惑わせる。 */
+.tier-deep .card p{color:var(--paper-soft);}
 
 /* 番号。丸ではなく明朝の数字にして、カード全体を軽く見せる */
 .num{
   display:inline-grid;place-items:center;
   width:34px;height:34px;flex:none;border-radius:50%;
-  background:#12335C;color:#F0E3C4;
+  background:var(--brand);color:#F0E3C4;
   font-family:var(--serif);font-size:19.5px;font-weight:600;line-height:1;
 }
-.tier-deep .num{background:var(--gold);color:#0A2247;}
+.tier-deep .num{background:var(--gold);color:var(--ink-deep);}
 
 .card-head{display:flex;align-items:center;gap:12px;}
 
@@ -613,9 +624,8 @@ h2 .h-rule{
    見出しの帯の下に引く（カード幅いっぱいに通す）。 */
 .theme-head{
   display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding-bottom:.4em;border-bottom:1px solid rgba(198,164,92,.55);
+  padding-bottom:.4em;border-bottom:1px solid rgba(var(--gold-rgb),.55);
 }
-.theme-head .theme-name{padding-bottom:0;border-bottom:0;}
 .theme-icon{
   flex:0 0 auto;
   width:clamp(58px, 7.2vw, 92px);
@@ -671,7 +681,7 @@ h2 .h-rule{
 /* 参加費無料は一番効く訴求なので、CTA の直前で目立たせる */
 .free-mark{
   display:inline-block;margin-left:.4em;
-  color:#0A2247;background:var(--gold);
+  color:var(--ink-deep);background:var(--gold);
   padding:.12em .7em;border-radius:999px;font-size:.92em;font-weight:700;
 }
 
@@ -688,7 +698,7 @@ h2 .h-rule{
   aspect-ratio:1;object-fit:cover;
   margin:0 auto .35em;
   border-radius:50%;
-  box-shadow:0 0 0 2px rgba(198,164,92,.85), 0 4px 14px rgba(3,14,32,.4);
+  box-shadow:0 0 0 2px rgba(var(--gold-rgb),.85), 0 4px 14px rgba(3,14,32,.4);
 }
 .nodes .card-title{font-size:18px;}
 .nodes .card p{font-size:15px;}
@@ -700,15 +710,14 @@ h2 .h-rule{
      枠の右端まで。280px の決め打ちだと下のどの枠とも縁が合わず、
      ずれて見えた（依頼主 2026-09-05）。
      下の .grid は .wrap の幅いっぱいなので、100% で端がぴたりと合う。 */
-  width:100%;
-  max-width:none;margin:0 auto 26px;
+  width:100%;margin:0 auto 26px;
   padding:20px;border-radius:var(--radius);
   /* 金の淡い地は下地を明るくしてしまい、白系の文字が乗らない。
      紺を敷いて金は枠だけにする。 */
   background:#0A2445;
   /* 枠の濃さはカード（.45）と揃える。.7 にしていたら、同じ1pxでも
      この箱だけ線が太く見えると指摘を受けた（2026-09-05）。 */
-  box-shadow:inset 0 0 0 1px rgba(198,164,92,.45);
+  box-shadow:inset 0 0 0 1px rgba(var(--gold-rgb),.45);
 }
 .hub-center strong{font-family:var(--serif);font-size:23px;color:#fff;}
 .hub-center span{font-size:15px;color:var(--paper-soft);}
@@ -726,7 +735,7 @@ h2 .h-rule{
 .checklist .card-title{
   font-size:26px;letter-spacing:.02em;
   padding-bottom:.5em;margin-bottom:.2em;
-  border-bottom:1px solid rgba(198,164,92,.35);
+  border-bottom:1px solid rgba(var(--gold-rgb),.35);
 }
 .checklist ul{display:grid;gap:.9em;margin-top:.8em;}
 .checklist li{
@@ -740,7 +749,7 @@ h2 .h-rule{
   .tier-deep .checklist:hover{
     box-shadow:
       inset 0 0 0 1.5px var(--gold),
-      0 0 26px rgba(198,164,92,.45),
+      0 0 26px rgba(var(--gold-rgb),.45),
       0 0 56px rgba(126,196,246,.34),
       0 20px 44px rgba(3,14,32,.52);
   }
@@ -753,7 +762,7 @@ h2 .h-rule{
 .checklist li::after{
   content:'';position:absolute;left:.3em;top:.72em;
   width:.5em;height:.26em;
-  border-left:2px solid #0A2247;border-bottom:2px solid #0A2247;
+  border-left:2px solid var(--ink-deep);border-bottom:2px solid var(--ink-deep);
   transform:rotate(-45deg);
 }
 .checklist .sub{display:block;font-size:15px;color:var(--paper-soft);}
@@ -772,17 +781,17 @@ h2 .h-rule{
    .timeline を頭に付けて詳細度で勝たせている）。 */
 .timeline .tl-when{
   display:flex;flex-direction:column;justify-content:center;gap:.45em;
-  padding:22px 20px;color:#0A2247;background:var(--gold);
+  padding:22px 20px;color:var(--ink-deep);background:var(--gold);
 }
 .timeline .tl-step{
   align-self:flex-start;
   padding:.2em .9em;border-radius:999px;
   font-family:var(--serif);font-size:13.5px;font-weight:700;letter-spacing:.1em;
-  color:var(--gold);background:#0A2247;white-space:nowrap;
+  color:var(--gold);background:var(--ink-deep);white-space:nowrap;
 }
 .timeline .tl-date{
   font-family:var(--serif);font-size:21px;font-weight:600;line-height:1.35;
-  color:#0A2247;
+  color:var(--ink-deep);
 }
 .timeline .tl-body{padding:22px 26px;display:flex;flex-direction:column;justify-content:center;}
 .timeline .card-title{font-size:22px;}
@@ -811,15 +820,15 @@ h2 .h-rule{
      コントラストが 4.26:1 まで落ちた（狭い画面の注記3か所）。
      透過を減らして、後ろに何が来ても注記が読めるようにする。 */
   background:#FFFFFF;
-  box-shadow:inset 0 0 0 1px rgba(198,164,92,.45);
+  box-shadow:inset 0 0 0 1px rgba(var(--gold-rgb),.45);
   color:var(--ink);
 }
 .tier-deep .note{
   /* .6 だと後ろの生き物が透けて地が明るくなり、薄い色の文字が
      4.26:1 まで落ちた（狭い画面のFAQと申込の注記）。生き物を幕より
      上に出したので、ここも透過を減らして後ろに左右されないようにする。 */
-  background:#0A2648;
-  box-shadow:inset 0 0 0 1px rgba(198,164,92,.4);
+  background:var(--card-deep);
+  box-shadow:inset 0 0 0 1px rgba(var(--gold-rgb),.4);
   color:var(--paper-soft);
 }
 
@@ -832,7 +841,7 @@ h2 .h-rule{
   font-weight:700;font-size:17.5px;letter-spacing:.02em;
   transition:transform .18s ease, box-shadow .18s ease;
 }
-.btn-primary{background:#12335C;color:#fff;box-shadow:0 6px 18px rgba(12,40,76,.28);}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:0 6px 18px rgba(12,40,76,.28);}
 .btn-ghost{background:rgba(255,255,255,.9);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--gold);}
 /* ホバーで地と文字を入れ替える。浮くだけの変化では「押せる」ことが
    伝わりにくい。反転後も紺と白の組み合わせなので約12:1あり、
@@ -843,8 +852,8 @@ h2 .h-rule{
    最初から囲ってあったが、ボタン類が漏れていた（2026-09-05）。 */
 @media (hover:hover){
   .btn:hover{transform:translateY(-2px);}
-  .btn-primary:hover{background:#fff;color:#12335C;box-shadow:inset 0 0 0 2px #12335C, 0 8px 22px rgba(12,40,76,.3);}
-  .btn-ghost:hover{background:#12335C;color:#fff;box-shadow:inset 0 0 0 1.5px #12335C, 0 8px 22px rgba(12,40,76,.3);}
+  .btn-primary:hover{background:#fff;color:var(--brand);box-shadow:inset 0 0 0 2px var(--brand), 0 8px 22px rgba(12,40,76,.3);}
+  .btn-ghost:hover{background:var(--brand);color:#fff;box-shadow:inset 0 0 0 1.5px var(--brand), 0 8px 22px rgba(12,40,76,.3);}
 }
 
 /* 深い紺の水の上に置くボタン。
@@ -859,16 +868,16 @@ h2 .h-rule{
   min-height:64px;padding:0 44px;font-size:19px;
   background-color:#DDBB6E;
   background-image:linear-gradient(180deg,rgba(255,255,255,.34),rgba(0,0,0,.07));
-  color:#0A2247;
+  color:var(--ink-deep);
   box-shadow:
     inset 0 0 0 1.5px rgba(255,255,255,.55),
-    0 10px 26px rgba(198,164,92,.30),
+    0 10px 26px rgba(var(--gold-rgb),.30),
     0 2px 0 rgba(0,0,0,.12);
 }
 /* 反転しても 8.6:1 → 10.1:1 で、どちらの状態でも十分読める */
 @media (hover:hover){
   .btn-accent:hover{
-    background-color:#0A2247;
+    background-color:var(--ink-deep);
     background-image:none;
     color:#E9CE8A;
     box-shadow:inset 0 0 0 2px var(--gold), 0 12px 30px rgba(3,14,32,.5);
@@ -888,9 +897,9 @@ h2 .h-rule{
 /* 紺のカードを明るい地に反転させる。文字色もまとめて入れ替える */
 @media (hover:hover){
   .cta:hover{transform:translateY(-3px);background:rgba(248,252,255,.96);}
-  .cta:hover .card-title{color:#0A2247;}
+  .cta:hover .card-title{color:var(--ink-deep);}
   .cta:hover .cta-sub{color:#40566F;}
-  .cta:hover .chev{border-color:#0A2247;}
+  .cta:hover .chev{border-color:var(--ink-deep);}
 }
 .cta-sub{font-size:15px;color:var(--paper-soft);}
 /* 押しても動かないものはリンクにしない。準備中であることを明示する。 */
@@ -903,7 +912,7 @@ h2 .h-rule{
   .tier-deep .cta.is-pending:hover{
     box-shadow:
       inset 0 0 0 1.5px var(--gold),
-      0 0 22px rgba(198,164,92,.34),
+      0 0 22px rgba(var(--gold-rgb),.34),
       0 10px 26px rgba(3,14,32,.4);
   }
   .cta.is-pending:hover{transform:none;}
@@ -912,8 +921,8 @@ h2 .h-rule{
   position:absolute;right:16px;top:50%;transform:translateY(-50%);
   padding:.25em .9em;border-radius:999px;
   font-size:12.5px;font-weight:700;white-space:nowrap;
-  background:rgba(198,164,92,.22);color:#EBD9AC;
-  border:1px solid rgba(198,164,92,.6);
+  background:rgba(var(--gold-rgb),.22);color:#EBD9AC;
+  border:1px solid rgba(var(--gold-rgb),.6);
 }
 /* 右端の矢印 */
 .chev{
@@ -1029,7 +1038,7 @@ h2 .h-rule{
   border-radius:12px;
 }
 [data-nightswitch].is-charging{
-  box-shadow:0 0 0 2px rgba(198,164,92,.85), 0 0 24px rgba(198,164,92,.55);
+  box-shadow:0 0 0 2px rgba(var(--gold-rgb),.85), 0 0 24px rgba(var(--gold-rgb),.55);
   transition:box-shadow 3s linear;
 }
 .hero-brand{display:flex;align-items:center;gap:.5em;margin-top:1em;flex-wrap:nowrap;}
@@ -1062,8 +1071,8 @@ h2 .h-rule{
   transition:background .18s ease;
 }
 @media (hover:hover){
-  .hero-nav a:hover{background:#fff;color:#12335C;box-shadow:inset 0 0 0 1.5px #12335C;}
-  .hero-nav a:hover .chev{border-color:#12335C;}
+  .hero-nav a:hover{background:#fff;color:var(--brand);box-shadow:inset 0 0 0 1.5px var(--brand);}
+  .hero-nav a:hover .chev{border-color:var(--brand);}
 }
 .hero-nav .chev{border-color:#fff;right:18px;}
 
@@ -1074,7 +1083,7 @@ h2 .h-rule{
   position:relative;
   /* 背景は敷かない。ページのグラデーションをそのまま continue させる。
      塗ると終端色とずれて上端に水平の段差が出る。区切りは金の細線で示す。 */
-  border-top:1px solid rgba(198,164,92,.35);
+  border-top:1px solid rgba(var(--gold-rgb),.35);
   color:var(--paper-soft);
   padding:40px 0 48px;
   text-align:center;
@@ -1120,7 +1129,7 @@ h2 .h-rule{
 .lockup-item:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
 .lockup-name{
   font-family:var(--serif);font-size:18px;font-weight:600;
-  color:#12335C;white-space:nowrap;
+  color:var(--brand);white-space:nowrap;
 }
 /* ロゴが表示できたときは、名前は読み上げのためだけに残す */
 .lockup-item:has(img) .lockup-name{
@@ -1147,7 +1156,7 @@ h2 .h-rule{
 .foot-nav{
   display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1.4em;
   margin-top:1.8em;padding-top:1.4em;
-  border-top:1px solid rgba(198,164,92,.28);
+  border-top:1px solid rgba(var(--gold-rgb),.28);
 }
 .foot-nav a{
   display:inline-flex;align-items:center;min-height:44px;padding:0 .2em;
@@ -1159,9 +1168,9 @@ h2 .h-rule{
   display:inline-flex;align-items:center;justify-content:center;
   min-height:44px;padding:0 1.6em;border-radius:999px;
   font-size:15px;font-weight:700;color:var(--paper);
-  box-shadow:inset 0 0 0 1px rgba(198,164,92,.6);
+  box-shadow:inset 0 0 0 1px rgba(var(--gold-rgb),.6);
 }
-@media (hover:hover){ .foot-top a:hover{background:var(--gold);color:#0A2247;} }
+@media (hover:hover){ .foot-top a:hover{background:var(--gold);color:var(--ink-deep);} }
 /* --gold-deep は明るい地の前提の色。最深部の紺では 3.1:1 しか出ない */
 .site-footer .gold{color:#E3C880;}
 
@@ -1320,11 +1329,11 @@ h2 .h-rule{
     margin:-54px 16px 0;
     min-height:54px;border-radius:999px;
     font-size:16.5px;font-weight:700;
-    background:#12335C;color:#fff;
+    background:var(--brand);color:#fff;
     box-shadow:0 8px 24px rgba(4,18,40,.4);
   }
   @media (hover:hover){
-    .sticky-cta:hover{background:#fff;color:#12335C;box-shadow:inset 0 0 0 2px #12335C, 0 8px 24px rgba(4,18,40,.4);}
+    .sticky-cta:hover{background:#fff;color:var(--brand);box-shadow:inset 0 0 0 2px var(--brand), 0 8px 24px rgba(4,18,40,.4);}
   }
 }
 
@@ -1435,7 +1444,7 @@ h2 .h-rule{
   .hero-brand span{font-size:clamp(17px,5.1vw,26px);white-space:nowrap;}
   /* サブタイトルは行が長く、右端が紙から空へはみ出す。補助色のままだと
      淡い水色の上で 2.45:1 まで落ちるので、本文色まで濃くする。 */
-  .hero-sub{color:#0A2247;}
+  .hero-sub{color:var(--ink-deep);}
 }
 
 
@@ -1826,7 +1835,7 @@ h2 .h-rule{
   border-radius:20px;
   background:#0B2748;
   box-shadow:
-    inset 0 0 0 1.5px rgba(198,164,92,.8),
+    inset 0 0 0 1.5px rgba(var(--gold-rgb),.8),
     inset 0 1px 0 rgba(255,255,255,.12),
     0 30px 70px rgba(2,10,26,.6);
 }
@@ -1841,14 +1850,14 @@ h2 .h-rule{
   transition:background-color .18s ease, color .18s ease;
 }
 .fc-close svg{width:20px;height:20px;}
-@media (hover:hover){ .fc-close:hover{background:var(--gold);color:#0A2247;} }
+@media (hover:hover){ .fc-close:hover{background:var(--gold);color:var(--ink-deep);} }
 
 .fc-head{text-align:center;padding:0 44px;}
 .fc-mark{
   display:inline-flex;align-items:center;justify-content:center;
   width:58px;height:58px;border-radius:50%;
-  background:rgba(198,164,92,.16);
-  box-shadow:inset 0 0 0 1.5px rgba(198,164,92,.7);
+  background:rgba(var(--gold-rgb),.16);
+  box-shadow:inset 0 0 0 1.5px rgba(var(--gold-rgb),.7);
   color:var(--gold);
 }
 .fc-mark svg{width:32px;height:32px;}
@@ -1886,7 +1895,7 @@ h2 .h-rule{
   min-height:56px;padding:12px 18px;margin-top:10px;
   border-radius:12px;cursor:pointer;
   background:rgba(255,255,255,.06);
-  box-shadow:inset 0 0 0 1px rgba(198,164,92,.35);
+  box-shadow:inset 0 0 0 1px rgba(var(--gold-rgb),.35);
   font-size:16px;line-height:1.65;color:var(--paper);
   transition:background-color .16s ease, box-shadow .16s ease, transform .16s ease;
 }
@@ -1894,7 +1903,7 @@ h2 .h-rule{
   appearance:none;-webkit-appearance:none;
   width:20px;height:20px;flex:none;margin:0;
   border-radius:50%;
-  box-shadow:inset 0 0 0 2px rgba(198,164,92,.85);
+  box-shadow:inset 0 0 0 2px rgba(var(--gold-rgb),.85);
   background:transparent;
   transition:background-color .16s ease, box-shadow .16s ease;
 }
@@ -1904,13 +1913,13 @@ h2 .h-rule{
 }
 @media (hover:hover){
   .fc-opt:hover{
-    background:rgba(198,164,92,.18);
+    background:rgba(var(--gold-rgb),.18);
     box-shadow:inset 0 0 0 1.5px var(--gold);
     transform:translateY(-2px);
   }
 }
 .fc-opt:has(input:checked){
-  background:rgba(198,164,92,.22);
+  background:rgba(var(--gold-rgb),.22);
   box-shadow:inset 0 0 0 1.5px var(--gold);
 }
 /* :has() が無いブラウザでも、フォーカスの輪だけは出る */
@@ -1924,9 +1933,9 @@ h2 .h-rule{
 }
 .fc-badge svg{width:48px;height:48px;}
 /* 当てはまる：金で塗って一番強く。紺の線画で 8.6:1 */
-.fc-badge-fit{background:#DDBB6E;color:#0A2247;box-shadow:0 10px 26px rgba(198,164,92,.34);}
+.fc-badge-fit{background:#DDBB6E;color:var(--ink-deep);box-shadow:0 10px 26px rgba(var(--gold-rgb),.34);}
 /* 可能性あり：紺地に金の線画。枠で締める */
-.fc-badge-maybe{background:rgba(198,164,92,.14);color:var(--gold);box-shadow:inset 0 0 0 2px rgba(198,164,92,.8);}
+.fc-badge-maybe{background:rgba(var(--gold-rgb),.14);color:var(--gold);box-shadow:inset 0 0 0 2px rgba(var(--gold-rgb),.8);}
 /* 距離がある：主張を抑える。落ち着いた水色 */
 .fc-badge-far{background:rgba(255,255,255,.08);color:var(--paper-soft);box-shadow:inset 0 0 0 2px rgba(214,231,242,.45);}
 
@@ -1949,7 +1958,7 @@ h2 .h-rule{
 .fc-actions .btn{flex:1 1 auto;min-width:200px;}
 
 /* --- 下段 --- */
-.fc-foot{margin-top:1.6em;padding-top:1.2em;border-top:1px solid rgba(198,164,92,.28);}
+.fc-foot{margin-top:1.6em;padding-top:1.2em;border-top:1px solid rgba(var(--gold-rgb),.28);}
 .fc-back{
   min-height:44px;padding:0 18px;
   border:0;border-radius:999px;cursor:pointer;
@@ -1957,9 +1966,9 @@ h2 .h-rule{
   font-size:14px;font-weight:700;font-family:inherit;
   transition:background-color .18s ease, color .18s ease;
 }
-@media (hover:hover){ .fc-back:hover{background:var(--gold);color:#0A2247;} }
+@media (hover:hover){ .fc-back:hover{background:var(--gold);color:var(--ink-deep);} }
 .fc-note{
-  margin-top:1em;padding:0;background:none;box-shadow:none;max-width:none;
+  margin-top:1em;
   font-size:13px;line-height:1.8;color:var(--paper-soft);
 }
 
@@ -2001,8 +2010,8 @@ h2 .h-rule{
 @media print{
   body::before,body::after,.sticky-cta,.hero-art{display:none;}
   .card{box-shadow:none;border:1px solid #999;}
-  /* 個別に上書きすると詳細度の高いルール（.tier-deep .card p:not(.when) など）が
+  /* 個別に上書きすると詳細度の高いルール（.tier-deep .card p など）が
      残り、白紙に薄い水色で印刷されてしまう。まとめて黒に倒す。 */
   .tier-deep,.tier-deep *{color:#000 !important;background:transparent !important;}
-  .num,.when,.cta-badge{border:1px solid #666;}
+  .num,.cta-badge{border:1px solid #666;}
 }
