@@ -48,12 +48,14 @@
            JSが動かなくても、ただの見出しとして成立する。 -->
       <p class="hero-brand" data-nightswitch tabindex="0" role="button"
          aria-pressed="false" aria-label="FUNADE ひろしま協働DXプロジェクト。昼と夜の背景を切り替えます">
-        <!-- ロゴは画面の幅で組みを変える。広い画面は横組み（印の右に文字）、
-             520px以下は縦組み（印の下に文字）。狭い画面で横組みを使うと、
-             文字が小さくなりすぎて読めない。どちらも同じ内容なので
-             読み上げは <img> の alt 1つで足りる。 -->
+        <!-- ロゴは文字段の幅いっぱいに置く。もらった完成イメージでは
+             「ロゴの幅＝タイトルの行幅（画面の約38%）」で、左端もタイトルと
+             揃っている。小さく中央寄りに置くと締まらない。
+             389px以下だけ縦組み（印の下に文字）に切り替える。横組みのままだと
+             印と文字を狭い幅に詰め込むぶん、文字が小さくなりすぎる。
+             どちらも同じ内容なので読み上げは <img> の alt 1つで足りる。 -->
         <picture class="hero-logo">
-          <source media="(max-width:520px)" srcset="assets/img/logos/funade-v.webp" width="714" height="520">
+          <source media="(max-width:389px)" srcset="assets/img/logos/funade-v.webp" width="714" height="520">
           <img src="assets/img/logos/funade-h.webp" width="1436" height="300"
                alt="FUNADE ともに、あたらしい海へ" onerror="this.closest('picture').remove()">
         </picture>

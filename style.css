@@ -1112,14 +1112,18 @@ h2 .h-rule{
    （tools/webp-bridge.js 経由で WebP 化。README_画像について.md 参照）。
    紙の上でも夜の絵の上でも、四角い白地が出ない。
 
-   組みは画面の幅で変える（HTML の <picture>）。広い画面は横組み、
-   520px以下は縦組み。狭い画面で横組みを使うと、同じ幅に印と文字を
-   詰め込むぶん文字が小さくなりすぎる。 */
-.hero-logo{display:block;flex:0 1 auto;min-width:0;}
-.hero-logo img{width:clamp(230px,26vw,360px);height:auto;display:block;}
-@media (max-width:520px){
+   組みは画面の幅で変える（HTML の <picture>）。389px以下だけ縦組み。
+   横組みのままだと、狭い幅に印と文字を詰め込むぶん文字が小さくなりすぎる。
+
+   大きさは「文字段の幅いっぱい」。もらった完成イメージでは
+   ロゴの幅＝タイトルの行幅（画面の約38%）で、左端もタイトルと揃っている。
+   25vw で置いていたら「配置と大きさが良くない」と指摘を受けた（2026-09-07）。
+   幅は器（.hero-brand）に任せるので、画面幅ごとに数字を持たなくてよい。 */
+.hero-logo{display:block;flex:1 1 auto;min-width:0;}
+.hero-logo img{width:100%;max-width:520px;height:auto;display:block;}
+@media (max-width:389px){
   /* 縦組みは背が高いので、幅で抑える（高さは幅の約0.73倍） */
-  .hero-logo img{width:clamp(150px,44vw,210px);}
+  .hero-logo img{width:min(100%,200px);}
 }
 /* ロゴが出ているときは、名前の文字は読み上げのためだけに残す
    （フッターのロゴと同じ扱い）。ロゴが読めなければ文字が出る。 */

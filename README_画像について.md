@@ -142,8 +142,8 @@ powershell -File tools/build-hero-mobile.ps1 -Map
 | `icons/flow/hub-*.webp` | 支援体制 5ノード |
 | `themes/beauty.webp` `food.webp` `backoffice.webp` | 募集テーマ 3枚 |
 | `creatures/*.webp` | 海の生き物（装飾）12種 |
-| `logos/funade-h.webp` | ヒーローのロゴ（横組み・521px以上） |
-| `logos/funade-v.webp` | ヒーローのロゴ（縦組み・520px以下） |
+| `logos/funade-h.webp` | ヒーローのロゴ（横組み・390px以上） |
+| `logos/funade-v.webp` | ヒーローのロゴ（縦組み・389px以下） |
 | `icons/logo-mark.png` | フッターのロゴマーク・favicon |
 | `logos/hiroshima-pref.png` `logos/lts.png` | フッターのロゴ |
 
@@ -160,7 +160,7 @@ powershell -File tools/build-hero-mobile.ps1 -Map
 抜き**、余白を切り落としてから WebP にした（品質0.95、各96〜100KB）。
 紙の上でも夜の絵の上でも四角い白地が出ない。
 
-出し分けは HTML の `<picture>` と `media="(max-width:520px)"`。CSSではなく
+出し分けは HTML の `<picture>` と `media="(max-width:389px)"`。CSSではなく
 `<picture>` にしてあるのは、**使わないほうの絵を読み込ませないため**。
 
 差し替えるときは、同じ手順（白抜き→余白切り→WebP）で作って同じ名前で
