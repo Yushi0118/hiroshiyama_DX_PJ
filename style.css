@@ -80,6 +80,12 @@
      反転ホバーの文字のように「夜でもこの紺のまま」であってほしいものは
      こちらを使う。値は今まで直に書いていたものと同じ。 */
   --brand:#12335C;      /* 浅瀬の主色（ボタンの地、ヒーローのナビ） */
+  /* ヒーローのページ内ナビの地と文字。昼は紺地に白、夜は金地に紺。
+     夜の絵は空が濃い紺なので、紺のボタンが背景に沈んで「押せるもの」に
+     見えなくなる（依頼主 2026-09-07）。金は「参加費は無料です。」の札と
+     同じ色で、夜のページの中で唯一明るく浮く。 */
+  --nav-bg:rgba(18,51,92,.9);
+  --nav-fg:#fff;
   --ink-deep:#0A2247;   /* 深海で反転したときの文字、番号バッジの地 */
   --card-deep:#0A2648;  /* 深海のカードの地 */
 
@@ -139,6 +145,10 @@
   /* 夜は中層がもう暗いので、地の上に直接置く文字を明るいほうへ入れ替える。
      カード・注記は不透明なので、そのままで色は変えない。 */
   --mid-ink:#EAF3FB;
+
+  /* ページ内ナビは金地に紺字（8.9:1）。紺地のままだと夜空に沈む。 */
+  --nav-bg:#DDBB6E;
+  --nav-fg:#0A2247;
 }
 
 /* 夜の中層は、地が暗く文字が明るい。そこへ昼と同じ濃さの生き物を置くと、
@@ -1187,14 +1197,19 @@ h2 .h-rule{
   min-width:210px;min-height:46px;
   padding:0 40px 0 20px;border-radius:8px;
   font-size:14.5px;font-weight:700;
-  background:rgba(18,51,92,.9);color:#fff;
-  transition:background .18s ease;
+  background:var(--nav-bg);color:var(--nav-fg);
+  /* color に transition を掛けてはいけない。値が var() で、その変数自体が
+     昼夜で入れ替わる形の transition は開始値で固まる（実際に中層の見出しで
+     踏んだ罠。CLAUDE.md 参照）。地の色も同じ理由で外してある。 */
 }
 @media (hover:hover){
   .hero-nav a:hover{background:#fff;color:var(--brand);box-shadow:inset 0 0 0 1.5px var(--brand);}
   .hero-nav a:hover .chev{border-color:var(--brand);}
+  /* 夜は金地なので、白へ反転すると変化が小さい。紺地に金字へ反転させる。 */
+  .is-night .hero-nav a:hover{background:var(--ink-deep);color:#E9CE8A;box-shadow:inset 0 0 0 1.5px var(--gold);}
+  .is-night .hero-nav a:hover .chev{border-color:#E9CE8A;}
 }
-.hero-nav .chev{border-color:#fff;right:18px;}
+.hero-nav .chev{border-color:var(--nav-fg);right:18px;}
 
 /* ============================================================
    フッター
@@ -1208,6 +1223,19 @@ h2 .h-rule{
   padding:40px 0 48px;
   text-align:center;
 }
+/* フッターのロゴ。ロゴは白地で使う前提の色（紺の文字）なので、
+   紺のフッターに直接置くと沈む。「主催・運営」と同じ白い板に載せる。
+   板の角丸と影もそちらに合わせて、フッターの中で作りを揃える。 */
+.foot-logo{
+  display:flex;justify-content:center;
+  margin:0 auto 1.4em;padding:16px 26px;
+  width:fit-content;max-width:100%;
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 8px 26px rgba(3,14,32,.34);
+}
+.foot-logo img{width:min(320px,72vw);height:auto;display:block;}
+
 .foot-brand{
   display:flex;align-items:center;justify-content:center;gap:.5em;
   font-family:var(--serif);font-size:22px;font-weight:600;color:#fff;
