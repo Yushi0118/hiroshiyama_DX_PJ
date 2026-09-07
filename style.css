@@ -238,10 +238,44 @@ body::after{
    詰める。ただし隣接兄弟セレクタは親をまたがない。#pain は .cta-rail の、
    #flow は .deep-zone の、それぞれ最初の子なので、この2つだけ詰まらずに
    104px のままだった（実測。他は88px）。追従CTAと深海の幕という別目的で
-   入れた器が、間接的に余白の規則を壊していた。器の先頭も明示して拾う。 */
+   入れた器が、間接的に余白の規則を壊していた。器の先頭も明示して拾う。
+
+   :first-child ではなく :first-of-type なのは、器の先頭に section 以外
+   （対象条件の帯など）が入っても、最初のセクションを拾えるようにするため。 */
 .section + .section,
-.cta-rail > .section:first-child,
-.deep-zone > .section:first-child{padding-top:88px;}
+.cta-rail > .section:first-of-type,
+.deep-zone > .section:first-of-type{padding-top:88px;}
+
+/* 対象条件の帯（ヒーローの直後）。
+
+   浅瀬の水の上に直接置くので、紙の地を敷いて文字を紺にする。カードほど
+   構えず、しかし読み飛ばされない程度の存在感にしたいので、高さは1行、
+   縁は金の細線だけにしてある。狭い画面では折り返して2〜3行になる。 */
+.terms-bar{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+  gap:.5em 1.1em;
+  margin:26px 0 0;padding:14px 20px;
+  border-radius:999px;
+  background:#FDFAF3;
+  box-shadow:inset 0 0 0 1px rgba(var(--gold-rgb),.55), 0 6px 18px rgba(8,30,60,.10);
+  font-size:16px;line-height:1.7;color:var(--ink);
+  text-align:center;
+}
+.terms-label{
+  font-size:13.5px;font-weight:700;letter-spacing:.14em;
+  color:var(--gold-deep);
+}
+/* 項目の間は中黒ではなく細い縦線で仕切る。折り返したときに
+   行頭へ記号が落ちない。 */
+.terms-item + .terms-item{
+  border-left:1px solid rgba(var(--gold-rgb),.5);
+  padding-left:1.1em;
+}
+.terms-free{
+  font-weight:700;color:var(--ink-deep);
+  background:rgba(var(--gold-rgb),.22);
+  border-radius:999px;padding:.15em .9em;
+}
 
 .tier-deep{color:var(--paper);}
 
@@ -349,7 +383,11 @@ h2 .h-rule{
   background-repeat:no-repeat;
   background-position:0 100%;
   background-size:100% var(--rule-w);
-  padding-bottom:.16em;
+  /* 線は自分の行のすぐ下に置く。.16em 空けていたときは、実測で線の下端が
+     次の行の行box に 8px 食い込み、2行以上の見出しで「下の行に乗った線」に
+     見えていた（インラインboxは行間より背が高いので、離すほど下の行に
+     近づく）。自分の行に寄せるほうが、どの行の線かも分かりやすい。 */
+  padding-bottom:.04em;
 }
 @supports (animation-timeline: view()){
   @media (prefers-reduced-motion:no-preference){
@@ -363,8 +401,15 @@ h2 .h-rule{
       animation-timeline:--head-in;
       /* cover は「見出しが画面下端に現れてから上端を抜けるまで」。
          見出しの高さによらず一定の速さで引けるので、1行の見出しでも
-         3行の見出しでも同じ体感になる。 */
-      animation-range:cover 18% cover 48%;
+         3行の見出しでも同じ体感になる。
+
+         引き終わりは早めにする。18%〜48% にしていたときは、見出しの上端が
+         画面の 80%〜42% の高さにいる間ずっと引いている状態で、読む位置
+         （画面の中ほど）に来てもまだ線が伸びている途中だった。読みながら
+         線が動くと目障りで、下線としても読み取りにくい（依頼主から
+         「視認性が良くない」2026-09-07）。いまは 89%〜66%、つまり画面の
+         下3分の1にいる間に引き切る。目に留まる位置では常に引き終わっている。 */
+      animation-range:cover 10% cover 30%;
     }
   }
 }
@@ -1195,8 +1240,8 @@ h2 .h-rule{
 @media (max-width:1099px){
   .section{padding:88px 0;}
   .section + .section,
-  .cta-rail > .section:first-child,
-  .deep-zone > .section:first-child{padding-top:72px;}
+  .cta-rail > .section:first-of-type,
+  .deep-zone > .section:first-of-type{padding-top:72px;}
   .grid-5{grid-template-columns:repeat(3,1fr);}
   .hero-nav a{min-width:180px;font-size:12.5px;}
 }
@@ -1271,8 +1316,15 @@ h2 .h-rule{
 
   .section{padding:60px 0;}
   .section + .section,
-  .cta-rail > .section:first-child,
-  .deep-zone > .section:first-child{padding-top:52px;}
+  .cta-rail > .section:first-of-type,
+  .deep-zone > .section:first-of-type{padding-top:52px;}
+
+  .terms-bar{
+    margin-top:18px;padding:12px 14px;gap:.4em .8em;
+    font-size:14.5px;border-radius:20px;
+  }
+  .terms-item + .terms-item{border-left:0;padding-left:0;}
+  .terms-label{font-size:12.5px;}
 
   /* --- 文字：行長が全角24文字前後に収まるサイズへ --- */
   h2{font-size:clamp(23px,6.2vw,29px);line-height:1.55;}
