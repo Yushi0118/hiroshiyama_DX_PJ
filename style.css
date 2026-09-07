@@ -814,65 +814,119 @@ h2 .h-rule{
 .hub-center span{font-size:15px;color:var(--paper-soft);}
 
 /* ── 支援体制を「図」にする ──────────────────────────
-   狭い画面では今までどおり「中心の札 ＋ 役割の一覧」。
-   1100px 以上では中心を円にし、5つの役割を五角に置いて線で結ぶ。
+   完成イメージ（2026-09-07 依頼主提供）のとおり、参加事業者を中心に
+   5つの役割が輪になって囲む図。**絵だけを完成イメージから切り出し、
+   文字はすべてHTMLのまま**（画像内テキスト禁止の約束）。
 
-   図にできる幅があるときだけ図にする。中途半端な幅で五角に並べると
-   ラベル同士が重なって読めなくなるため、切り替えは 1100px。 */
+   図になるのは 1200px 以上。この幅なら .wrap は必ず 1120px になるので
+   （min(100% - 48px, 1120px)）、図の中の配置を1120×480の固定で組める。
+   それ未満は今までどおり「中心の札 ＋ 役割の一覧」。狭い画面では
+   ラベルを絵の横に置く余地がなく、島が重なって読めなくなる。 */
 .hub{position:relative;}
-.hub-lines{display:none;}
+.hub-lines,.hub-scene,.hub-foot{display:none;}
+/* <picture> は器ではなく入れ物なので、並びから消して中の <img> を直接の
+   子として扱わせる。**<source> も明示的に消すこと** ―― 既定が display:block
+   なので、display:contents の親の下では幅0の項目として並びに残り、
+   flex の gap がその前後に入って絵が16pxずれる（実測 2026-09-07）。 */
+.nodes picture{display:contents;}
+.nodes source{display:none;}
 
-@media (min-width:1100px){
+@media (min-width:1200px){
   .hub{
-    /* 高さは決め打ち。中の要素を絶対配置にするので、親が高さを持たないと
-       セクションが潰れる。940×620 は、五角の頂点に 200px のラベル（実測166px高）を置いても
-       枠の外に出ず、中心の円にも重ならない大きさとして実測で決めた。 */
-    width:min(940px,100%);height:620px;margin:0 auto;
-    /* 丸い絵の直径。頂点をこの円の中心に合わせるため、線の外側の端が
-       絵に隠れる。ラベル全体の中心に合わせると、線が題字を横切る。 */
-    --ic:clamp(64px,7.4vw,92px);
+    /* 中が絶対配置なので、親が高さを持たないとセクションが潰れる */
+    width:100%;height:480px;margin:26px auto 0;
+    /* 島（絵）の大きさ。輪の楕円と島の位置は下の % と対で決めてある */
+    --plate-w:140px; --plate-h:98px;
+    --node-w:326px;   /* 絵140 ＋ 間16 ＋ ラベル170 */
+    --label-w:170px;
   }
+  /* 5つの島が乗る輪。cx/cy/rx/ry は島の位置（--x/--y）と同じ座標系。
+     どちらかだけ動かすと島が輪から外れる。 */
   .hub-lines{
     display:block;position:absolute;inset:0;width:100%;height:100%;
-    /* 図の全面を覆うので、指定しないと隙間で操作を横取りする */
-    pointer-events:none;
-    /* 器の縁（--ring）と同じ濃さ。図の線だけ濃いと、線のほうが主役に見える */
-    stroke:rgba(var(--gold-rgb),.45);
+    fill:none;stroke:rgba(var(--gold-rgb),.45);
     /* viewBox を引き伸ばして使うので、指定しないと縦横で線の太さが変わる */
     vector-effect:non-scaling-stroke;stroke-width:1;
+    /* 図の全面を覆うので、指定しないと隙間で操作を横取りする */
+    pointer-events:none;
   }
 
+  /* 中心の島。白い楕円に絵と名前を収める。楕円と絵の地はどちらも白なので
+     境目は出ない（絵の背景を透過にする必要がない）。 */
   .hub .hub-center{
-    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-    width:190px;height:190px;
-    margin:0;padding:0 18px;justify-content:center;
-    border-radius:50%;
+    position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);
+    width:400px;height:210px;
+    margin:0;padding:0 30px 18px;
+    justify-content:flex-end;gap:.15em;
+    border-radius:50%;overflow:hidden;
+    background:#FFFFFF;box-shadow:var(--lift-3);
   }
+  .hub .hub-scene{
+    display:block;position:absolute;left:0;top:0;
+    width:100%;height:auto;
+  }
+  .hub .hub-center strong{position:relative;color:var(--ink-deep);letter-spacing:.14em;}
+  .hub .hub-center span{position:relative;color:#33455C;line-height:1.6;text-align:center;}
 
+  /* 役割の島。絵とラベルを横に並べ、**絵の中心**を輪の上に乗せる。
+     カード全体の中心を乗せるとラベルの幅だけ島が輪からずれる。 */
   .hub .nodes{display:block;margin:0;}
   .hub .nodes .card{
     position:absolute;left:var(--x);top:var(--y);
-    transform:translate(-50%,calc(var(--ic) / -2));
-    width:200px;padding:0;
-    /* 図の中では箱を消す。枠のある札が5つ浮いていると、線でつないでも
-       「一覧」に見えたまま図にならない。 */
+    display:flex;flex-direction:row;align-items:center;gap:16px;
+    width:var(--node-w);padding:0;text-align:left;
+    /* 絵の中心を頂点へ：左端から絵の半分だけ戻す */
+    transform:translate(calc(var(--plate-w) / -2),-50%);
+    /* 図の中では箱を消す。枠のある札が5つ浮いたままでは、輪でつないでも
+       一覧に見えて図にならない。 */
     background:none;box-shadow:none;
   }
-  .hub .nodes .vignette-center{width:var(--ic);}
-  /* 頂点は真上から時計回り。HTMLの並び順と一致させている */
+  /* 左側の2つはラベルを絵の左に置く（完成イメージのとおり）。
+     並びが逆になるぶん、絵の中心を頂点へ合わせる戻し幅も変わる。 */
+  .hub .nodes .card.is-left{
+    flex-direction:row-reverse;text-align:right;
+    transform:translate(calc(var(--plate-w) / 2 - var(--node-w)),-50%);
+  }
+  .hub .nodes .vignette-center{
+    width:var(--plate-w);height:var(--plate-h);flex:none;
+    max-width:none;margin:0;aspect-ratio:auto;
+    object-fit:cover;border-radius:50%;
+    background:#FFFFFF;box-shadow:var(--lift-3);
+  }
+  .hub .node-txt{width:var(--label-w);}
+  .hub .nodes .card-title{line-height:1.4;}
+  .hub .nodes .card p{margin-top:.2em;line-height:1.6;}
+
+  /* 頂点は真上から時計回り。HTMLの並び順と一致させている。
+     値は楕円（cx50 cy46 rx27 ry34）の上を5等分した点。 */
   .hub .nodes .card:nth-child(1){--x:50%;  --y:12%;}
-  .hub .nodes .card:nth-child(2){--x:88%;  --y:38%;}
-  .hub .nodes .card:nth-child(3){--x:73.5%;--y:78%;}
-  .hub .nodes .card:nth-child(4){--x:26.5%;--y:78%;}
-  .hub .nodes .card:nth-child(5){--x:12%;  --y:38%;}
+  .hub .nodes .card:nth-child(2){--x:75.7%;--y:35.5%;}
+  .hub .nodes .card:nth-child(3){--x:65.9%;--y:73.5%;}
+  .hub .nodes .card:nth-child(4){--x:34.1%;--y:73.5%;}
+  .hub .nodes .card:nth-child(5){--x:24.3%;--y:35.5%;}
+
+  /* 図の足元。.hub の子はみな絶対配置なので、これだけ流し込みにすると
+     図の**上**に出る（実際に輪と島に重なった）。下の空き帯へ絶対配置する。 */
+  .hub-foot{
+    position:absolute;left:0;right:0;bottom:6px;
+    display:flex;align-items:center;justify-content:center;gap:1.2em;
+    margin:0;font-family:var(--serif);font-size:17px;letter-spacing:.32em;
+    color:var(--paper-soft);
+  }
+  .hub-foot::before,.hub-foot::after{
+    content:'';width:96px;height:1px;background:rgba(var(--gold-rgb),.45);
+  }
 }
 /* 深海のカードのホバー（地と文字を入れ替え、3px浮かせる）は、箱の無い
-   図の頂点では困る。地が無いまま紺の文字になって消え、transform も
-   五角の配置を打ち消してしまう。図のときは何も起こさない。 */
-@media (min-width:1100px) and (hover:hover){
+   図の島では困る。地が無いまま紺の題字になって消え、transform も
+   輪の上の配置を打ち消してしまう。図のときは何も起こさない。 */
+@media (min-width:1200px) and (hover:hover){
   .hub .nodes .card:hover{
     background:none;box-shadow:none;
-    transform:translate(-50%,calc(var(--ic) / -2));
+    transform:translate(calc(var(--plate-w) / -2),-50%);
+  }
+  .hub .nodes .card.is-left:hover{
+    transform:translate(calc(var(--plate-w) / 2 - var(--node-w)),-50%);
   }
   /* 文字色も一つずつ戻す。親の color を戻すだけだと、題字は紺のまま
      紺地に残って消える（元の反転が個別指定で効いているため）。 */
@@ -1995,6 +2049,13 @@ h2 .h-rule{
 .sec-target .s2{--cl:1.5%; --cb:-20px; --cw:clamp(150px,19vw,300px); --co:.96;}
 .sec-target .s3{--cr:3%; --ct:38%;   --cw:clamp(70px,9vw,140px);   --co:.76;}
 .sec-target .s4{--cl:7%; --cb:36%;    --cw:clamp(90px,11vw,160px);  --co:.76;}
+/* 支援体制が図になる幅では、輪と島が .wrap いっぱいに広がるので、右手の
+   水域が無くなる。クラゲ（s3）は「学生・若手人材」のラベルに 35×26px
+   重なった（実測 2026-09-07）。置き直せる空きが無いので間引く。
+   ―― タブレット縦置き（768〜833px）でとった対処と同じ考え方。 */
+@media (min-width:1200px){
+  .sec-target .s3{display:none;}
+}
 
 .sec-schedule .s1{--cr:2%; --ct:4%;    --cw:clamp(90px,11vw,180px);  --co:.95;}
 .sec-schedule .s2{--cr:1.5%; --cb:-24px; --cw:clamp(120px,15vw,240px); --co:.86; --cfx:-1;}

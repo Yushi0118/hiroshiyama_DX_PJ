@@ -347,44 +347,70 @@
       <p class="lead">参加事業者を中心に、同じ悩みを持つ仲間・支援機関・専門家・広島県が周りを支える体制です。</p>
 
       <div class="hub">
-        <!-- 中心と5つの役割を結ぶ線。図として置ける幅（1100px以上）でだけ出る装飾。
-             線の端は、内側が中心の円に、外側が各役割の丸い絵に隠れる。 -->
+        <!-- 5つの役割が中心を囲む輪。図として置ける幅（1200px以上）でだけ出る装飾。
+             輪の上に島（絵）が乗るので、島の位置とこの楕円は同じ %（下のCSS）で決める。 -->
         <svg class="hub-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-          <line x1="50" y1="50" x2="50" y2="12"></line>
-          <line x1="50" y1="50" x2="88" y2="38"></line>
-          <line x1="50" y1="50" x2="73.5" y2="78"></line>
-          <line x1="50" y1="50" x2="26.5" y2="78"></line>
-          <line x1="50" y1="50" x2="12" y2="38"></line>
+          <ellipse cx="50" cy="46" rx="27" ry="34"></ellipse>
         </svg>
-        <p class="hub-center"><strong>参加事業者</strong><span>あなたの会社・お店</span></p>
+        <p class="hub-center">
+          <img class="hub-scene" src="assets/img/icons/hub/center.webp" width="700" height="180" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+          <strong>参加事業者</strong>
+          <span>あなたの会社・お店から、<br>広島の未来をつくる</span>
+        </p>
 
       <ul class="grid grid-5 nodes">
         <li class="card">
-          <img class="vignette vignette-center" src="assets/img/icons/flow/hub-peer.webp" width="320" height="320" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-          <h3 class="card-title">同じ悩みを持つ仲間</h3>
-          <p>同一テーマの参加事業者</p>
+          <picture>
+            <source media="(min-width:1200px)" srcset="assets/img/icons/hub/peer.webp" width="266" height="186">
+            <img class="vignette vignette-center" src="assets/img/icons/flow/hub-peer.webp" width="320" height="320" alt="" loading="lazy" decoding="async" onerror="this.closest('picture').remove()">
+          </picture>
+          <div class="node-txt">
+            <h3 class="card-title">同じ悩みを持つ仲間</h3>
+            <p>同一テーマの参加事業者</p>
+          </div>
         </li>
         <li class="card">
-          <img class="vignette vignette-center" src="assets/img/icons/flow/hub-student.webp" width="320" height="320" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-          <h3 class="card-title">学生・若手人材</h3>
-          <p>開発・改善の担い手</p>
+          <picture>
+            <source media="(min-width:1200px)" srcset="assets/img/icons/hub/student.webp" width="266" height="186">
+            <img class="vignette vignette-center" src="assets/img/icons/flow/hub-student.webp" width="320" height="320" alt="" loading="lazy" decoding="async" onerror="this.closest('picture').remove()">
+          </picture>
+          <div class="node-txt">
+            <h3 class="card-title">学生・若手人材</h3>
+            <p>開発・改善の担い手</p>
+          </div>
         </li>
         <li class="card">
-          <img class="vignette vignette-center" src="assets/img/icons/flow/hub-support.webp" width="320" height="320" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-          <h3 class="card-title">支援機関・業界団体</h3>
-          <p>募集・フォローアップ</p>
+          <picture>
+            <source media="(min-width:1200px)" srcset="assets/img/icons/hub/support.webp" width="280" height="196">
+            <img class="vignette vignette-center" src="assets/img/icons/flow/hub-support.webp" width="320" height="320" alt="" loading="lazy" decoding="async" onerror="this.closest('picture').remove()">
+          </picture>
+          <div class="node-txt">
+            <h3 class="card-title">支援機関・業界団体</h3>
+            <p>募集・フォローアップ</p>
+          </div>
         </li>
-        <li class="card">
-          <img class="vignette vignette-center" src="assets/img/icons/flow/hub-hiroshima.webp" width="320" height="320" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-          <h3 class="card-title">広島県</h3>
-          <p>事業の運営・広報</p>
+        <li class="card is-left">
+          <picture>
+            <source media="(min-width:1200px)" srcset="assets/img/icons/hub/pref.webp" width="280" height="196">
+            <img class="vignette vignette-center" src="assets/img/icons/flow/hub-hiroshima.webp" width="320" height="320" alt="" loading="lazy" decoding="async" onerror="this.closest('picture').remove()">
+          </picture>
+          <div class="node-txt">
+            <h3 class="card-title">広島県</h3>
+            <p>事業の運営・広報</p>
+          </div>
         </li>
-        <li class="card">
-          <img class="vignette vignette-center" src="assets/img/icons/flow/hub-itdx.webp" width="320" height="320" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-          <h3 class="card-title">IT・DX専門家</h3>
-          <p>伴走支援・技術指導</p>
+        <li class="card is-left">
+          <picture>
+            <source media="(min-width:1200px)" srcset="assets/img/icons/hub/expert.webp" width="255" height="178">
+            <img class="vignette vignette-center" src="assets/img/icons/flow/hub-itdx.webp" width="320" height="320" alt="" loading="lazy" decoding="async" onerror="this.closest('picture').remove()">
+          </picture>
+          <div class="node-txt">
+            <h3 class="card-title">IT・DX専門家</h3>
+            <p>伴走支援・技術指導</p>
+          </div>
         </li>
       </ul>
+        <p class="hub-foot">ともに、あたらしい海へ</p>
       </div>
 
       <div class="card checklist">
