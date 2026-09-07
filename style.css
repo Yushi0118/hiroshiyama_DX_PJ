@@ -943,6 +943,10 @@ h2 .h-rule{
    読み進めた先々で申し込みへ戻れるようにしておく。 */
 .section-cta{margin-top:2.4rem;text-align:center;}
 
+/* カードの前に置く注記。後ろに置くときの 2.4rem は、次に来るものが
+   無い前提の余白なので、ここでは上を詰めて下を空ける。 */
+.note-lead{margin-top:.4rem;margin-bottom:1.6rem;}
+
 .cta-grid{margin-bottom:0;}
 .cta{
   gap:.3em;min-height:112px;justify-content:center;
