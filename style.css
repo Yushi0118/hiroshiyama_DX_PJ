@@ -1434,46 +1434,73 @@ h2 .h-rule{
      塗ると終端色とずれて上端に水平の段差が出る。区切りは金の細線で示す。 */
   border-top:1px solid rgba(var(--gold-rgb),.35);
   color:var(--paper-soft);
-  padding:40px 0 48px;
+  padding:56px 0 44px;
   text-align:center;
 }
+/* ひとつ前の節から伸びてくる生き物を、フッターの金の線より前に出す
+   （依頼主 2026-09-07「フッターの後ろではなく前に」）。
+   .creatures は z-index:-1 で自分の中に重なりの箱を作ってしまうので、
+   個体だけを上げることはできない。器ごと上げて、本文をさらに上に置く。
+
+   .sec-entry は position:relative だが z-index は auto なので、
+   ここで正の値を持たせると**ページ全体の重なり**に参加する＝あとに来る
+   フッター（z-index:auto＝0相当）より前に出る。
+
+   本文が隠れないよう、同じ節の .wrap（既に z-index:1）はDOM順で後ろに
+   あるので上に残り、フッターの本文には 2 を与えて必ず上に置く。
+   実測：この節の生き物はどれもFAQ側へはみ出していないので、
+   ひとつ上の節の文字に乗ることはない（2026-09-07）。 */
+.sec-entry .creatures{z-index:1;}
+.site-footer > .wrap{position:relative;z-index:2;}
 /* 上段は左右2段。左にプロジェクト、右に実施主体。
    縦に積むと、ロゴ・愛称・正式名称・主催の板が4段になって
    フッターだけで1画面近く使ってしまう（依頼主 2026-09-07）。
    900px より狭いところでは、これまで通り中央そろえで積む。 */
 .foot-cols{margin:0 auto;}
 @media (min-width:900px){
+  /* 白い板を左右の端に置き、その下に「名前 → 説明」を同じ順で並べる。
+     左右で行の構成をそろえてあるので、板も文字も高さが合う。
+     以前は右だけ「ラベル → 板 → 説明」の3行構成で、板が左より81px下に
+     落ちていた（実測 2026-09-07。依頼主から「美しくない」）。 */
   .foot-cols{
     display:flex;align-items:flex-start;justify-content:space-between;
     gap:40px;text-align:left;
   }
-  /* 左の段。ロゴの板は文字の幅に合わせず、中身の幅で置く */
   .foot-id{flex:0 1 auto;}
   .foot-id .foot-logo{margin-left:0;margin-right:0;}
   .foot-id .foot-brand{justify-content:flex-start;}
-  /* 右の段。板と説明文はこれまで通り中央そろえ */
-  .credit{flex:0 1 auto;margin-top:0;text-align:center;}
+  /* 右の段は右端ぞろえ。中央ぞろえだと、説明文の幅で決まる段の真ん中に
+     板が浮いて、右端との間に70pxの半端な空きができる（実測）。 */
+  .credit{flex:0 1 auto;text-align:right;}
+  .credit .lockup{margin-left:auto;margin-right:0;}
 }
 
 /* フッターのロゴ。ロゴは白地で使う前提の色（紺の文字）なので、
    紺のフッターに直接置くと沈む。「主催・運営」と同じ白い板に載せる。
    板の角丸と影もそちらに合わせて、フッターの中で作りを揃える。 */
+/* 2枚の白い板は、大きさ・余白・角丸・影をそろえる。フッターでいちばん
+   明るい面が2つ並ぶので、少しでも寸法が違うと不揃いに見える
+   （以前は 372×99 と 354×90 だった）。 */
 .foot-logo{
-  display:flex;justify-content:center;
-  margin:0 auto 1.4em;padding:16px 26px;
-  width:fit-content;max-width:100%;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 1.1em;padding:18px 28px;
+  width:fit-content;max-width:100%;min-height:100px;
+  box-sizing:border-box;
   border-radius:var(--r-md);
   background:#fff;
   box-shadow:var(--lift-3);
 }
-.foot-logo img{width:min(320px,72vw);height:auto;display:block;}
+.foot-logo img{width:min(300px,68vw);height:auto;display:block;}
 
 .foot-brand{
-  display:flex;align-items:center;justify-content:center;gap:.5em;
-  font-family:var(--serif);font-size:22px;font-weight:600;color:#fff;
+  display:flex;align-items:center;justify-content:center;gap:.45em;
+  font-family:var(--serif);font-size:20px;font-weight:600;color:#fff;
+  line-height:1.4;
 }
-.foot-mark{width:34px;height:auto;}
-.foot-note{font-size:15px;margin-top:.5em;color:var(--paper-soft);}
+.foot-mark{width:28px;height:auto;}
+/* 正式な業務名と、右段の一文は同じ大きさにそろえる。
+   左右で対になる行なので、片方だけ大きいと段が傾いて見える。 */
+.foot-note{font-size:13.5px;line-height:1.8;margin-top:.6em;color:var(--paper-soft);}
 
 /* --- 実施主体 ---
    ロゴは白地で使う前提で作られている。紺のフッターに直接置くと、黒い文字が
@@ -1483,17 +1510,38 @@ h2 .h-rule{
    :has(img) が外れて名前が現れる。画像を置けば名前は読み上げ用に退いて、
    ロゴだけが見える。どちらの状態でもレイアウトは崩れない。 */
 .credit{margin-top:2.2em;}
+/* 板の下に置く小見出し。左段の愛称と同じ行に来る。 */
 .credit-label{
-  font-size:12.5px;font-weight:700;letter-spacing:.14em;
-  color:var(--gold);
+  font-size:13px;font-weight:700;letter-spacing:.14em;
+  color:var(--gold);line-height:1.4;
 }
 .lockup{
   display:inline-flex;align-items:center;justify-content:center;
   flex-wrap:wrap;gap:14px 26px;
-  margin-top:.9em;padding:18px 30px;
+  margin:0 auto 1.1em;padding:18px 28px;
+  min-height:100px;box-sizing:border-box;
   border-radius:var(--r-md);
   background:#fff;
   box-shadow:var(--lift-3);
+}
+/* 左右の板の幅をそろえる。中身（ロゴ2つと×）は 346px 前後、FUNADEの板は
+   356px 前後なので、広い画面では 360px を下限にして同じ幅に見せる。 */
+/* 縦に積むときも2枚の板の幅をそろえる。中身に任せると 356 と 346 になって、
+   真ん中ぞろえでも縁が合わない。 */
+@media (max-width:899px){
+  .foot-logo,.lockup{width:min(360px,100%);}
+}
+@media (min-width:900px){
+  .foot-logo,.lockup{min-width:360px;}
+  /* 縦に積むときの段間（.credit の margin-top:2.2em）は、横に並べるときは
+     不要。**この打ち消しは .credit{margin-top:2.2em} より後ろに書くこと** ――
+     詳細度が同じなので、上の @media (min-width:900px) の中に書いても
+     あとから来る素の .credit に負ける。実際それで右の段だけ40px下がって
+     いて、左右の白い板がそろわなかった（実測 2026-09-07）。 */
+  .credit{margin-top:0;}
+  /* 3行目（正式名称と一文）も高さをそろえる。2行目の「主催・運営」は
+     13pxで箱が18px、左の愛称は20pxで28px。そのままだと下の行が10pxずれる。 */
+  .credit-label{min-height:28px;}
 }
 /* ロゴは各公式サイトへのリンク（依頼主 2026-09-05）。
    絵だけのリンクなので、押せる範囲が絵の高さぶんしかないと指で狙えない。
@@ -1521,7 +1569,7 @@ h2 .h-rule{
 .lockup-x svg{width:26px;height:26px;}
 
 .credit-note{
-  font-size:13px;line-height:1.8;margin-top:1em;
+  font-size:13.5px;line-height:1.8;margin-top:.6em;
   color:var(--paper-soft);
 }
 
@@ -1535,7 +1583,7 @@ h2 .h-rule{
    ページが9画面分あり、ヒーローのナビはスクロールで流れてしまうため。 */
 .foot-nav{
   display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1.4em;
-  margin-top:1.8em;padding-top:1.4em;
+  margin-top:2.6em;padding-top:1.8em;
   border-top:1px solid rgba(var(--gold-rgb),.28);
 }
 .foot-nav a{
