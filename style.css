@@ -234,7 +234,14 @@ body::after{
   background:transparent;   /* 深度グラデーションを遮らない */
   scroll-margin-top:24px;
 }
-.section + .section{padding-top:88px;}
+/* 上下に続くセクションの間は、上下の余白を足した分だけ広くなりすぎるので
+   詰める。ただし隣接兄弟セレクタは親をまたがない。#pain は .cta-rail の、
+   #flow は .deep-zone の、それぞれ最初の子なので、この2つだけ詰まらずに
+   104px のままだった（実測。他は88px）。追従CTAと深海の幕という別目的で
+   入れた器が、間接的に余白の規則を壊していた。器の先頭も明示して拾う。 */
+.section + .section,
+.cta-rail > .section:first-child,
+.deep-zone > .section:first-child{padding-top:88px;}
 
 .tier-deep{color:var(--paper);}
 
@@ -588,9 +595,12 @@ h2 .h-rule{
   border-radius:14px;
   padding:10px;
   box-shadow:0 4px 16px rgba(3,14,32,.34);
-  /* 進め方は絵が主役のカード。番号・見出し・一行の説明しか無いので、
-     絵を小さく添えると余白ばかりが目立つ。思い切って大きく取る。 */
-  width:min(76%, 220px);
+  /* 大きさはここでは決まらない。この絵は上の flex の並び（文と絵を
+     横に並べる）の一員で、主軸の寸法は flex-basis:44% が持っている。
+     かつてカードが縦積みだった頃の名残で width:min(76%,220px) と
+     書いてあったが、実測すると 1920px でも 136px（＝内寸309pxの44%）
+     で、この指定は一度も効いていなかった。大きさを変えたいときは
+     上の flex-basis を触ること。 */
 }
 
 /* ============================================================
@@ -1184,7 +1194,9 @@ h2 .h-rule{
    ============================================================ */
 @media (max-width:1099px){
   .section{padding:88px 0;}
-  .section + .section{padding-top:72px;}
+  .section + .section,
+  .cta-rail > .section:first-child,
+  .deep-zone > .section:first-child{padding-top:72px;}
   .grid-5{grid-template-columns:repeat(3,1fr);}
   .hero-nav a{min-width:180px;font-size:12.5px;}
 }
@@ -1258,7 +1270,9 @@ h2 .h-rule{
   .wrap{width:min(100% - 32px, var(--wrap));}
 
   .section{padding:60px 0;}
-  .section + .section{padding-top:52px;}
+  .section + .section,
+  .cta-rail > .section:first-child,
+  .deep-zone > .section:first-child{padding-top:52px;}
 
   /* --- 文字：行長が全角24文字前後に収まるサイズへ --- */
   h2{font-size:clamp(23px,6.2vw,29px);line-height:1.55;}
@@ -1281,7 +1295,8 @@ h2 .h-rule{
   .vignette-center{width:54%;max-width:150px;}
   .sec-pain .vignette,
   .sec-what .vignette{width:auto;max-width:200px;}
-  .steps .vignette{width:min(64%,190px);max-width:none;}
+  /* 主軸の寸法は flex-basis:44% が持っている（上と同じ理由で
+     width も max-width も効かない）。スマホでは 142px 前後。 */
 
   /* --- ヒーロー：縦構図 --- */
   .hero{min-height:auto;display:block;}
