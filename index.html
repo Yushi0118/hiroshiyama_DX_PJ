@@ -47,8 +47,16 @@
            キーボードでも Enter / Space で同じことができるようにしてある。
            JSが動かなくても、ただの見出しとして成立する。 -->
       <p class="hero-brand" data-nightswitch tabindex="0" role="button"
-         aria-pressed="false" aria-label="ひろしま協働DXプロジェクト。昼と夜の背景を切り替えます">
-        <img class="hero-mark" src="assets/img/icons/logo-mark.png" alt="" width="270" height="246" onerror="this.remove()">
+         aria-pressed="false" aria-label="FUNADE ひろしま協働DXプロジェクト。昼と夜の背景を切り替えます">
+        <!-- ロゴは画面の幅で組みを変える。広い画面は横組み（印の右に文字）、
+             520px以下は縦組み（印の下に文字）。狭い画面で横組みを使うと、
+             文字が小さくなりすぎて読めない。どちらも同じ内容なので
+             読み上げは <img> の alt 1つで足りる。 -->
+        <picture class="hero-logo">
+          <source media="(max-width:520px)" srcset="assets/img/logos/funade-v.webp" width="714" height="520">
+          <img src="assets/img/logos/funade-h.webp" width="1436" height="300"
+               alt="FUNADE ともに、あたらしい海へ" onerror="this.closest('picture').remove()">
+        </picture>
         <span>ひろしま協働<span class="gold">DX</span>プロジェクト</span>
       </p>
       <p class="hero-sub">小規模事業者のための、協働型DX実証プロジェクト</p>

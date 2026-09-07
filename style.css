@@ -1107,6 +1107,27 @@ h2 .h-rule{
 }
 .hero-brand{display:flex;align-items:center;gap:.5em;margin-top:1em;flex-wrap:nowrap;}
 .hero-mark{width:clamp(38px,3.6vw,52px);height:auto;flex:0 0 auto;}
+
+/* ロゴ（FUNADE）。もらった絵は地が白なので、白を抜いて透過にしてある
+   （tools/webp-bridge.js 経由で WebP 化。README_画像について.md 参照）。
+   紙の上でも夜の絵の上でも、四角い白地が出ない。
+
+   組みは画面の幅で変える（HTML の <picture>）。広い画面は横組み、
+   520px以下は縦組み。狭い画面で横組みを使うと、同じ幅に印と文字を
+   詰め込むぶん文字が小さくなりすぎる。 */
+.hero-logo{display:block;flex:0 1 auto;min-width:0;}
+.hero-logo img{width:clamp(230px,26vw,360px);height:auto;display:block;}
+@media (max-width:520px){
+  /* 縦組みは背が高いので、幅で抑える（高さは幅の約0.73倍） */
+  .hero-logo img{width:clamp(150px,44vw,210px);}
+}
+/* ロゴが出ているときは、名前の文字は読み上げのためだけに残す
+   （フッターのロゴと同じ扱い）。ロゴが読めなければ文字が出る。 */
+.hero-brand:has(.hero-logo) span{
+  position:absolute;width:1px;height:1px;
+  margin:-1px;padding:0;border:0;overflow:hidden;
+  clip-path:inset(50%);white-space:nowrap;
+}
 .hero-brand span{
   font-family:var(--serif);font-weight:700;
   color:var(--ink);
@@ -1788,14 +1809,14 @@ h2 .h-rule{
 .sec-schedule .s4{--cl:1%; --cb:30%;   --cw:clamp(110px,13vw,200px); --co:.72;}
 
 .sec-faq .s1{--cr:2%;  --ct:5%;    --cw:clamp(80px,10vw,160px);  --co:.88;}
-.sec-faq .s2{--cr:14%; --cb:-40px; --cw:clamp(70px,8vw,130px);   --co:.76;}
+.sec-faq .s2{--cr:14%; --cb:2px; --cw:clamp(70px,8vw,130px);   --co:.76;}
 .sec-faq .s3{--cr:3%;  --ct:34%;   --cw:clamp(100px,12vw,180px); --co:.72;}
 
 .sec-entry .s1{--cr:1.5%; --cb:-20px; --cw:clamp(140px,17vw,270px); --co:.95; --cfx:-1;}
 /* 珊瑚はどちらも右下に寄せて重ね、岩場に見せる。左下は注記の指定席で、
    狭い画面では .wrap が画面いっぱいに広がるため空き水域が残らない。 */
 .sec-entry .s2{--cr:16%; --cb:-46px; --cw:clamp(110px,14vw,220px); --co:.86;}
-.sec-entry .s3{--cr:4%; --ct:12%;    --cw:clamp(80px,10vw,150px);  --co:.80;}
+.sec-entry .s3{--cr:4%; --ct:6%;    --cw:clamp(80px,10vw,150px);  --co:.80;}
 .sec-entry .s4{--cl:2%; --cb:34%;   --cw:clamp(90px,11vw,160px);  --co:.72;}
 
 /* 768〜1099px：リード文が右へ伸びて上段の生き物と当たる。

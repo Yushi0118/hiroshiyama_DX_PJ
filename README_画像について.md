@@ -142,8 +142,31 @@ powershell -File tools/build-hero-mobile.ps1 -Map
 | `icons/flow/hub-*.webp` | 支援体制 5ノード |
 | `themes/beauty.webp` `food.webp` `backoffice.webp` | 募集テーマ 3枚 |
 | `creatures/*.webp` | 海の生き物（装飾）12種 |
-| `icons/logo-mark.png` | ヒーローとフッターのロゴマーク |
+| `logos/funade-h.webp` | ヒーローのロゴ（横組み・521px以上） |
+| `logos/funade-v.webp` | ヒーローのロゴ（縦組み・520px以下） |
+| `icons/logo-mark.png` | フッターのロゴマーク・favicon |
 | `logos/hiroshima-pref.png` `logos/lts.png` | フッターのロゴ |
+
+## FUNADEロゴについて
+
+原本は2枚いただいている。
+
+| 原本 | 使いどころ |
+|---|---|
+| `ChatGPT Image 2026年9月7日 16_40_13.png`（横組み 2172×724） | 広い画面 |
+| `ChatGPT Image 2026年9月7日 16_09_14.png`（縦組み 1448×1086） | 520px以下 |
+
+どちらも地が白なので、**明るさ250以上を透明に、235〜250を境目としてぼかして
+抜き**、余白を切り落としてから WebP にした（品質0.95、各96〜100KB）。
+紙の上でも夜の絵の上でも四角い白地が出ない。
+
+出し分けは HTML の `<picture>` と `media="(max-width:520px)"`。CSSではなく
+`<picture>` にしてあるのは、**使わないほうの絵を読み込ませないため**。
+
+差し替えるときは、同じ手順（白抜き→余白切り→WebP）で作って同じ名前で
+置けばよい。変換はこの環境に変換ソフトが無いので、ブラウザのエンコーダを
+使う（`tools/webp-bridge.js` に手順あり）。
+
 
 ## 画像の形式（2026-09-05 にWebPへ移行）
 
