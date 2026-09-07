@@ -1105,6 +1105,29 @@ h2 .h-rule{
   box-shadow:0 0 0 2px rgba(var(--gold-rgb),.85), 0 0 24px rgba(var(--gold-rgb),.55);
   transition:box-shadow 3s linear;
 }
+/* 見出しの中の一部の語に、水彩の下線を敷く（完成イメージのとおり）。
+
+   絵は完成イメージから抜き出したもの（assets/img/deco/brush-*.webp）。
+   紙の地に対してどれだけ暗く／濃くなっているかを画素ごとに測って
+   透過にしてあるので、紙の色が多少違っても馴染む。CSSのグラデーションで
+   引くと、水彩のにじみと筆の入り抜きが出せない。
+
+   語の幅に合わせて伸ばすので、文字が増えても線が足りなくならない。
+   線は文字の下（背景）なので、文字の読みやすさには影響しない。 */
+.brush{
+  background-repeat:no-repeat;
+  background-position:0 calc(100% - .04em);
+  background-size:100% .30em;
+  padding-bottom:.08em;
+}
+.brush-gold{background-image:url("assets/img/deco/brush-gold.webp");}
+/* 青のほうが筆が太いので、少し高さを取る */
+.brush-blue{
+  background-image:url("assets/img/deco/brush-blue.webp");
+  background-size:100% .40em;
+  background-position:0 100%;
+}
+
 .hero-brand{display:flex;align-items:center;gap:.5em;margin-top:1em;flex-wrap:nowrap;}
 .hero-mark{width:clamp(38px,3.6vw,52px);height:auto;flex:0 0 auto;}
 
@@ -1121,6 +1144,14 @@ h2 .h-rule{
    幅は器（.hero-brand）に任せるので、画面幅ごとに数字を持たなくてよい。 */
 .hero-logo{display:block;flex:1 1 auto;min-width:0;}
 .hero-logo img{width:100%;max-width:520px;height:auto;display:block;}
+/* 横長の絵のときは、紙が文字段より右へ広い。実測すると 1440px で、
+   ロゴの行の紙は x736 まで続いていて、文字段（x590まで）より146px余る。
+   完成イメージのロゴはもっと大きいので、その余りまで使う。
+   42vw は、左端8vw から始めて紙の右端に届かない値（1440pxで604px、
+   1920pxで上限の660px）。紙から出ると、透過のロゴが水の上に乗る。 */
+@media (min-width:768px) and (min-aspect-ratio:13/10){
+  .hero-logo img{width:min(42vw,660px);max-width:none;}
+}
 @media (max-width:389px){
   /* 縦組みは背が高いので、幅で抑える（高さは幅の約0.73倍） */
   .hero-logo img{width:min(100%,200px);}

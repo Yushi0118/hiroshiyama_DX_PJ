@@ -144,6 +144,8 @@ powershell -File tools/build-hero-mobile.ps1 -Map
 | `creatures/*.webp` | 海の生き物（装飾）12種 |
 | `logos/funade-h.webp` | ヒーローのロゴ（横組み・390px以上） |
 | `logos/funade-v.webp` | ヒーローのロゴ（縦組み・389px以下） |
+| `deco/brush-gold.webp` | 見出し「小さな」の下線（完成イメージから抜き出し） |
+| `deco/brush-blue.webp` | 見出し「潮がある」の下線（同上） |
 | `icons/logo-mark.png` | フッターのロゴマーク・favicon |
 | `logos/hiroshima-pref.png` `logos/lts.png` | フッターのロゴ |
 
