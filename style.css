@@ -217,10 +217,21 @@ body::before{
     var(--sea-7) var(--sea-p7));
 }
 
-/* 水面から差し込む光。上部だけに効かせ、下へ向かって消す */
+/* 水面から差し込む光。上は強く、中層へ細く尾を引かせて、深海の入口で消す。
+
+   以前は 150vh（≒ページの13%）で切っていた。そのぶん、困りごとの途中から
+   深海の幕（進め方の600px手前）までの約35%が「色だけ」の区間になり、
+   潜っている感じが色でしか語られていなかった。高さをページ丈の48%
+   （＝深海の入口）まで延ばし、マスクで尾を細くする。
+
+   マスクの節は「上の見え方を変えない」ために置いてある。
+   11% ≒ 以前の 45%×150vh に当たる位置なので、そこまでの落ち方は前と同じ。
+   25% で .12 に落としてから、48%地点（=100%）で 0 にする。
+   最も濃いところでも 光.14 × マスク.12 ＝ 実効 1.7% で、
+   夜の中層（#2F4E7E）の上でも明るい文字とのコントラストは 6:1 を保つ（計算）。 */
 body::after{
   content:'';
-  position:absolute; inset:0 0 auto; height:150vh; z-index:-2;
+  position:absolute; inset:0 0 auto; height:48%; z-index:-2;
   pointer-events:none;
   background:
     repeating-linear-gradient(101deg,
@@ -229,8 +240,8 @@ body::after{
     repeating-linear-gradient(79deg,
       rgba(255,255,255,.09) 0px, rgba(255,255,255,.09) 3px,
       rgba(255,255,255,0)   3px, rgba(255,255,255,0)  76px);
-  -webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.45) 45%,transparent 100%);
-          mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.45) 45%,transparent 100%);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.45) 11%,rgba(0,0,0,.12) 25%,transparent 100%);
+          mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.45) 11%,rgba(0,0,0,.12) 25%,transparent 100%);
 }
 
 /* ============================================================
@@ -1822,11 +1833,28 @@ h2 .h-rule{
 /* クジラは鯨らしい大きさで置く。小さく添えると「大きな魚」にしか
    見えず、中層の見せ場にならない。カードの下に潜る部分は出るが、
    全身が見えなくても大きさは伝わる。 */
-.sec-benefit  .b1{--cl:2%;  --cb:26px;  --cw:clamp(250px,34vw,560px); --co:.78; --cdur:52s;}
+.sec-benefit  .b1{--cl:2%;  --cb:26px;  --cw:clamp(250px,34vw,560px); --co:.88; --cdur:52s;}
 /* クジラが泳ぐ水域をセクションの下に確保する。カードは不透明なので、
    場所を作らずに大きくしても隠れるだけだった（25%しか見えていなかった）。
    余白ではなく「絵が入る場所」として取っている。 */
 .sec-benefit{padding-bottom:clamp(230px,21vw,360px);}
+/* その水域を「中層の見せ場」にする。場所を取っただけでは、絵が薄いぶん
+   ただの空白に見えていた（依頼主と一緒に見て確認 2026-09-07）。
+   　・光の輪 … クジラが光の中を横切るように、淡い明部を1枚
+   　・下端の暗部 … 深海の幕（この先600px手前から始まる）の前触れ
+   幕そのものは触らない。ここは前触れだけ。
+   z-index は生き物（-1）より下、海（-3）より上。 */
+.sec-benefit::after{
+  content:'';
+  position:absolute;left:0;right:0;bottom:0;
+  height:clamp(230px,21vw,360px);
+  z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(58% 72% at 40% 52%,
+      rgba(255,255,255,.10), rgba(255,255,255,0) 72%),
+    linear-gradient(180deg,
+      rgba(var(--deep-rgb),0) 52%, rgba(var(--deep-rgb),.10) 100%);
+}
 .sec-themes   .b1{--cl:4%;  --cb:-26px; --cw:clamp(115px,15vw,235px); --co:.88; --cfx:-1;}
 .sec-schedule .b1{--cl:1.5%; --cb:-96px; --cw:clamp(210px,28vw,430px); --co:.95;}
 /* 最深部の火山だけは、注記のパネルと必ず高さが重なる。注記はセクションの
@@ -1865,7 +1893,9 @@ h2 .h-rule{
 
 .sec-benefit .s1{--cr:2%; --ct:10%;   --cw:clamp(160px,20vw,300px); --co:.96;}
 .sec-benefit .s2{--cl:2%; --ct:40%;  --cw:clamp(120px,15vw,220px); --co:.88;}
-.sec-benefit .s3{--cr:4%; --cb:8%;   --cw:clamp(90px,10vw,150px);  --co:.82; --cfx:-1;}
+/* クジラの帯の右手に小魚。クジラの当たり判定（左から最大560px＋揺れ）を
+   避けて右へ寄せる。狭い画面では帯にクジラだけを残す（下の 767px 以下で消す）。 */
+.sec-benefit .s3{--cr:7%; --cb:11%;  --cw:clamp(70px,8vw,120px);   --co:.76; --cfx:-1;}
 .sec-benefit .s4{--cl:6%; --cb:4%;   --cw:clamp(60px,7vw,110px);   --co:.78;}
 
 .sec-themes .s1{--cr:2%;  --ct:3%;   --cw:clamp(150px,19vw,290px); --co:.95; --cfx:-1;}
@@ -1971,10 +2001,10 @@ h2 .h-rule{
      幅が狭いと下端に全部が集まり、水彩どうしが重なって濁るため。
      広い画面では並べる余地があるので、ここだけの措置。 */
   .sec-pain .s1,.sec-pain .s2,
-  .sec-benefit .s1,
+  .sec-benefit .s1,.sec-benefit .s3,
   .sec-schedule .s1,.sec-schedule .s2{display:none;}
   .sec-pain     .b1{--cl:20%; --cb:-18px; --cw:46%;}
-  .sec-benefit  .b1{--cl:2%;  --ct:auto; --cb:18px;  --cw:88%; --co:.62;}
+  .sec-benefit  .b1{--cl:2%;  --ct:auto; --cb:18px;  --cw:88%; --co:.74;}
   .sec-benefit{padding-bottom:250px;}
   .sec-themes   .b1{--cl:2%;  --ct:auto; --cb:14%; --cw:38%;}
   .sec-schedule .b1{--cl:0%; --cb:-64px; --cw:78%;}
