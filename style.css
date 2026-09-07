@@ -813,6 +813,73 @@ h2 .h-rule{
 .hub-center strong{font-family:var(--serif);font-size:23px;color:#fff;}
 .hub-center span{font-size:15px;color:var(--paper-soft);}
 
+/* ── 支援体制を「図」にする ──────────────────────────
+   狭い画面では今までどおり「中心の札 ＋ 役割の一覧」。
+   1100px 以上では中心を円にし、5つの役割を五角に置いて線で結ぶ。
+
+   図にできる幅があるときだけ図にする。中途半端な幅で五角に並べると
+   ラベル同士が重なって読めなくなるため、切り替えは 1100px。 */
+.hub{position:relative;}
+.hub-lines{display:none;}
+
+@media (min-width:1100px){
+  .hub{
+    /* 高さは決め打ち。中の要素を絶対配置にするので、親が高さを持たないと
+       セクションが潰れる。940×620 は、五角の頂点に 200px のラベル（実測166px高）を置いても
+       枠の外に出ず、中心の円にも重ならない大きさとして実測で決めた。 */
+    width:min(940px,100%);height:620px;margin:0 auto;
+    /* 丸い絵の直径。頂点をこの円の中心に合わせるため、線の外側の端が
+       絵に隠れる。ラベル全体の中心に合わせると、線が題字を横切る。 */
+    --ic:clamp(64px,7.4vw,92px);
+  }
+  .hub-lines{
+    display:block;position:absolute;inset:0;width:100%;height:100%;
+    /* 図の全面を覆うので、指定しないと隙間で操作を横取りする */
+    pointer-events:none;
+    /* 器の縁（--ring）と同じ濃さ。図の線だけ濃いと、線のほうが主役に見える */
+    stroke:rgba(var(--gold-rgb),.45);
+    /* viewBox を引き伸ばして使うので、指定しないと縦横で線の太さが変わる */
+    vector-effect:non-scaling-stroke;stroke-width:1;
+  }
+
+  .hub .hub-center{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:190px;height:190px;
+    margin:0;padding:0 18px;justify-content:center;
+    border-radius:50%;
+  }
+
+  .hub .nodes{display:block;margin:0;}
+  .hub .nodes .card{
+    position:absolute;left:var(--x);top:var(--y);
+    transform:translate(-50%,calc(var(--ic) / -2));
+    width:200px;padding:0;
+    /* 図の中では箱を消す。枠のある札が5つ浮いていると、線でつないでも
+       「一覧」に見えたまま図にならない。 */
+    background:none;box-shadow:none;
+  }
+  .hub .nodes .vignette-center{width:var(--ic);}
+  /* 頂点は真上から時計回り。HTMLの並び順と一致させている */
+  .hub .nodes .card:nth-child(1){--x:50%;  --y:12%;}
+  .hub .nodes .card:nth-child(2){--x:88%;  --y:38%;}
+  .hub .nodes .card:nth-child(3){--x:73.5%;--y:78%;}
+  .hub .nodes .card:nth-child(4){--x:26.5%;--y:78%;}
+  .hub .nodes .card:nth-child(5){--x:12%;  --y:38%;}
+}
+/* 深海のカードのホバー（地と文字を入れ替え、3px浮かせる）は、箱の無い
+   図の頂点では困る。地が無いまま紺の文字になって消え、transform も
+   五角の配置を打ち消してしまう。図のときは何も起こさない。 */
+@media (min-width:1100px) and (hover:hover){
+  .hub .nodes .card:hover{
+    background:none;box-shadow:none;
+    transform:translate(-50%,calc(var(--ic) / -2));
+  }
+  /* 文字色も一つずつ戻す。親の color を戻すだけだと、題字は紺のまま
+     紺地に残って消える（元の反転が個別指定で効いているため）。 */
+  .hub .nodes .card:hover .card-title{color:#fff;}
+  .hub .nodes .card:hover p{color:var(--paper-soft);}
+}
+
 /* チェックリスト ―「自分が対象かどうか」を確かめる、判断の要になる箱。
    ほかのカードと同じ体裁だと読み飛ばされるので、ここだけ強く見せる。
    金の枠を太くし、左に金の帯を立て、内側に淡い光を入れて浮かせる。 */

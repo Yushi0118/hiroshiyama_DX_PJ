@@ -346,7 +346,17 @@
       <h2 id="target-h"><span class="h-rule">県内小規模事業者と、<br>それを支える仲間たち</span></h2>
       <p class="lead">参加事業者を中心に、同じ悩みを持つ仲間・支援機関・専門家・広島県が周りを支える体制です。</p>
 
-      <p class="hub-center"><strong>参加事業者</strong><span>あなたの会社・お店</span></p>
+      <div class="hub">
+        <!-- 中心と5つの役割を結ぶ線。図として置ける幅（1100px以上）でだけ出る装飾。
+             線の端は、内側が中心の円に、外側が各役割の丸い絵に隠れる。 -->
+        <svg class="hub-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <line x1="50" y1="50" x2="50" y2="12"></line>
+          <line x1="50" y1="50" x2="88" y2="38"></line>
+          <line x1="50" y1="50" x2="73.5" y2="78"></line>
+          <line x1="50" y1="50" x2="26.5" y2="78"></line>
+          <line x1="50" y1="50" x2="12" y2="38"></line>
+        </svg>
+        <p class="hub-center"><strong>参加事業者</strong><span>あなたの会社・お店</span></p>
 
       <ul class="grid grid-5 nodes">
         <li class="card">
@@ -375,6 +385,7 @@
           <p>伴走支援・技術指導</p>
         </li>
       </ul>
+      </div>
 
       <div class="card checklist">
         <h3 class="card-title">こんな方におすすめです</h3>
