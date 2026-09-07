@@ -1197,8 +1197,75 @@ h2 .h-rule{
 .hero-art{
   position:absolute;inset:0;z-index:-1;
   background:url('assets/img/backgrounds/hero-scene-wide.jpg') center 28% / cover no-repeat;
-  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 80%,transparent 100%);
-          mask-image:linear-gradient(180deg,#000 0%,#000 80%,transparent 100%);
+  /* マスクは要素より25%高く作り、下端に合わせて置く。抜けている帯（もや）は
+     いまの見え方のまま ―― 84% は、1.25倍のマスクを下端に合わせたときに
+     要素の 80% に来る位置（(0.80+0.25)/1.25）。
+     位置を上端（0 0）へ動かすと、抜けている帯が要素の外へ出て、もやが
+     まるごと消える。この「位置だけ」をスクロールで動かす（下の @supports）。 */
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 84%,transparent 100%);
+          mask-image:linear-gradient(180deg,#000 0%,#000 84%,transparent 100%);
+  -webkit-mask-size:100% 125%;   mask-size:100% 125%;
+  -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+  -webkit-mask-position:0 100%;  mask-position:0 100%;
+}
+
+/* 最初の一画面では、絵を下端まで見せる。
+   もや（次の水面へ溶かすための帯）は、スクロールし始めてから出す
+   （依頼主 2026-09-07「初回表示のときは白いスモークが無い状態に」）。
+
+   動かすのはマスクの位置だけ。絵にも本文にも触らないので、
+   紙の位置を測っている tools/onpaper.js の前提は変わらない。
+
+   scroll() が使えないブラウザ（いまの Safari / Firefox）では、この塊が
+   まるごと無視されて上の指定＝もやが最初から出ている状態になる。
+   絵の下端が次のセクションで硬く切れることは無い。 */
+@keyframes hero-smoke{
+  from{-webkit-mask-position:0 0;    mask-position:0 0;}
+  to  {-webkit-mask-position:0 100%; mask-position:0 100%;}
+}
+/* ── ファーストビューの入り ──────────────────────────
+   ページを開いた瞬間、絵 → 見出し → ロゴ → 説明 → ボタン → ナビ の順に
+   浮かび上がる（依頼主 2026-09-07）。港を出ていく順に見せて情緒を出す。
+
+   動かすのは opacity と translate だけ。レイアウトには関わらせない。
+   終わったあとの値は「何も指定しない状態」と同じなので（both で終端に
+   留めても translate は 0）、tools/onpaper.js が測る文字の位置は変わらない。
+
+   translate を使うのは、transform だと生き物の揺れ（transform）や
+   ハブ図の配置（transform）と潰し合う型を持ち込むため。個別プロパティの
+   translate なら他の指定と重ならない。
+
+   prefers-reduced-motion: reduce では丸ごと効かない＝最初から全部見えている。 */
+@keyframes hero-in  { from{opacity:0;}                 to{opacity:1;} }
+@keyframes hero-rise{ from{opacity:0;translate:0 14px;} to{opacity:1;translate:0 0;} }
+
+@media (prefers-reduced-motion:no-preference){
+  /* 絵。scroll() が使えるブラウザでは、下の @supports が2本立て
+     （入り＋もや）で上書きする。 */
+  .hero-art  {animation:hero-in   .9s        ease-out both;}
+  .hero-title{animation:hero-rise .7s  .35s  ease-out both;}
+  /* ロゴ（船の印）。名前は昼夜の切り替えスイッチも兼ねているが、
+     opacity が 0 の間も押せる。見えないうちに押されても壊れない。 */
+  .hero-brand{animation:hero-rise .7s  .80s  ease-out both;}
+  .hero-sub  {animation:hero-rise .7s 1.15s  ease-out both;}
+  .hero-lead {animation:hero-rise .7s 1.28s  ease-out both;}
+  .hero-cta  {animation:hero-rise .7s 1.60s  ease-out both;}
+  .hero-nav  {animation:hero-rise .7s 1.80s  ease-out both;}
+}
+
+@supports (animation-timeline: scroll()){
+  @media (prefers-reduced-motion:no-preference){
+    .hero-art{
+      -webkit-mask-position:0 0; mask-position:0 0;
+      /* 入りのフェードと、スクロールで出るもやの2本。時間軸と範囲も
+         同じ順で並べること。1本目は普通の時計、2本目はスクロール。 */
+      animation:hero-in .9s ease-out both, hero-smoke linear both;
+      animation-timeline:auto, scroll(root block);
+      /* 出しきるまで320px。ヒーローはどの画面でも620px以上あるので、
+         もやが出そろう頃にはまだヒーローの中にいる。 */
+      animation-range:normal, 0px 320px;
+    }
+  }
 }
 
 /* 夜の絵。昼の絵と同じ寸法・同じ比率なので、位置指定はそのまま使える。
@@ -1711,8 +1778,11 @@ h2 .h-rule{
        bottom ではなく 100% と書くのは、検証ツールが % を読むため。 */
     background-position:50% 100%;
     background-size:cover;
-    -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 88%,transparent 100%);
-            mask-image:linear-gradient(180deg,#000 0%,#000 88%,transparent 100%);
+    /* 縦の絵はもやを浅くしてある（要素の88%から）。1.25倍のマスクでの
+       位置は (0.88+0.25)/1.25 ＝ 90.4%。大きさ・位置・繰り返しは上の
+       .hero-art がそのまま効くので、ここは抜き始めだけを書き換える。 */
+    -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 90.4%,transparent 100%);
+            mask-image:linear-gradient(180deg,#000 0%,#000 90.4%,transparent 100%);
   }
   /* 縦画面の夜。こちらの絵には舟が描かれていない（依頼主から渡された
      ままを使う）。寸法は昼と同じ 941:1672。
