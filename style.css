@@ -1223,6 +1223,24 @@ h2 .h-rule{
   padding:40px 0 48px;
   text-align:center;
 }
+/* 上段は左右2段。左にプロジェクト、右に実施主体。
+   縦に積むと、ロゴ・愛称・正式名称・主催の板が4段になって
+   フッターだけで1画面近く使ってしまう（依頼主 2026-09-07）。
+   900px より狭いところでは、これまで通り中央そろえで積む。 */
+.foot-cols{margin:0 auto;}
+@media (min-width:900px){
+  .foot-cols{
+    display:flex;align-items:flex-start;justify-content:space-between;
+    gap:40px;text-align:left;
+  }
+  /* 左の段。ロゴの板は文字の幅に合わせず、中身の幅で置く */
+  .foot-id{flex:0 1 auto;}
+  .foot-id .foot-logo{margin-left:0;margin-right:0;}
+  .foot-id .foot-brand{justify-content:flex-start;}
+  /* 右の段。板と説明文はこれまで通り中央そろえ */
+  .credit{flex:0 1 auto;margin-top:0;text-align:center;}
+}
+
 /* フッターのロゴ。ロゴは白地で使う前提の色（紺の文字）なので、
    紺のフッターに直接置くと沈む。「主催・運営」と同じ白い板に載せる。
    板の角丸と影もそちらに合わせて、フッターの中で作りを揃える。 */
