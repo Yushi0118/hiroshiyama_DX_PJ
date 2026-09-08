@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="fleet-story.css">
 <!-- ヒーローの絵はCSSの background-image なので、ブラウザは style.css を
      読み終えるまで存在に気づけない。外部のフォントの読み込みも間に挟まるので、
      遅い回線では最初に見える絵の取得が後ろへずれる。先に取りに行かせる。
@@ -95,6 +96,33 @@
       <a href="#themes">募集テーマ<span class="chev" aria-hidden="true"></span></a>
       <a href="#schedule">スケジュール<span class="chev" aria-hidden="true"></span></a>
     </nav>
+  </div>
+</section>
+
+
+<!-- 協働を船団で伝える。JSなし・動き軽減時は全説明と完成形を表示。 -->
+<section id="fleet-story" class="fleet-story" aria-labelledby="fleet-title">
+  <div class="fleet-stage">
+    <div class="wrap fleet-layout">
+      <div class="fleet-copy">
+        <p class="eyebrow">ひとりの悩みを、みんなの一歩に。</p>
+        <h2 id="fleet-title">小さな船が、<br>船団になるまで。</h2>
+        <ol class="fleet-chapters">
+          <li><span>01</span><div><h3>その悩み、ひとりで抱えていませんか。</h3><p>人手が足りない。紙の管理が大変。何から始めればいいか分からない。</p></div></li>
+          <li><span>02</span><div><h3>同じ悩みを持つ、仲間と出会う。</h3><p>困りごとを持ち寄ると、一緒に取り組める課題が見えてきます。</p></div></li>
+          <li><span>03</span><div><h3>専門家も加わり、進め方を考える。</h3><p>AIやデジタルの専門家が、最初の一歩を一緒に考えます。</p></div></li>
+          <li><span>04</span><div><h3>仲間と、小さく試す。</h3><p>一社では踏み出せなかった挑戦を、船団で始めましょう。</p></div></li>
+        </ol>
+        <a class="fleet-skip" href="#pain">困りごとと支援内容を見る <span aria-hidden="true">↓</span></a>
+      </div>
+      <div class="fleet-ocean" role="img" aria-label="同じ悩みを持つ3隻の船に専門家の船が加わり、船団として同じ方向へ進む図">
+        <span class="fleet-watermark" aria-hidden="true">FUNADE</span>
+        <div class="fleet-route" aria-hidden="true"></div>
+        <div class="fleet-boat fleet-boat-0" aria-hidden="true"><span class="fleet-label">人手が足りない</span><svg viewBox="0 0 48 48"><use href="#ic-ship"></use></svg></div><div class="fleet-boat fleet-boat-1" aria-hidden="true"><span class="fleet-label">紙の管理が大変</span><svg viewBox="0 0 48 48"><use href="#ic-ship"></use></svg></div><div class="fleet-boat fleet-boat-2" aria-hidden="true"><span class="fleet-label">何から始める？</span><svg viewBox="0 0 48 48"><use href="#ic-ship"></use></svg></div><div class="fleet-boat fleet-boat-3" aria-hidden="true"><span class="fleet-label">専門家</span><svg viewBox="0 0 48 48"><use href="#ic-ship"></use></svg></div>
+        <p class="fleet-destination" aria-hidden="true">ともに、あたらしい海へ <span>→</span></p>
+      </div>
+      <div class="fleet-progress" aria-hidden="true"><span></span></div>
+    </div>
   </div>
 </section>
 
@@ -863,6 +891,7 @@
 </dialog>
 
 <script src="script.js" defer></script>
+<script src="fleet-story.js" defer></script>
 
 </body>
 </html>
