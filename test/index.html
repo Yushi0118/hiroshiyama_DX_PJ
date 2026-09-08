@@ -84,6 +84,81 @@
 }
 
 </style>
+<style id="business-demo-styles">
+/* Test-only business demos and bright arrival area. */
+.dx-demo{color:#102f4d}
+.dx-demo .eyebrow{background:#153b56;color:#fff}
+.dx-demo h2{color:#102f4d}
+.dx-demo>.wrap>.lead{color:#193d54;max-width:45em}
+.dx-notice{font-size:14px;line-height:1.8;padding:16px 20px;background:#edf6f9;border-left:3px solid #668b9e;color:#24475c;margin-bottom:24px}
+.dx-switches{display:none;gap:8px;margin:0 0 24px;flex-wrap:wrap}
+.dx-enhanced .dx-switches{display:flex}
+.dx-switches button{flex:1;min-width:140px;border:1px solid #9eb7c4;border-radius:999px;padding:15px 20px;background:#eef6fa;color:#173b51;font:inherit;font-weight:700;cursor:pointer}
+.dx-switches button[aria-pressed="true"]{background:#163c56;color:#fff;border-color:#163c56}
+.dx-panel{background:#fffdf8;border:1px solid #d2dee1;border-radius:24px;padding:32px;margin-bottom:24px;box-shadow:0 20px 50px #16384b14;color:#173b51}
+.dx-panel[hidden],.dx-result[hidden]{display:none!important}
+.dx-panel-intro{display:flex;align-items:center;gap:24px;margin-bottom:28px}
+.dx-panel-intro img{width:88px;height:88px;object-fit:contain;flex:none}
+.dx-panel-intro h3{font-family:var(--serif);font-size:26px;line-height:1.6;margin:4px 0 8px;color:#12374f}
+.dx-panel p{font-size:16px;line-height:1.85}
+.dx-panel .dx-kicker{font-size:14px;font-weight:700;color:#6a542e;margin:0 0 8px}
+.dx-comparison{display:grid;grid-template-columns:1fr 1.15fr;gap:20px}
+.dx-before,.dx-after{padding:26px;border-radius:16px;min-width:0}
+.dx-before{background:#f1eee7;border:1px solid #e0dad0}
+.dx-after{background:#eaf4f7;border:1px solid #bfd7e0}
+.dx-comparison h4{font-size:19px;line-height:1.6;margin:0 0 20px}
+.dx-slip{display:flex;flex-direction:column;gap:7px;background:#fff;padding:18px;margin-top:12px;border:1px solid #ddd9cf;border-radius:6px;font-size:15px;line-height:1.6}
+.dx-empty{display:none;padding:30px 10px;color:#516b79;font-size:16px;line-height:1.8;text-align:center}
+.dx-enhanced .dx-empty{display:block}
+.dx-panel.is-revealed .dx-empty{display:none}
+.dx-result blockquote{background:#fff;border-left:3px solid #b08a48;padding:20px;margin:16px 0;line-height:1.9;font-size:16px}
+.dx-result p+p{margin-top:16px}
+.dx-result .dx-result-label{font-weight:700;color:#173b51}
+.dx-check{border-top:1px solid #a8c7d3;padding-top:16px;color:#294e61}
+.dx-table-wrap{overflow-x:auto}
+.dx-table-wrap table{width:100%;border-collapse:collapse;font-size:14px;color:#173b51}
+.dx-table-wrap caption{text-align:left;font-size:14px;margin-bottom:12px}
+.dx-table-wrap th,.dx-table-wrap td{padding:12px 8px;border-bottom:1px solid #bfd0d7;text-align:left;line-height:1.6}
+.dx-table-wrap td{white-space:nowrap}
+.dx-table-wrap thead{background:#d6e8ee}
+.dx-controls{display:none;align-items:center;gap:16px;flex-wrap:wrap;margin-top:24px}
+.dx-enhanced .dx-controls{display:flex}
+.dx-run,.dx-next,.harbor-button{display:inline-flex;align-items:center;justify-content:center;gap:24px;padding:17px 25px;background:#153b56;color:#fff;border:0;border-radius:999px;font:inherit;font-size:16px;font-weight:700;text-decoration:none;cursor:pointer;line-height:1.6}
+.dx-run:disabled{background:#dce7ec;color:#25465c;cursor:default}
+.dx-reset{background:none;border:0;text-decoration:underline;text-underline-offset:4px;font:inherit;font-size:14px;color:#25465c;padding:12px;cursor:pointer}
+.dx-status{flex-basis:100%;min-height:1.8em;color:#355e6e}
+.dx-takeaway{font-weight:700;margin-top:16px;color:#153b56}
+.dx-prep{margin-top:8px;color:#526b75}
+.dx-bottom-note{font-size:14px;line-height:1.8;color:#24465c;margin:20px 0}
+.dx-next{width:100%}
+.dx-demo button:focus-visible,.dx-demo a:focus-visible,.harbor-entry a:focus-visible{outline:3px solid #a57529;outline-offset:5px}
+@keyframes dx-result-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:no-preference){.dx-panel.is-revealed .dx-result{animation:dx-result-in .5s ease-out both}}
+.is-night .dx-demo h2,.is-night .dx-demo>.wrap>.lead,.is-night .dx-bottom-note{color:#edf6fb}
+#entry.harbor-entry{position:relative;isolation:isolate;background:linear-gradient(180deg,#b6dce6 0%,#edf5ef 26%,#fff9e9 60%,#fffdf7 100%);color:#163950;padding:100px 0 90px;overflow:hidden}
+.harbor-inner{position:relative;z-index:1;text-align:center}
+.harbor-kicker{font-size:14px;letter-spacing:.12em;color:#355c6c;font-weight:700}
+.harbor-fleet{display:flex;justify-content:center;align-items:flex-end;gap:24px;margin:38px auto 28px;color:#234e65}
+.harbor-fleet svg{width:58px;height:58px}
+.harbor-fleet svg:nth-child(2){width:80px;height:80px;color:#8b642c}
+.harbor-overline{font-size:20px;color:#81612e;font-family:var(--serif);margin-bottom:16px}
+#entry.harbor-entry h2{font-size:clamp(28px,3.4vw,48px);line-height:1.65;color:#163950;margin:0 0 24px}
+.harbor-lead{font-size:19px;line-height:1.9;color:#355365}
+.harbor-free{display:inline-block;margin-top:26px;padding:10px 20px;border:1px solid #c4aa72;border-radius:999px;font-size:17px;font-weight:700;color:#674c23;background:#fffaf0}
+.harbor-free span{font-size:15px;font-weight:400}
+.harbor-action{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:44px auto 24px;padding:32px;text-align:left;background:#fff;border:1px solid #d7c8a9;border-radius:20px;box-shadow:0 18px 50px #6f552712}
+.harbor-action h3{font-size:22px;color:#173b51;margin-bottom:8px}
+.harbor-action p{font-size:16px;color:#456171;line-height:1.8}
+.harbor-button{flex:none;background:#153b56;color:#fff}
+.harbor-pending{padding:24px;border-top:1px solid #dbcfb4;border-bottom:1px solid #dbcfb4;color:#456171}
+.harbor-pending h3{font-size:18px;margin-bottom:10px;color:#173b51}
+.harbor-pending p{font-size:15px;line-height:1.85}
+.harbor-links{display:flex;justify-content:center;gap:20px 32px;flex-wrap:wrap;margin-top:28px}
+.harbor-links a{font-size:15px;color:#234a60;text-underline-offset:5px;padding:8px}
+@media(max-width:767px){
+ .dx-panel{padding:20px 16px;border-radius:18px}.dx-panel-intro{align-items:flex-start;gap:12px}.dx-panel-intro img{width:54px;height:54px}.dx-panel-intro h3{font-size:21px}.dx-comparison{grid-template-columns:1fr}.dx-before,.dx-after{padding:20px 16px}.dx-switches{gap:6px}.dx-switches button{min-width:0;padding:13px 8px;font-size:14px}.dx-run{width:100%;gap:12px;padding:15px}.dx-table-wrap th,.dx-table-wrap td{padding:10px 6px}.harbor-action{flex-direction:column;align-items:stretch;padding:24px}.harbor-button{width:100%;gap:14px}.harbor-action h3{font-size:20px}#entry.harbor-entry{padding:70px 0 64px}.harbor-lead{font-size:17px}.harbor-free span{display:block}.harbor-links{gap:4px 16px}.harbor-kicker{font-size:14px;letter-spacing:.03em}
+}
+</style>
 </head>
 <body>
 
@@ -401,6 +476,25 @@
 <!-- ============================================================
      6. 進め方・支援体制（深海）
      ============================================================ -->
+<section id="work-demo" class="section dx-demo" aria-labelledby="dx-demo-h"><div class="wrap">
+<p class="eyebrow">あなたの仕事なら、どう変わる？</p><h2 id="dx-demo-h">いつもの仕事に、<br>小さな変化を。</h2><p class="lead">身近な業務を例に、AI・デジタルを取り入れたあとの仕事を体験できます。</p>
+<p class="dx-notice">体験用サンプルです。実際のAI処理・送信・データ保存は行いません。表示する人物・データ・結果は架空の例で、導入効果や提供機能を保証するものではありません。</p>
+<div class="dx-switches" role="group" aria-label="体験するテーマ"><button type="button" data-demo="dx-beauty" aria-controls="dx-beauty">理美容</button><button type="button" data-demo="dx-food" aria-controls="dx-food">飲食</button><button type="button" data-demo="dx-office" aria-controls="dx-office">バックオフィス</button></div><article class="dx-panel" id="dx-beauty" aria-labelledby="dx-heading-beauty">
+ <div class="dx-panel-intro"><img src="/hiroshiyama_DX_PJ/assets/img/themes/beauty.webp" alt="" width="120" height="120" loading="lazy"><div><p class="dx-kicker">理美容の活用イメージ</p><h3 id="dx-heading-beauty">思い出す接客から、履歴を活かす接客へ。</h3><p>来店履歴を整理し、次のお声がけのきっかけを見つけます。</p></div></div>
+ <div class="dx-comparison"><div class="dx-before"><p class="dx-kicker">いまの仕事</p><h4>台帳をめくり、声をかける相手を探す</h4><div class="dx-slip"><b>お客様A｜カット＋カラー</b><span>前回来店：52日前</span><span>いつもの来店間隔：約45日</span></div><div class="dx-slip"><b>お客様B｜パーマ</b><span>前回来店：21日前</span><span>いつもの来店間隔：約90日</span></div></div>
+ <div class="dx-after"><p class="dx-kicker">AI・デジタルを取り入れると</p><h4>声をかける相手と、文案が見える</h4><div class="dx-empty" aria-hidden="true">ボタンを押して、変化を見てみましょう。</div><div class="dx-result" id="dx-result-beauty"><p class="dx-result-label">お客様Aへのお声がけ案</p><p>前回のご来店から、いつもの来店間隔を過ぎています。髪の状態を伺うきっかけに。</p><blockquote>先日はご来店ありがとうございました。その後、髪のまとまりはいかがでしょうか。気になることがあれば、次回ぜひご相談ください。</blockquote><p class="dx-check">文面と連絡の可否を確認してから、ご自身で送ります。</p></div></div></div>
+ <div class="dx-controls"><button type="button" class="dx-run" aria-controls="dx-result-beauty">お声がけの例を見る <span aria-hidden="true">→</span></button><button type="button" class="dx-reset">最初に戻す</button><p class="dx-status" role="status" aria-live="polite"></p></div>
+ <p class="dx-takeaway">記憶に頼っていたお声がけを、履歴を見ながら考えられます。</p><p class="dx-prep">まず用意するもの：紙台帳・Excelなどの来店履歴。</p></article><article class="dx-panel" id="dx-food" aria-labelledby="dx-heading-food">
+ <div class="dx-panel-intro"><img src="/hiroshiyama_DX_PJ/assets/img/themes/food.webp" alt="" width="120" height="120" loading="lazy"><div><p class="dx-kicker">飲食の活用イメージ</p><h3 id="dx-heading-food">売れた数だけでなく、残る利益も見える。</h3><p>売上と食材原価を並べて、メニューを見直すきっかけにします。</p></div></div>
+ <div class="dx-comparison"><div class="dx-before"><p class="dx-kicker">いまの仕事</p><h4>売上と仕入れの数字が別々にある</h4><div class="dx-slip"><b>から揚げ定食</b><span>売価：1,300円／販売数：10食</span><span>1食の食材原価：455円</span></div><div class="dx-slip"><b>お刺身盛り合わせ</b><span>売価：3,800円／販売数：5食</span><span>1食の食材原価：1,596円</span></div></div>
+ <div class="dx-after"><p class="dx-kicker">AI・デジタルを取り入れると</p><h4>メニューごとの売上・粗利が並ぶ</h4><div class="dx-empty" aria-hidden="true">ボタンを押して、変化を見てみましょう。</div><div class="dx-result" id="dx-result-food"><div class="dx-table-wrap"><table><caption>サンプルの売上と食材原価から計算</caption><thead><tr><th>メニュー</th><th>売上</th><th>食材原価</th><th>粗利</th></tr></thead><tbody><tr><th>から揚げ定食</th><td>13,000円</td><td>4,550円</td><td>8,450円</td></tr><tr><th>お刺身盛り合わせ</th><td>19,000円</td><td>7,980円</td><td>11,020円</td></tr></tbody></table></div><p class="dx-check">ここでの粗利は売上−食材原価。人件費・家賃などは含みません。</p><p>売上だけでなく、原価や販売数を見ながら、価格・仕入れ・メニュー構成を考えられます。</p></div></div></div>
+ <div class="dx-controls"><button type="button" class="dx-run" aria-controls="dx-result-food">メニュー別の数字を見る <span aria-hidden="true">→</span></button><button type="button" class="dx-reset">最初に戻す</button><p class="dx-status" role="status" aria-live="polite"></p></div>
+ <p class="dx-takeaway">数字を集める作業から、数字を見て考える時間へ。</p><p class="dx-prep">まず用意するもの：メニュー別の売上・販売数・食材原価。</p></article><article class="dx-panel" id="dx-office" aria-labelledby="dx-heading-office">
+ <div class="dx-panel-intro"><img src="/hiroshiyama_DX_PJ/assets/img/themes/backoffice.webp" alt="" width="120" height="120" loading="lazy"><div><p class="dx-kicker">バックオフィスの活用イメージ</p><h3 id="dx-heading-office">一枚ずつの転記から、一覧での確認へ。</h3><p>レシートの内容を整理し、人が確認する箇所を見つけやすくします。</p></div></div>
+ <div class="dx-comparison"><div class="dx-before"><p class="dx-kicker">いまの仕事</p><h4>日付・支払先・金額を一件ずつ入力</h4><div class="dx-slip"><b>事務用品店｜レシート</b><span>9月2日／コピー用紙</span><span>合計：3,280円</span></div><div class="dx-slip"><b>カフェ｜レシート</b><span>9月3日／飲食代</span><span>合計：1,200円／利用目的は未記載</span></div></div>
+ <div class="dx-after"><p class="dx-kicker">AI・デジタルを取り入れると</p><h4>一覧になり、確認する場所が分かる</h4><div class="dx-empty" aria-hidden="true">ボタンを押して、変化を見てみましょう。</div><div class="dx-result" id="dx-result-office"><div class="dx-table-wrap"><table><caption>読み取り・分類結果のサンプル</caption><thead><tr><th>日付</th><th>支払先</th><th>金額</th><th>確認点</th></tr></thead><tbody><tr><td>9/2</td><th>事務用品店</th><td>3,280円</td><td>原本と照合</td></tr><tr><td>9/3</td><th>カフェ</th><td>1,200円</td><td><strong>利用目的を確認</strong></td></tr></tbody></table></div><p class="dx-check">カフェの利用目的が不明です。内容を確認して費目を判断します。</p><p>AIの読み取り結果を原本と照合し、最終的な会計処理は担当者が確認します。</p></div></div></div>
+ <div class="dx-controls"><button type="button" class="dx-run" aria-controls="dx-result-office">整理された一覧を見る <span aria-hidden="true">→</span></button><button type="button" class="dx-reset">最初に戻す</button><p class="dx-status" role="status" aria-live="polite"></p></div>
+ <p class="dx-takeaway">すべて手入力する負担を減らし、確認が必要なところに集中できます。</p><p class="dx-prep">まず用意するもの：レシートや請求書の写真・PDF。</p></article><p class="dx-bottom-note">実際に取り組む課題と使うツールは、参加事業者とのワークショップを通じて決めます。</p><a class="dx-next" href="#entry">自社での取り組みを考えてみる <span aria-hidden="true">→</span></a></div></section>
 <section id="flow" class="section sec-flow tier-deep" aria-labelledby="flow-h">
   <div class="creatures" aria-hidden="true">
     <img class="creature a-drift s1" src="/hiroshiyama_DX_PJ/assets/img/creatures/jelly-1.webp" width="230" height="373" alt="" loading="lazy" decoding="async" onerror="this.remove()">
@@ -674,52 +768,19 @@
 <!-- ============================================================
      10. お申し込み（最深部）
      ============================================================ -->
-<section id="entry" class="section sec-entry tier-deep" aria-labelledby="entry-h">
-  <div class="creatures" aria-hidden="true">
-    <img class="creature a-sway s1" src="/hiroshiyama_DX_PJ/assets/img/creatures/coral.webp" width="420" height="391" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-drift s3" src="/hiroshiyama_DX_PJ/assets/img/creatures/jelly-2.webp" width="260" height="457" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-    <img class="creature a-plume b1" src="/hiroshiyama_DX_PJ/assets/img/creatures/volcano.webp" width="460" height="651" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-  </div>
-  <div class="wrap entry-inner">
-    <p class="eyebrow">まずは一歩、踏み出してみませんか</p>
-    <h2 id="entry-h"><span class="h-rule">小さな船も、船団になれば、越えられる潮がある。</span></h2>
-    <p class="lead">「難しそう」「うちには関係ない」と思う前に、まずはお気軽にご相談ください。<strong class="free-mark">参加費は無料です。</strong></p>
-
-    <!-- 注記はカードの「前」に置くこと。以前は後ろにあったので、読者は
-         先に押せないカードを見て「壊れている」と受け取っていた
-         （第三者レビューの指摘 2026-09-07）。先に事情を伝えてから並べる。 -->
-    <p class="note note-lead">※ 説明会の日程・お申し込みフォーム・お問い合わせ先は現在調整中です。下の「準備中」の2つは、確定次第この場所でご案内します。</p>
-
-    <ul class="grid grid-3 cta-grid">
-      <li>
-        <div class="card cta is-pending">
-          <h3 class="card-title">説明会に参加する</h3>
-          <span class="cta-sub">日程調整中／確定次第ご案内します</span>
-          <span class="cta-badge">準備中</span>
-        </div>
-      </li>
-      <li>
-        <div class="card cta is-pending">
-          <h3 class="card-title">参加を相談する</h3>
-          <span class="cta-sub">個別相談も受け付けています</span>
-          <span class="cta-badge">準備中</span>
-        </div>
-      </li>
-      <li>
-        <a class="card cta" href="#themes">
-          <h3 class="card-title">募集テーマを見る</h3>
-          <span class="cta-sub">3つのテーマの詳細を確認</span>
-          <span class="chev" aria-hidden="true"></span>
-        </a>
-      </li>
-    </ul>
-
-  </div>
-</section>
+<section id="entry" class="section harbor-entry" aria-labelledby="entry-h">
+<div class="wrap harbor-inner"><p class="harbor-kicker">FUNADE — ともに、あたらしい海へ</p>
+<div class="harbor-fleet" aria-hidden="true"><svg viewBox="0 0 48 48"><use href="#ic-ship"></use></svg><svg viewBox="0 0 48 48"><use href="#ic-ship"></use></svg><svg viewBox="0 0 48 48"><use href="#ic-ship"></use></svg></div>
+<p class="harbor-overline">次は、あなたの船も。</p><h2 id="entry-h">ひとりで抱えていた悩みを、<br>一緒に進む一歩に。</h2><p class="harbor-lead">「うちでもできるかな」からで大丈夫。<br>まずは、日々の仕事の困りごとを持ち寄ってください。</p>
+<p class="harbor-free">参加費無料 <span>／ 専門家と仲間が伴走</span></p>
+<div class="harbor-action"><div><h3>まずは、自社が対象か確かめる</h3><p>5つの質問で、対象の目安が分かります。</p></div><a href="#target" data-fitcheck class="harbor-button">自社が対象か確認する <span aria-hidden="true">→</span></a></div>
+<div class="harbor-pending"><h3>説明会・参加相談の受付は準備中です</h3><p>説明会の日程・申込フォーム・お問い合わせ先は、確定次第この場所でご案内します。</p></div>
+<div class="harbor-links"><a href="#themes">募集テーマを確認する</a><a href="#schedule">スケジュールを見る</a><a href="#faq">よくある質問を見る</a></div>
+</div></section>
 
 </div><!-- /.deep-zone -->
 
-<a class="sticky-cta" href="#entry">参加を相談する</a>
+<a class="sticky-cta" href="#entry">参加について確認する</a>
 </div><!-- /.cta-rail -->
 </main>
 
@@ -1027,5 +1088,35 @@
 
 
 </script>
+<script id="business-demo-script">
+(function(){
+ 'use strict';
+ var root=document.getElementById('work-demo');if(!root)return;
+ var panels=Array.from(root.querySelectorAll('.dx-panel'));
+ var selectors=Array.from(root.querySelectorAll('[data-demo]'));
+ function reset(panel){
+  panel.classList.remove('is-revealed');
+  panel.querySelector('.dx-result').hidden=true;
+  panel.querySelector('.dx-run').disabled=false;
+  panel.querySelector('.dx-run').setAttribute('aria-expanded','false');
+  panel.querySelector('.dx-status').textContent='';
+ }
+ function choose(id){
+  panels.forEach(function(panel){panel.hidden=panel.id!==id;});
+  selectors.forEach(function(button){button.setAttribute('aria-pressed',button.dataset.demo===id?'true':'false');});
+ }
+ root.classList.add('dx-enhanced');panels.forEach(reset);choose(panels[0].id);
+ selectors.forEach(function(button){button.addEventListener('click',function(){choose(button.dataset.demo);});});
+ panels.forEach(function(panel){
+  panel.querySelector('.dx-run').addEventListener('click',function(){
+   panel.classList.add('is-revealed');panel.querySelector('.dx-result').hidden=false;
+   this.disabled=true;this.setAttribute('aria-expanded','true');
+   panel.querySelector('.dx-status').textContent='整理後のサンプルを表示しました。内容を確認してみましょう。';
+  });
+  panel.querySelector('.dx-reset').addEventListener('click',function(){reset(panel);panel.querySelector('.dx-run').focus();});
+ });
+})();
+</script>
 </body>
 </html>
+
