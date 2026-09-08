@@ -248,6 +248,51 @@
 })();
 
 /* ============================================================
+   見出しの下線 ― 画面の中央に来たら引く
+   ============================================================
+   きっかけは「見出しの上端が画面の中央より上に来たとき」。
+   rootMargin の下側を -50% にすると、見張る範囲が画面の上半分になる。
+   見出しがそこへ入った瞬間＝中央を越えた瞬間に一度だけ引く。
+
+   -50% -50%（中央の一本線）にしないのは、開いた時点で中央より少し上に
+   止まっている見出し（リンクで途中へ飛んできた場合）が、線に触れないまま
+   引かれずに残るため。上半分ぜんぶを見張れば、その場合も拾える。
+
+   画面より上へ完全に外れている見出しは、そのときは引かれない。上へ戻れば
+   上半分に入って引かれるので、見えている場所で線が欠けることはない
+   （#faq へ直接飛んで実測 2026-09-08）。
+
+   引く動きそのものは CSS の transition（.5s ease-out）。ここでするのは
+   クラスを足すことだけで、足したら見張りをやめる（戻しては引き直さない）。
+
+   このファイルが読めなければ .rule-anim が付かず、線は最初から引かれた
+   状態で出る。 */
+(function () {
+  /* :has() は使わない。querySelectorAll に渡すと、対応していないブラウザで
+     例外になり、この下の目次まで巻き添えで止まる。線から親を辿る。 */
+  var rules = document.querySelectorAll('h2 .h-rule');
+  if (!rules.length || !('IntersectionObserver' in window)) return;
+  var heads = [];
+  Array.prototype.forEach.call(rules, function (r) {
+    if (heads.indexOf(r.parentElement) < 0) heads.push(r.parentElement);
+  });
+
+  /* 先にクラスを足して「0から引く」状態にする。CSSより後にJSが走るので、
+     一瞬引かれた線が見えないよう、描画の前に付けたい。 */
+  document.documentElement.classList.add('rule-anim');
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (!en.isIntersecting) return;
+      en.target.classList.add('is-ruled');
+      io.unobserve(en.target);
+    });
+  }, { rootMargin: '0px 0px -50% 0px' });
+
+  heads.forEach(function (h) { io.observe(h); });
+})();
+
+/* ============================================================
    スマホの目次 ― 上乗せぶんだけ
    ============================================================
    開閉そのものは <details> が持っている。ここで足すのは2つだけ:

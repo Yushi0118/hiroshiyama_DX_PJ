@@ -402,14 +402,7 @@ h2{
    引く動きは background-size の横幅（0%→100%）。% は断片ごとの幅を基準に
    解決されるので、行の長さが違っても同時に引き終わる。
 
-   スクロール連動は生き物と同じ仕組みで、JSは使わない。script.js は対象診断
-   専用のままにしておきたいのと、対応していないブラウザ（今の Safari /
-   Firefox）では fill:both の終端＝引き終わった状態で静止するだけで、線が
-   消えることはないため。 */
-@keyframes head-rule{
-  from{ background-size:0% var(--rule-w); }
-  to  { background-size:100% var(--rule-w); }
-}
+   既定は「引き終わった状態」。JSが読めなければ線はそのまま出ている。 */
 h2 .h-rule{
   --rule-w:5px;
   display:inline;
@@ -425,29 +418,28 @@ h2 .h-rule{
      近づく）。自分の行に寄せるほうが、どの行の線かも分かりやすい。 */
   padding-bottom:.04em;
 }
-@supports (animation-timeline: view()){
-  @media (prefers-reduced-motion:no-preference){
-    /* 進み具合は「見出しが画面を通り抜ける割合」で測る。線の側に view() を
-       直接書くと、時間軸の基準がその線自身になってしまい、数pxスクロール
-       した瞬間に引き終わる＝実質動かない（実測で currentTime が 0.29% の
-       まま張り付いていた）。見出しに名前付きの時間軸を作り、参照する。 */
-    h2{view-timeline-name:--head-in;}
-    h2 .h-rule{
-      animation:head-rule linear both;
-      animation-timeline:--head-in;
-      /* cover は「見出しが画面下端に現れてから上端を抜けるまで」。
-         見出しの高さによらず一定の速さで引けるので、1行の見出しでも
-         3行の見出しでも同じ体感になる。
+/* 引くきっかけは「見出しが画面の中央に来たとき」（依頼主 2026-09-08。
+   hiroshima-colorful.com と同じ動きに、という指示）。
 
-         引き終わりは早めにする。18%〜48% にしていたときは、見出しの上端が
-         画面の 80%〜42% の高さにいる間ずっと引いている状態で、読む位置
-         （画面の中ほど）に来てもまだ線が伸びている途中だった。読みながら
-         線が動くと目障りで、下線としても読み取りにくい（依頼主から
-         「視認性が良くない」2026-09-07）。いまは 89%〜66%、つまり画面の
-         下3分の1にいる間に引き切る。目に留まる位置では常に引き終わっている。 */
-      animation-range:cover 10% cover 30%;
-    }
-  }
+   参考サイトの実装を実際に読んで合わせた ―― あちらは
+   `strong::after{width:0; transition:.5s ease-out}` を IntersectionObserver で
+   足したクラスから 0→102% にしている。**スクロール連動ではなく、一度きり
+   0.5秒で引く**動き。こちらも同じにする。
+
+   以前はスクロール連動（`animation-timeline:view()`）だったが、それだと
+   スクロールを止めれば線も途中で止まり、戻せば消える。「中央に来たら引かれる」
+   にはならない。
+
+   JSが無いときは線が最初から引かれた状態（下の既定のまま）。script.js が
+   読めたときだけ .rule-anim が付いて、0から引く動きになる。 */
+html.rule-anim h2 .h-rule{
+  background-size:0% var(--rule-w);
+  transition:background-size .5s ease-out;
+}
+html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
+/* 動きを減らす設定では、引く動きをやめて最初から出す */
+@media (prefers-reduced-motion:reduce){
+  html.rule-anim h2 .h-rule{background-size:100% var(--rule-w);transition:none;}
 }
 
 .lead{
