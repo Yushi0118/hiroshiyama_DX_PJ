@@ -1321,13 +1321,53 @@ h2 .h-rule{
    強まるので、待つ長さがそのまま見える。長押しでiOSの「コピー」の
    吹き出しが出ると数えが中断されるので、選択と吹き出しを止める。 */
 [data-nightswitch]{
+  position:relative;
+  /* 光を後ろへ回すための入れ物。これが無いと z-index:-1 がページ全体の
+     重なりに出ていき、ヒーローの絵（z-index:-1）と同じ層に落ちる。 */
+  isolation:isolate;
   -webkit-touch-callout:none;
   -webkit-user-select:none;user-select:none;
   border-radius:var(--r-sm);
 }
-[data-nightswitch].is-charging{
-  box-shadow:0 0 0 2px rgba(var(--gold-rgb),.85), 0 0 24px rgba(var(--gold-rgb),.55);
-  transition:box-shadow 3s linear;
+/* 押している3秒間の合図。**囲いは作らない。**
+   金の角丸の枠は、このページのどこにも無い形（器は水彩と金の細線でできて
+   いる）なので、そこだけ「入力欄の枠」に見えた（依頼主 2026-09-08）。
+
+   代わりに、下線が左から引かれ、後ろから光が差す。線は見出しの下線と
+   同じ言語で、どこまで来たか＝あと何秒かが読み取れる。光は世界観の側。
+
+   どちらも絶対配置にしてある。[data-nightswitch] は display:flex なので、
+   位置を持たせないと擬似要素が flex の項目として並びに入り、gap のぶん
+   ロゴがずれる。 */
+[data-nightswitch]::before,
+[data-nightswitch]::after{content:'';position:absolute;pointer-events:none;}
+/* 光。ロゴの後ろ。楕円にして、絵の高さから大きく外へ出さない */
+[data-nightswitch]::before{
+  inset:-24% -6%;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(var(--gold-rgb),.42), rgba(var(--gold-rgb),0) 62%);
+  opacity:0;transform:scale(.35);
+  z-index:-1;
+}
+/* 線。ロゴの下に、左から引く */
+[data-nightswitch]::after{
+  left:0;right:0;bottom:-.34em;height:3px;
+  background:var(--gold);
+  transform:scaleX(0);transform-origin:left center;
+}
+[data-nightswitch].is-charging::before{
+  opacity:1;transform:scale(1);
+  transition:opacity 3s linear, transform 3s linear;
+}
+[data-nightswitch].is-charging::after{
+  transform:scaleX(1);
+  transition:transform 3s linear;
+}
+/* 動きを減らす設定では、3秒かけずにその場で出す。押している合図そのものは
+   残さないと、3秒待つ理由が伝わらない。 */
+@media (prefers-reduced-motion:reduce){
+  [data-nightswitch].is-charging::before,
+  [data-nightswitch].is-charging::after{transition:none;}
 }
 /* 見出しの中の一部の語に、水彩の下線を敷く（完成イメージのとおり）。
 
