@@ -1558,7 +1558,6 @@ h2 .h-rule{
      auto と同じ扱いになり、ロゴの実寸（1436px）が max-content として効いて
      板が段いっぱい（640px）まで伸びた（実測 2026-09-07）。 */
   .foot-logo img{width:384px;}
-  .lockup-item img{height:52px;}
 }
 /* ロゴは各公式サイトへのリンク（依頼主 2026-09-05）。
    絵だけのリンクなので、押せる範囲が絵の高さぶんしかないと指で狙えない。
@@ -1567,6 +1566,10 @@ h2 .h-rule{
   display:inline-flex;align-items:center;
   min-height:44px;padding:4px 8px;border-radius:var(--r-sm);
 }
+/* ロゴの高さ。板の内寸に収まる上限は、2つのロゴの幅（高さ×143/72 と
+   高さ×388/192）＋各項目の左右余白16px×2＋間26px×2＋×印26px で決まる。
+   内寸304px（幅360の板）なら48pxまで、384px（幅440の板）なら68pxまで。
+   ここは全画面共通の下限として控えめに置き、余地のある幅で下から上書きする。 */
 .lockup-item img{height:clamp(34px,5vw,46px);width:auto;}
 /* ホバーで色は付けない（依頼主 2026-09-05）。ロゴそのものが目印なので、
    下地を金に染めると2つのロゴの色が濁って見える。
@@ -1592,8 +1595,22 @@ h2 .h-rule{
 
 @media (max-width:520px){
   .lockup{gap:10px 16px;padding:14px 18px;}
+  /* 余白と間を詰めてあるぶん、内寸322pxに対して58pxまで入る。
+     視認性を優先して52pxまで上げる（依頼主 2026-09-08）。 */
+  .lockup-item img{height:52px;}
   .lockup-name{font-size:16px;}
   .lockup-x svg{width:22px;height:22px;}
+}
+/* 広い画面（板が440px）のロゴ。内寸384pxに対して、2つのロゴと×印で366px。
+   上限68pxのところを64pxにして、左右に少しだけ余裕を残す
+   （依頼主 2026-09-08「もっと大きくして視認性を上げる」）。
+
+   **この規則は .lockup-item img の基本指定より後ろに置くこと。**
+   詳細度が同じなので、上の @media (min-width:1000px) の中に書いても、
+   あとから来る clamp(34px,5vw,46px) に負けて46pxのままになる
+   （実際に一度そう書いて効かなかった 2026-09-08）。 */
+@media (min-width:1000px){
+  .lockup-item img{height:64px;}
 }
 
 /* 読み終えた位置から各セクションへ戻れるようにする。
