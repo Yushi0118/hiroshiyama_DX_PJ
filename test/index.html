@@ -159,6 +159,14 @@
  .dx-panel{padding:20px 16px;border-radius:18px}.dx-panel-intro{align-items:flex-start;gap:12px}.dx-panel-intro img{width:54px;height:54px}.dx-panel-intro h3{font-size:21px}.dx-comparison{grid-template-columns:1fr}.dx-before,.dx-after{padding:20px 16px}.dx-switches{gap:6px}.dx-switches button{min-width:0;padding:13px 8px;font-size:14px}.dx-run{width:100%;gap:12px;padding:15px}.dx-table-wrap th,.dx-table-wrap td{padding:10px 6px}.harbor-action{flex-direction:column;align-items:stretch;padding:24px}.harbor-button{width:100%;gap:14px}.harbor-action h3{font-size:20px}#entry.harbor-entry{padding:70px 0 64px}.harbor-lead{font-size:17px}.harbor-free span{display:block}.harbor-links{gap:4px 16px}.harbor-kicker{font-size:14px;letter-spacing:.03em}
 }
 </style>
+<style id="hero-boat-motion-style">
+.hero-art .hero-boat-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;pointer-events:none}
+.hero-motion-toggle{position:absolute;right:18px;top:18px;z-index:3;background:#fffaf0ed;border:1px solid #b7b5a5;border-radius:999px;padding:9px 14px;color:#193d54;font:inherit;font-size:14px;line-height:1.5;cursor:pointer;min-height:42px}
+.hero-motion-toggle[hidden]{display:none}
+.hero-motion-toggle:focus-visible{outline:3px solid #946d2c;outline-offset:4px}
+@media(max-width:767px){.hero-motion-toggle{top:8px;right:10px;padding:7px 12px}}
+@media(prefers-reduced-motion:reduce){.hero-boat-canvas,.hero-motion-toggle{display:none!important}}
+</style>
 </head>
 <body>
 
@@ -1116,6 +1124,102 @@
   panel.querySelector('.dx-reset').addEventListener('click',function(){reset(panel);panel.querySelector('.dx-run').focus();});
  });
 })();
+</script>
+<script id="hero-boat-motion">
+/* Animate the original boat painting in place; no duplicated sprites or image edits.
+   Local soft displacement envelopes include the water around each hull. */
+(function(){
+ 'use strict';
+ var art=document.querySelector('.hero-art'),hero=document.getElementById('hero');
+ if(!art||!hero)return;
+ var reduce=matchMedia('(prefers-reduced-motion: reduce)');
+ var canvas=document.createElement('canvas');canvas.className='hero-boat-canvas';canvas.setAttribute('aria-hidden','true');
+ var gl;try{gl=canvas.getContext('webgl',{alpha:false,antialias:false,depth:false,powerPreference:'low-power'});}catch(e){return;}
+ if(!gl)return;
+ var vertex='attribute vec2 a;varying vec2 v;void main(){v=vec2((a.x+1.0)*.5,(1.0-a.y)*.5);gl_Position=vec4(a,0.,1.);}';
+ var fragment=`precision mediump float;
+ varying vec2 v;uniform sampler2D picture;uniform vec2 imageSize;uniform vec2 viewport;uniform vec2 position;uniform float time;uniform float mobile;
+ vec2 boat(vec2 uv,vec2 center,vec2 radius,float phase,float amplitude){
+   vec2 q=(uv-center)/radius;
+   float weight=1.0-smoothstep(.52,1.30,length(q));
+   float lift=sin(time*.95+phase)*amplitude;
+   float drift=sin(time*.63+phase*1.7)*amplitude*.32;
+   float roll=sin(time*.79+phase)*.012;
+   return weight*(vec2(drift,lift)+vec2(-(uv.y-center.y)*roll,(uv.x-center.x)*roll));
+ }
+ void main(){
+   float scale=max(viewport.x/imageSize.x,viewport.y/imageSize.y);
+   vec2 drawn=imageSize*scale;
+   vec2 uv=(v*viewport-(viewport-drawn)*position)/drawn;
+   vec2 d=vec2(0.);
+   if(mobile<.5){
+     d+=boat(uv,vec2(.578,.742),vec2(.105,.238),.2,.0038);
+     d+=boat(uv,vec2(.786,.825),vec2(.098,.267),2.1,.0043);
+     d+=boat(uv,vec2(.944,.697),vec2(.085,.20),4.2,.0034);
+     d+=boat(uv,vec2(.681,.546),vec2(.040,.097),1.4,.0023);
+     d+=boat(uv,vec2(.717,.51),vec2(.027,.068),3.2,.0015);
+     d+=boat(uv,vec2(.805,.521),vec2(.028,.075),5.0,.0021);
+     d+=boat(uv,vec2(.885,.532),vec2(.028,.075),.8,.0018);
+     d+=boat(uv,vec2(.599,.482),vec2(.027,.068),4.8,.0014);
+   }else{
+     d+=boat(uv,vec2(.743,.887),vec2(.100,.088),2.1,.0028);
+     d+=boat(uv,vec2(.6,.843),vec2(.077,.060),.3,.0022);
+     d+=boat(uv,vec2(.870,.790),vec2(.070,.059),4.2,.0024);
+     d+=boat(uv,vec2(.562,.765),vec2(.055,.043),1.6,.0017);
+     d+=boat(uv,vec2(.808,.731),vec2(.045,.035),3.6,.0015);
+     d+=boat(uv,vec2(.417,.729),vec2(.040,.032),5.1,.0012);
+   }
+   // Fade in the movement from an exact copy of the still painting.
+   d*=smoothstep(0.,1.2,time);
+   gl_FragColor=texture2D(picture,clamp(uv-d,vec2(.001),vec2(.999)));
+ }`;
+ function shader(type,src){var s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error('shader');return s;}
+ var program;
+ try{program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vertex));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fragment));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))return;}catch(e){return;}
+ gl.useProgram(program);
+ var buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
+ var a=gl.getAttribLocation(program,'a');gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
+ var uniforms={};['picture','imageSize','viewport','position','time','mobile'].forEach(function(k){uniforms[k]=gl.getUniformLocation(program,k);});
+ var texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);gl.uniform1i(uniforms.picture,0);
+ art.appendChild(canvas);
+ var paused=false;
+ var toggle=document.createElement('button');toggle.type='button';toggle.className='hero-motion-toggle';toggle.textContent='舟の動きを止める';toggle.hidden=true;toggle.setAttribute('aria-pressed','false');hero.appendChild(toggle);
+ toggle.addEventListener('click',function(){paused=!paused;toggle.setAttribute('aria-pressed',paused?'true':'false');toggle.textContent=paused?'舟の動きを再生':'舟の動きを止める';if(paused)stop();else start();});
+ var url='',ready=false,visible=true,dead=false,raf=0,last=0,elapsed=0,previous=0,version=0;
+ function stop(){cancelAnimationFrame(raf);raf=0;previous=0;}
+ function start(){if(!raf&&ready&&visible&&!reduce.matches&&!document.hidden&&!dead&&!paused)raf=requestAnimationFrame(frame);}
+ function frame(now){
+   raf=0;if(!ready||!visible||reduce.matches||document.hidden||dead||paused)return;
+   if(now-last>=32){if(previous)elapsed+=Math.min(now-previous,80)/1000;previous=now;last=now;gl.uniform1f(uniforms.time,elapsed);gl.drawArrays(gl.TRIANGLES,0,6);canvas.style.opacity='1';}
+   start();
+ }
+ function sync(){
+   if(dead)return;
+   if(reduce.matches){stop();canvas.style.opacity='0';toggle.hidden=true;return;}
+   toggle.hidden=!ready;
+   var css=getComputedStyle(art),rect=art.getBoundingClientRect();
+   if(!rect.width||!rect.height)return;
+   var density=Math.min(devicePixelRatio||1,1.4,Math.sqrt(1800000/(rect.width*rect.height)));
+   canvas.width=Math.round(rect.width*density);canvas.height=Math.round(rect.height*density);gl.viewport(0,0,canvas.width,canvas.height);gl.uniform2f(uniforms.viewport,rect.width,rect.height);
+   var pos=css.backgroundPosition.split(' ');gl.uniform2f(uniforms.position,parseFloat(pos[0])/100,parseFloat(pos[1]||'50%')/100);
+   var match=css.backgroundImage.match(/url\(["']?(.*?)["']?\)/);if(!match)return;
+   if(url===match[1]){start();return;}
+   url=match[1];ready=false;stop();canvas.style.opacity='0';var token=++version;
+   var img=new Image();img.onload=function(){
+     if(token!==version||dead)return;
+     try{gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,img);}catch(e){return;}
+     gl.uniform2f(uniforms.imageSize,img.naturalWidth,img.naturalHeight);gl.uniform1f(uniforms.mobile,img.naturalHeight>img.naturalWidth?1:0);elapsed=0;ready=true;toggle.hidden=reduce.matches;start();
+   };img.onerror=function(){if(token===version){ready=false;canvas.style.opacity='0';}};img.src=url;
+ }
+ new ResizeObserver(sync).observe(art);
+ new MutationObserver(sync).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+ if('IntersectionObserver' in window)new IntersectionObserver(function(entries){visible=entries[0].isIntersecting;if(visible)start();else stop();}).observe(hero);
+ document.addEventListener('visibilitychange',function(){if(document.hidden)stop();else start();});
+ reduce.addEventListener('change',sync);
+ canvas.addEventListener('webglcontextlost',function(e){e.preventDefault();dead=true;stop();canvas.style.opacity='0';toggle.hidden=true;});
+ sync();
+})();
+
 </script>
 </body>
 </html>
