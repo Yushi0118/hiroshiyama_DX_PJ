@@ -1464,15 +1464,12 @@ h2 .h-rule{
      落ちていた（実測 2026-09-07。依頼主から「美しくない」）。 */
   .foot-cols{
     display:flex;align-items:flex-start;justify-content:space-between;
-    gap:40px;text-align:left;
+    gap:40px;
   }
-  .foot-id{flex:0 1 auto;}
-  .foot-id .foot-logo{margin-left:0;margin-right:0;}
-  .foot-id .foot-brand{justify-content:flex-start;}
-  /* 右の段は右端ぞろえ。中央ぞろえだと、説明文の幅で決まる段の真ん中に
-     板が浮いて、右端との間に70pxの半端な空きができる（実測）。 */
-  .credit{flex:0 1 auto;text-align:right;}
-  .credit .lockup{margin-left:auto;margin-right:0;}
+  /* 段の中はすべて中央ぞろえ。板・名前・説明が板の真ん中で1本に通る
+     （完成イメージ 2026-09-07 のとおり）。段の幅は中身が決めるので、
+     左は板が、右は長い一文が幅を決め、板はその中央に来る。 */
+  .foot-id,.credit{flex:0 1 auto;text-align:center;}
 }
 
 /* フッターのロゴ。ロゴは白地で使う前提の色（紺の文字）なので、
@@ -1533,15 +1530,35 @@ h2 .h-rule{
 }
 @media (min-width:900px){
   .foot-logo,.lockup{min-width:360px;}
+  /* 「主催・運営」は左の愛称と対になる行なので、同じ書体・同じ大きさに
+     する。12.5pxの小さなラベルのままだと右の段だけ軽く見えた。 */
+  .credit-label{font-family:var(--serif);font-size:20px;letter-spacing:.12em;}
   /* 縦に積むときの段間（.credit の margin-top:2.2em）は、横に並べるときは
      不要。**この打ち消しは .credit{margin-top:2.2em} より後ろに書くこと** ――
      詳細度が同じなので、上の @media (min-width:900px) の中に書いても
      あとから来る素の .credit に負ける。実際それで右の段だけ40px下がって
      いて、左右の白い板がそろわなかった（実測 2026-09-07）。 */
   .credit{margin-top:0;}
-  /* 3行目（正式名称と一文）も高さをそろえる。2行目の「主催・運営」は
-     13pxで箱が18px、左の愛称は20pxで28px。そのままだと下の行が10pxずれる。 */
+  /* 3行目（正式名称と一文）も高さをそろえる。行の高さが揃っていないと
+     下の行が数pxずれる。 */
   .credit-label{min-height:28px;}
+}
+
+/* 板を大きく見せるのは 1000px 以上。フッターはページの締めなので、
+   ここだけは白い面をしっかり見せる（完成イメージ 2026-09-07）。
+
+   **900〜999px でこれをやってはいけない。** 左右の板が最低 440px ずつ、
+   間が 40px で計 920px 必要になり、900px の画面では .wrap（852px）から
+   44pxはみ出す（実測。tools/check.js が「中身が画面からはみ出している
+   944 > 900」で検出した 2026-09-07）。この帯では 360px の板のままにする。 */
+@media (min-width:1000px){
+  .foot-logo,.lockup{min-width:440px;min-height:120px;padding:20px 28px;}
+  /* **ここに % を書かないこと。** 板は width:fit-content なので、幅を決める
+     ときに中身の max-content を測る。その計算では % の基準が定まらず
+     auto と同じ扱いになり、ロゴの実寸（1436px）が max-content として効いて
+     板が段いっぱい（640px）まで伸びた（実測 2026-09-07）。 */
+  .foot-logo img{width:384px;}
+  .lockup-item img{height:52px;}
 }
 /* ロゴは各公式サイトへのリンク（依頼主 2026-09-05）。
    絵だけのリンクなので、押せる範囲が絵の高さぶんしかないと指で狙えない。
