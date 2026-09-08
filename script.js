@@ -246,3 +246,31 @@
     toggle();
   });
 })();
+
+/* ============================================================
+   スマホの目次 ― 上乗せぶんだけ
+   ============================================================
+   開閉そのものは <details> が持っている。ここで足すのは2つだけ:
+
+   - リンクを押したら閉じる。閉じないと、飛んだ先が目次の面に隠れたまま
+     になる（面は position:fixed で画面を覆っている）。
+   - Esc で閉じる。<details> は Esc を見ないので、自分で拾う。
+
+   このファイルが読めなくてもメニューは開いて閉じられる。 */
+(function () {
+  var menu = document.getElementById('menu');
+  if (!menu) return;
+
+  menu.addEventListener('click', function (e) {
+    if (e.target.closest('a')) menu.open = false;
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' || !menu.open) return;
+    menu.open = false;
+    /* 閉じたあとの居場所を、開いたときのボタンへ戻す。
+       戻さないと、次の Tab がページの先頭からやり直しになる。 */
+    var btn = menu.querySelector('summary');
+    if (btn) btn.focus();
+  });
+})();

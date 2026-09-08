@@ -1251,6 +1251,9 @@ h2 .h-rule{
   .hero-lead {animation:hero-rise .7s 1.28s  ease-out both;}
   .hero-cta  {animation:hero-rise .7s 1.60s  ease-out both;}
   .hero-nav  {animation:hero-rise .7s 1.80s  ease-out both;}
+  /* スマホの目次のボタン。ヒーローのナビは縦画面では出ないので、
+     入りの最後はこれになる。他より少し遅らせて、最後に添える。 */
+  .menu-btn  {animation:hero-rise .7s 1.95s  ease-out both;}
 }
 
 @supports (animation-timeline: scroll()){
@@ -1680,6 +1683,93 @@ h2 .h-rule{
    スマホ用の固定CTA（767px以下でのみ表示）
    ============================================================ */
 .sticky-cta{display:none;}
+
+/* ============================================================
+   スマホ用の目次（767px以下でのみ表示）
+   ============================================================
+   開閉は <details>。JSが無くても開いて閉じられる。script.js が足すのは
+   「リンクを押したら閉じる」「Escで閉じる」だけ。
+
+   重なりは 目次のボタン(60) > 目次の面(59) > 追従CTA(50)。ボタンを面より
+   上に置かないと、開いたあと閉じるものが押せなくなる。 */
+.menu{display:none;}
+
+@media (max-width:767px){
+  .menu{display:block;}
+
+  .menu-btn{
+    position:fixed;top:12px;right:12px;z-index:60;
+    width:48px;height:48px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:50%;
+    background:var(--brand);
+    box-shadow:var(--lift-3);
+    cursor:pointer;
+    /* 既定の三角を消す。list-style だけでは Safari に残る */
+    list-style:none;
+  }
+  .menu-btn::-webkit-details-marker{display:none;}
+
+  /* 三本線。真ん中の線が要素そのもので、上下は擬似要素。
+     開いたら真ん中を消して上下を×に組み替える。 */
+  .menu-bars,
+  .menu-bars::before,
+  .menu-bars::after{
+    width:20px;height:2px;border-radius:2px;background:#fff;
+  }
+  .menu-bars{position:relative;}
+  .menu-bars::before,.menu-bars::after{content:'';position:absolute;left:0;}
+  .menu-bars::before{top:-6px;}
+  .menu-bars::after{top:6px;}
+  .menu[open] .menu-bars{background:transparent;}
+  .menu[open] .menu-bars::before{top:0;transform:rotate(45deg);}
+  .menu[open] .menu-bars::after{top:0;transform:rotate(-45deg);}
+  @media (prefers-reduced-motion:no-preference){
+    .menu-bars,.menu-bars::before,.menu-bars::after{
+      transition:transform .2s ease, top .2s ease, background-color .2s ease;
+    }
+  }
+
+  .menu-panel{
+    position:fixed;inset:0;z-index:59;
+    display:flex;flex-direction:column;
+    padding:80px 24px 28px;
+    /* 地は不透明。半透明にすると、後ろのグラデーションが上下で変わって
+       面の中で色が動く（器の地は透かさない、の約束）。 */
+    background:var(--card-deep);
+    overflow-y:auto;
+    /* 面の中で指を滑らせたときに、後ろのページまで動かさない */
+    overscroll-behavior:contain;
+  }
+  /* 縦の中央ぞろえは auto の余白で取る。**justify-content:center は使わない。**
+     項目の合計が画面より高いとき（横向きのスマホ）、上の項目が画面の外へ
+     はみ出して、スクロールしても触れなくなる。auto の余白なら、入りきらない
+     ときは 0 に潰れて上から素直に並ぶ。 */
+  .menu-panel a:first-of-type{margin-top:auto;}
+  .menu-panel .menu-cta{margin-bottom:auto;}
+  .menu-panel a{
+    display:flex;align-items:center;
+    min-height:56px;padding:0 6px;
+    font-family:var(--serif);font-size:19px;font-weight:600;
+    color:var(--paper);
+    border-bottom:1px solid rgba(var(--gold-rgb),.28);
+  }
+  /* **`.menu-panel a` より詳細度を上げること。** `.menu-cta` だけだと
+     (0,1,0) で `.menu-panel a` の (0,1,1) に負け、文字色が紙色のまま
+     金地に乗って 2.23:1 まで落ちる（tools/check.js が検出した 2026-09-08）。
+     下線も同じ理由で消えなかった。 */
+  .menu-panel .menu-cta{
+    justify-content:center;
+    margin-top:26px;border-bottom:0;
+    border-radius:999px;
+    background:var(--gold);color:var(--ink-deep);
+    font-weight:700;
+  }
+  @media (hover:hover){
+    .menu-panel a:hover{color:var(--gold);}
+    .menu-panel .menu-cta:hover{background:#fff;color:var(--brand);}
+  }
+}
 
 /* ============================================================
    タブレット（1099px以下）
@@ -2551,7 +2641,7 @@ h2 .h-rule{
    印刷
    ============================================================ */
 @media print{
-  body::before,body::after,.sticky-cta,.hero-art{display:none;}
+  body::before,body::after,.sticky-cta,.menu,.hero-art{display:none;}
   .card{box-shadow:none;border:1px solid #999;}
   /* 個別に上書きすると詳細度の高いルール（.tier-deep .card p など）が
      残り、白紙に薄い水色で印刷されてしまう。まとめて黒に倒す。 */

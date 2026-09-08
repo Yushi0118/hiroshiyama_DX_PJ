@@ -29,6 +29,25 @@
 </head>
 <body>
 
+<!-- スマホ用の目次（767px以下でだけ出る）。
+     スマホではヒーローのページ内ナビを出しておらず、途中から別の節へ飛ぶ
+     手段がフッターの目次（最下部）しか無かった（依頼主 2026-09-08）。
+
+     開閉は <details> が持っている。**JSが無くても開いて閉じられる。**
+     script.js は「リンクを押したら閉じる」「Escで閉じる」だけを上乗せする。
+
+     本文より前に置いてあるのは、キーボードで最初に辿り着けるようにするため。 -->
+<details class="menu" id="menu">
+  <summary class="menu-btn" aria-label="メニュー"><span class="menu-bars" aria-hidden="true"></span></summary>
+  <nav class="menu-panel" aria-label="メニュー">
+    <a href="#what">できること</a>
+    <a href="#benefit">メリット</a>
+    <a href="#themes">募集テーマ</a>
+    <a href="#flow">進め方</a>
+    <a href="#entry">お申し込み</a>
+    <a class="menu-cta" href="#entry">参加を相談する</a>
+  </nav>
+</details>
 
 <main>
 
