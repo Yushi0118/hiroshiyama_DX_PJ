@@ -58,11 +58,26 @@ window.__onPaper = async function () {
      900x1200 でちょうど印が絵の中間調に乗り、3.46:1 の不合格が出た
      （実際にはそこに文字は無く、印の絵が乗っているので読める）。
      文字ノードだけを辿れば、この取り違えは起きない。 */
+  /* 読み上げ専用に隠してある文字は測らない。
+     1px の箱に overflow:hidden で押し込む定番のやり方（.hero-brand の
+     「ひろしま協働DXプロジェクト」、.lockup-name など）では、**箱は1pxでも
+     中の文字の行は元の幅のまま**返ってくる。矩形の大きさで弾こうとしても
+     素通りし、絵の適当な一点を「文字の下地」として測ってしまう。
+     834x1112 で 3.57:1 の不合格が出たが、そこに見える文字は無かった
+     （2026-09-09）。祖先をたどって、4px 未満の箱に入っていたら飛ばす。 */
+  const hiddenForReaders = node => {
+    for (let e = node.parentElement; e && e !== document.body; e = e.parentElement) {
+      const b = e.getBoundingClientRect();
+      if (b.width < 4 || b.height < 4) return true;
+    }
+    return false;
+  };
   const lineRects = el => {
     const out = [];
     const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     for (let n = w.nextNode(); n; n = w.nextNode()) {
       if (!n.textContent.trim()) continue;
+      if (hiddenForReaders(n)) continue;
       const r = document.createRange();
       r.selectNodeContents(n);
       for (const b of r.getClientRects()) if (b.width > 1 && b.height > 1) out.push(b);
