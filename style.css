@@ -1717,6 +1717,125 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 .site-footer .gold{color:#E3C880;}
 
 /* ============================================================
+   よくあるご質問チャット
+
+   画面の右端から出す。上のハンバーガー（右上）と、スマホの追従CTA
+   （下）を避けて、縦の真ん中より少し下に置く。
+   JSが動かないときは #chat に hidden が付いたままなので出ない。
+   ============================================================ */
+.chat{position:fixed;right:0;top:58%;z-index:60;}
+.chat-launch{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px 10px 18px;
+  border:0;cursor:pointer;
+  /* 右端に貼り付く札。角丸は左側だけ */
+  border-radius:999px 0 0 999px;
+  background:var(--brand);color:#fff;
+  box-shadow:var(--lift-3);
+  font-family:var(--serif);font-size:15.5px;font-weight:600;letter-spacing:.04em;
+  transition:transform .18s ease;
+}
+.chat-launch-mark{
+  display:flex;align-items:center;justify-content:center;
+  width:38px;height:38px;flex:none;border-radius:50%;
+  background:var(--gold);color:var(--ink-deep);
+}
+.chat-launch-mark svg{width:22px;height:22px;}
+@media (hover:hover){ .chat-launch:hover{transform:translateX(-4px);} }
+.chat-launch:focus-visible{outline:3px solid var(--gold);outline-offset:3px;}
+/* 開いている間は札を引っ込める。板と重なって二重に見えるため */
+.chat.is-open .chat-launch{display:none;}
+
+.chat-panel{
+  position:fixed;right:14px;bottom:14px;
+  width:min(380px, calc(100vw - 28px));
+  max-height:min(620px, calc(100svh - 28px));
+  display:flex;flex-direction:column;
+  border-radius:var(--r-lg);
+  background:var(--card-deep);
+  box-shadow:var(--ring), 0 18px 44px rgba(3,14,32,.5);
+  overflow:hidden;
+}
+.chat-panel[hidden]{display:none;}
+@media (prefers-reduced-motion:no-preference){
+  .chat-panel{animation:chat-in .24s ease-out both;}
+}
+@keyframes chat-in{ from{opacity:0;translate:24px 0;} to{opacity:1;translate:0 0;} }
+
+.chat-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 12px 14px 18px;
+  border-bottom:1px solid rgba(var(--gold-rgb),.35);
+}
+.chat-title{margin:0;font-family:var(--serif);font-size:16px;color:#fff;}
+.chat-close{
+  /* 指で狙える大きさ。このページの決まりは44px（tools/check.js が見る） */
+  width:44px;height:44px;flex:none;
+  display:flex;align-items:center;justify-content:center;
+  border:0;border-radius:50%;background:transparent;color:var(--paper-soft);cursor:pointer;
+}
+.chat-close svg{width:20px;height:20px;}
+@media (hover:hover){ .chat-close:hover{background:rgba(255,255,255,.08);color:#fff;} }
+.chat-close:focus-visible{outline:3px solid var(--gold);outline-offset:-3px;}
+
+.chat-log{
+  flex:1 1 auto;overflow-y:auto;
+  padding:16px 16px 4px;
+  display:flex;flex-direction:column;gap:12px;
+  font-size:14.5px;line-height:1.85;
+}
+/* 吹き出し。相手（このページ）は左、こちらは右 */
+.chat-msg{max-width:88%;padding:11px 14px;border-radius:var(--r-sm);}
+.chat-bot{align-self:flex-start;background:rgba(255,255,255,.07);color:var(--paper);box-shadow:var(--ring);}
+.chat-me{align-self:flex-end;background:var(--gold);color:var(--ink-deep);font-weight:600;}
+.chat-msg strong{color:var(--gold);}
+.chat-me strong{color:var(--ink-deep);}
+.chat-src{display:block;margin-bottom:.35em;font-size:12.5px;color:var(--gold);letter-spacing:.04em;}
+.chat-guess{margin:0 0 .3em;font-size:13px;color:var(--paper-soft);}
+/* 1件ごとの断り。答えの一部として読ませたいので、吹き出しの中に置く */
+.chat-note{display:block;margin-top:.5em;font-size:12px;color:var(--paper-soft);}
+/* 質問の候補ボタン */
+.chat-chips{display:flex;flex-wrap:wrap;gap:8px;align-self:flex-start;max-width:100%;}
+.chat-chip{
+  padding:8px 14px;min-height:44px;
+  border:0;border-radius:999px;cursor:pointer;
+  background:transparent;color:var(--paper);
+  box-shadow:var(--ring);
+  font-size:13.5px;line-height:1.5;text-align:left;
+}
+@media (hover:hover){ .chat-chip:hover{background:var(--gold);color:var(--ink-deep);box-shadow:none;} }
+.chat-chip:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+
+.chat-form{display:flex;gap:8px;padding:10px 14px 6px;}
+.chat-input{
+  flex:1 1 auto;min-width:0;min-height:44px;padding:0 14px;
+  border:0;border-radius:999px;
+  background:rgba(255,255,255,.09);color:var(--paper);
+  box-shadow:var(--ring);font-size:15px;
+}
+.chat-input::placeholder{color:rgba(214,231,242,.6);}
+.chat-input:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+.chat-send{
+  flex:none;min-height:44px;padding:0 18px;
+  border:0;border-radius:999px;cursor:pointer;
+  background:var(--gold);color:var(--ink-deep);
+  font-size:14.5px;font-weight:700;
+}
+.chat-send:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+.chat-foot{margin:0;padding:4px 16px 14px;font-size:12px;line-height:1.7;color:var(--paper-soft);}
+
+/* スマホでは画面いっぱいに近い板にする。札は追従CTAの上に逃がす */
+@media (max-width:520px){
+  .chat{top:auto;bottom:82px;}
+  .chat-launch{font-size:14.5px;padding:8px 10px 8px 16px;}
+  .chat-launch-mark{width:34px;height:34px;}
+  .chat-panel{
+    right:8px;left:8px;bottom:8px;width:auto;
+    max-height:min(78svh, calc(100svh - 16px));
+  }
+}
+
+/* ============================================================
    スマホ用の固定CTA（767px以下でのみ表示）
    ============================================================ */
 .sticky-cta{display:none;}

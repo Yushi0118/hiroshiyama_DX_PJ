@@ -319,3 +319,190 @@
     if (btn) btn.focus();
   });
 })();
+
+/* ============================================================
+   よくあるご質問チャット
+
+   **答えは FAQ セクションの本文をそのまま読む。** 文言をここに書き写すと、
+   FAQ を直したときに片方だけ古くなる。拾う言葉だけ各 .faq-item の
+   data-kw に持たせてある。
+
+   外部への通信は一切しない。入力した文字はブラウザの外へ出ない。
+   照合はキーワードの一致数だけ。言い換えや要約はしない ―― FAQ は
+   「現時点の想定」なので、機械が言い換えると断定に見えてしまう。
+
+   確信が持てないときは答えを出さず、近い質問を3つ出して選んでもらう。
+   どれにも当たらなければ、個別のご相談へ寄せる。
+   ============================================================ */
+(function () {
+  'use strict';
+  var box = document.getElementById('chat');
+  var items = [].slice.call(document.querySelectorAll('.faq-item'));
+  if (!box || !items.length) return;
+
+  var launch = box.querySelector('.chat-launch');
+  var panel  = document.getElementById('chat-panel');
+  var log    = document.getElementById('chat-log');
+  var form   = box.querySelector('.chat-form');
+  var input  = document.getElementById('chat-input');
+  var closeB = box.querySelector('.chat-close');
+
+  /* FAQ をページから読み取る。質問＝summary の見出し、答え＝その次の <p>。 */
+  var faqs = items.map(function (el) {
+    var t = el.querySelector('.card-title');
+    var a = el.querySelector('summary + p, p');
+    return {
+      q: t ? t.textContent.trim() : '',
+      a: a ? a.textContent.trim() : '',
+      kw: (el.getAttribute('data-kw') || '').split('|').filter(Boolean),
+      el: el
+    };
+  }).filter(function (f) { return f.q && f.a; });
+
+  /* 全角の英数字と記号を半角に寄せ、空白と句読点を落とす。
+     「ITやデジタル」と「ｉｔやデジタル」を同じに扱うため。 */
+  function norm(str) {
+    return str
+      .replace(/[Ａ-Ｚａ-ｚ０-９]/g, function (c) {
+        return String.fromCharCode(c.charCodeAt(0) - 0xFEE0);
+      })
+      .toLowerCase()
+      .replace(/[\s\u3000、。・，．？?！!「」（）()]/g, '');
+  }
+
+  /* 一致の強さは2つに分けて数える。**混ぜてはいけない。**
+     以前は「data-kw の語＝3点、質問文と重なる2文字＝1点」を合算していたが、
+     「駐車場はありますか」が「参加に費用はかかりますか」と『ます』『すか』
+     『りま』で重なって3点に達し、的外れな候補を並べた（実測 2026-09-09）。
+
+     kw … 言い換えの語が当たった数。これが0なら、その質問のことではない。
+     gram … 質問文との2文字の重なり。順位付けの補助にだけ使う。 */
+  function scoreOf(faq, q) {
+    var kw = 0, gram = 0, i;
+    for (i = 0; i < faq.kw.length; i++) {
+      if (q.indexOf(norm(faq.kw[i])) >= 0) kw++;
+    }
+    var nq = norm(faq.q);
+    for (i = 0; i < nq.length - 1; i++) {
+      if (q.indexOf(nq.substr(i, 2)) >= 0) gram++;
+    }
+    return { kw: kw, gram: gram };
+  }
+
+  function say(who, html) {
+    var p = document.createElement('p');
+    p.className = 'chat-msg chat-' + who;
+    p.innerHTML = html;
+    log.appendChild(p);
+    log.scrollTop = log.scrollHeight;
+    return p;
+  }
+
+  function esc(str) {
+    return str.replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  /* 答えるときは、必ず「どの質問に当てたか」を先に出す。
+     取り違えていても読み手がすぐ気づける。 */
+  function answer(faq) {
+    /* FAQ は「現時点で想定している内容」。会話の形で返すと確定情報のように
+       読まれやすいので、1件ごとに断りを添える（依頼主と合意 2026-09-09）。 */
+    say('bot', '<span class="chat-src">' + esc(faq.q) + '</span>' + esc(faq.a)
+      + '<span class="chat-note">※ 現時点の想定です</span>');
+  }
+
+  function chips(list, lead) {
+    if (lead) {
+      var g = document.createElement('p');
+      g.className = 'chat-guess';
+      g.textContent = lead;
+      log.appendChild(g);
+    }
+    var wrap = document.createElement('div');
+    wrap.className = 'chat-chips';
+    list.forEach(function (faq) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chat-chip';
+      b.textContent = faq.q;
+      b.addEventListener('click', function () {
+        say('me', esc(faq.q));
+        answer(faq);
+      });
+      wrap.appendChild(b);
+    });
+    log.appendChild(wrap);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function ask(text) {
+    var raw = text.trim();
+    if (!raw) return;
+    say('me', esc(raw));
+
+    var q = norm(raw);
+    var ranked = faqs.map(function (f) {
+      return { f: f, s: scoreOf(f, q) };
+    }).sort(function (a, b) {
+      return (b.s.kw - a.s.kw) || (b.s.gram - a.s.gram);
+    });
+
+    /* 言い換えの語が当たっていて、しかも2位を引き離しているときだけ答える。
+       僅差のときは決め打ちにせず、選んでもらう。 */
+    if (ranked[0].s.kw >= 1 && ranked[0].s.kw > ranked[1].s.kw) {
+      answer(ranked[0].f);
+      return;
+    }
+    /* 候補を出すのも、言い換えの語が当たっているものだけ。
+       2文字の重なりは順位付けにしか使わない（上の scoreOf の説明を参照）。 */
+    var near = ranked.filter(function (r) { return r.s.kw >= 1; }).slice(0, 3)
+                     .map(function (r) { return r.f; });
+    if (near.length) {
+      chips(near, 'こちらのことでしょうか。近いものをお選びください。');
+    } else {
+      say('bot', 'そのご質問には、このページの内容ではお答えできませんでした。'
+        + '個別のご相談でご案内しますので、お申し込み・お問い合わせ先が'
+        + '整いましたらご連絡ください（現在準備中です）。'
+        + '下の一覧からもお選びいただけます。');
+      chips(faqs.slice(0, 3), null);
+    }
+  }
+
+  var started = false;
+  function open() {
+    box.classList.add('is-open');
+    panel.hidden = false;
+    launch.setAttribute('aria-expanded', 'true');
+    if (!started) {
+      started = true;
+      say('bot', 'ご覧いただきありがとうございます。'
+        + 'このページに書いてあることの範囲で、ご質問にお答えします。'
+        + '下からお選びいただくか、そのままご入力ください。');
+      chips(faqs.slice(0, 4), null);
+    }
+    input.focus();
+  }
+  function close() {
+    box.classList.remove('is-open');
+    panel.hidden = true;
+    launch.setAttribute('aria-expanded', 'false');
+    launch.focus();
+  }
+
+  launch.addEventListener('click', open);
+  closeB.addEventListener('click', close);
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    ask(input.value);
+    input.value = '';
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !panel.hidden) close();
+  });
+
+  /* ここまで来たら操作できる。JSが動かない環境では出さないので、
+     押しても何も起きないボタンが残らない。 */
+  box.hidden = false;
+}());
