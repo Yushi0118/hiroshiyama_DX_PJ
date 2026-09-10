@@ -1018,8 +1018,7 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
    このページは背景がページ全高に対する%で決まるため、高さが動くと
    以降の節の色と生き物の位置がまとめてずれる）。 */
 .video-frame{
-  position:relative;
-  width:100%;max-width:880px;margin:26px auto 0;
+  width:100%;max-width:880px;margin:0 auto;
   aspect-ratio:16 / 9;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:.15em;
@@ -1030,17 +1029,63 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
   box-shadow:var(--ring), var(--lift-2);
   overflow:hidden;
 }
-/* 枠の飾り。透過ではなく紺（--card-deep と同じ #0A2648）に焼き込んである。
-   透過のままだと336KB、焼き込むと104KB。--card-deep は昼夜で変わらないので
-   焼き込んでも night と食い違わない（変えるときは絵も作り直すこと）。
+/* 飾りを置く台。枠より広く取り、はみ出したぶんが左右の縁取りになる。 */
+.video-stage{position:relative;margin:26px auto 0;width:100%;}
 
-   絵の中身は左右の下だけで中央は空。文字と重ならないので幕は要らない。 */
+/* 飾りの置き方は画面の広さで変える。
+
+   **1000px 未満では枠の中に敷く。** 枠は .wrap いっぱいまで広がるので、
+   外に出す余地が（画面との差＝左右24pxしか）無い。実際 390px では
+   縁取りがほぼ画面の外へ出て見えなかった（実測 2026-09-10）。
+   枠の幅が 880px で頭打ちになる 1000px 以上でだけ、外に出す余地ができる
+   （1000pxで左右60px、1280pxで200px）。
+
+   絵は透過なので、中に敷いても外に出しても同じ1枚で足りる。 */
 .video-deco{
   position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover;pointer-events:none;
+  max-width:none;object-fit:cover;
+  border-radius:var(--r-md);
+  /* 枠の地より前、文字より後ろ。枠には z-index を持たせない（持たせると
+     重なりの箱ができて、中の文字を飾りより前に出せなくなる）。 */
+  z-index:1;pointer-events:none;
 }
-/* 印と文字は飾りより前に出す */
-.video-play,.video-soon,.video-note{position:relative;z-index:1;}
+.video-frame{position:relative;}
+/* 中に敷くときは、文字の下だけ紺を戻す。飾りの上に白系の文字を置くと
+   サンゴの明るい部分に乗って読めない（390pxで「準備中です」が 1.19:1、
+   Coming Soon が 1.95:1 まで落ちた。実測 2026-09-10）。
+   中央だけ濃く、縁へ向けて消えるので、左右のサンゴは見えたまま残る。 */
+.video-frame::before{
+  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(74% 50% at 50% 52%,
+    rgba(10,38,72,.92) 0%, rgba(10,38,72,.92) 46%, rgba(10,38,72,0) 100%);
+}
+.video-play,.video-soon,.video-note{position:relative;z-index:2;}
+
+@media (min-width:1000px){
+  /* 外に出したときは飾りが枠の中に無いので、幕は要らない */
+  .video-frame::before{display:none;}
+}
+
+@media (min-width:1000px){
+  /* 枠の**外**を縁取る（依頼主 2026-09-10「画面の中ではなく外を」）。
+     枠より後ろへ回すので、枠に重なる内側は隠れ、外へ出たぶんだけが見える。 */
+  .video-deco{
+    inset:auto;left:50%;bottom:0;translate:-50% 0;
+    /* 枠の幅を基準にする。168% なら枠の左右に枠幅の34%ずつ出る。
+       画面からはみ出したぶんは body の overflow-x:clip が切る
+       （この絵は aria-hidden なので検査にも掛からない）。 */
+    width:min(1400px, 168%);height:auto;
+    object-fit:fill;border-radius:0;
+    z-index:0;
+    /* 絵は枠と同じ 16:9。横に広げるとその比のぶん上にも伸び、海藻が上の
+       リード文に掛かる（1280px で枠の上端より225px上まで来る）。
+       上ほど薄くして枠の上端あたりで消す。切り落とすと筆が途中で切れて
+       横線に見えるので、ぼかして抜く。
+       実測：この帯に残る濃さは平均1%、最も濃い点も枠のすぐ脇。 */
+    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 34%);
+            mask-image:linear-gradient(180deg,transparent 0,#000 34%);
+  }
+}
 
 /* 差し替え後もそのまま収まるように、中に入る映像は枠いっぱいにする */
 .video-frame > iframe,
