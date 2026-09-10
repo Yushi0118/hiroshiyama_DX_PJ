@@ -506,6 +506,19 @@
     if (e.key === 'Escape' && !panel.hidden) close();
   });
 
+  /* ヒーローを見ている間は札を引っ込める。左下に出しっぱなしだと
+     ヒーローのボタンに重なる。IntersectionObserver が無いブラウザでは
+     出しっぱなしにする（隠したまま戻せなくなるほうが困る）。 */
+  if (window.IntersectionObserver) {
+    var heroEl = document.getElementById('hero');
+    if (heroEl) {
+      box.classList.add('is-away');
+      new IntersectionObserver(function (es) {
+        es.forEach(function (e) { box.classList.toggle('is-away', e.isIntersecting); });
+      }, { threshold: 0.25 }).observe(heroEl);
+    }
+  }
+
   /* ここまで来たら操作できる。JSが動かない環境では出さないので、
      押しても何も起きないボタンが残らない。 */
   box.hidden = false;

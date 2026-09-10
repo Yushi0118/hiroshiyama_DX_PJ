@@ -1776,17 +1776,30 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 /* ============================================================
    よくあるご質問チャット
 
-   画面の右端から出す。上のハンバーガー（右上）と、スマホの追従CTA
-   （下）を避けて、縦の真ん中より少し下に置く。
+   画面の**左下**から出す（依頼主 2026-09-10）。右の縦真ん中に置いていたが、
+   ハンバーガー（右上）とも追従CTA（下）とも離れた半端な位置だった。
+   左下なら、右上のメニュー・下中央の追従CTAと役割ごとに隅が分かれる。
    JSが動かないときは #chat に hidden が付いたままなので出ない。
    ============================================================ */
-.chat{position:fixed;right:0;top:58%;z-index:60;}
+.chat{position:fixed;left:0;bottom:24px;z-index:60;}
+/* ヒーローを見ている間は引っ込める。左下に出しっぱなしにすると、
+   ヒーローの「プロジェクトを見る」に重なる（1000×760で実測 2026-09-10）。
+   画面の高さで本文の位置が動くので、余白の取り合いでは避けきれない。
+   ヒーローを通り過ぎてから、左からすべり出す。 */
+.chat.is-away{opacity:0;visibility:hidden;translate:-100% 0;}
+@media (prefers-reduced-motion:no-preference){
+  .chat{transition:opacity .25s ease, translate .25s ease;}
+  .chat.is-away{transition:opacity .25s ease, translate .25s ease, visibility 0s .25s;}
+}
 .chat-launch{
   display:flex;align-items:center;gap:10px;
-  padding:10px 12px 10px 18px;
+  /* 印を画面の端側（左）に、文字をその内側に。右端に貼っていた頃の
+     鏡像になる。並びはHTMLのまま、向きだけ反転させる。 */
+  flex-direction:row-reverse;
+  padding:10px 18px 10px 12px;
   border:0;cursor:pointer;
-  /* 右端に貼り付く札。角丸は左側だけ */
-  border-radius:999px 0 0 999px;
+  /* 左端に貼り付く札。角丸は右側だけ */
+  border-radius:0 999px 999px 0;
   background:var(--brand);color:#fff;
   box-shadow:var(--lift-3);
   font-family:var(--serif);font-size:15.5px;font-weight:600;letter-spacing:.04em;
@@ -1798,13 +1811,13 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
   background:var(--gold);color:var(--ink-deep);
 }
 .chat-launch-mark svg{width:22px;height:22px;}
-@media (hover:hover){ .chat-launch:hover{transform:translateX(-4px);} }
+@media (hover:hover){ .chat-launch:hover{transform:translateX(4px);} }
 .chat-launch:focus-visible{outline:3px solid var(--gold);outline-offset:3px;}
 /* 開いている間は札を引っ込める。板と重なって二重に見えるため */
 .chat.is-open .chat-launch{display:none;}
 
 .chat-panel{
-  position:fixed;right:14px;bottom:14px;
+  position:fixed;left:14px;bottom:14px;
   width:min(380px, calc(100vw - 28px));
   max-height:min(620px, calc(100svh - 28px));
   display:flex;flex-direction:column;
@@ -1817,7 +1830,7 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 @media (prefers-reduced-motion:no-preference){
   .chat-panel{animation:chat-in .24s ease-out both;}
 }
-@keyframes chat-in{ from{opacity:0;translate:24px 0;} to{opacity:1;translate:0 0;} }
+@keyframes chat-in{ from{opacity:0;translate:-24px 0;} to{opacity:1;translate:0 0;} }
 
 .chat-head{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -1881,13 +1894,17 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 .chat-send:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
 .chat-foot{margin:0;padding:4px 16px 14px;font-size:12px;line-height:1.7;color:var(--paper-soft);}
 
-/* スマホでは画面いっぱいに近い板にする。札は追従CTAの上に逃がす */
+/* 追従CTA（767px以下で出る）は画面下いっぱいに座るので、札はその上へ逃がす。
+   CTAは下から14px、高さ54pxで 14〜68px を占める。82pxなら14px空く。 */
+@media (max-width:767px){
+  .chat{bottom:82px;}
+}
+/* スマホでは板を画面いっぱいに近づける */
 @media (max-width:520px){
-  .chat{top:auto;bottom:82px;}
   .chat-launch{font-size:14.5px;padding:8px 10px 8px 16px;}
   .chat-launch-mark{width:34px;height:34px;}
   .chat-panel{
-    right:8px;left:8px;bottom:8px;width:auto;
+    left:8px;right:8px;bottom:8px;width:auto;
     max-height:min(78svh, calc(100svh - 16px));
   }
 }
