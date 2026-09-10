@@ -1113,6 +1113,69 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 }
 .video-note{margin:.5em 0 0;font-size:14.5px;color:var(--paper-soft);}
 
+/* ── 共通課題アンケートへの導線 ─────────────────────
+   Googleフォーム（業種ごとに3つ）へ送る。県側の確認済み（2026-09-10）。
+   外部へ移動するので別タブで開き、印を添える。読み上げには
+   「アンケート・新しいタブで開きます」を隠し文字で足してある。
+
+   置き場所は2か所。募集テーマの各カード（業種と1対1で迷わない）と、
+   お申し込みの節（お申し込みフォームが準備中のあいだ、ここが唯一の
+   実働導線になる）。同じリンクを2か所に置いているので、URLを変える
+   ときは両方直すこと（index.html を forms.gle で検索すれば6件出る）。 */
+
+/* 読み上げ専用。tools/onpaper.js は4px未満の箱の文字を測らない。 */
+.sr-only{
+  position:absolute;width:1px;height:1px;
+  margin:-1px;padding:0;border:0;overflow:hidden;
+  clip-path:inset(50%);white-space:nowrap;
+}
+.ext{width:15px;height:15px;flex:none;opacity:.85;}
+
+/* テーマのカードの中。カードの下端にそろえて置く */
+.theme-survey{
+  display:flex;align-items:center;justify-content:center;gap:.5em;
+  margin-top:auto;                 /* カードの高さが違っても下端でそろう */
+  padding-top:14px;
+  min-height:44px;
+  font-size:14.5px;font-weight:700;letter-spacing:.02em;
+  color:var(--brand);
+}
+.theme-survey > span{border-bottom:1px solid rgba(var(--gold-rgb),.75);padding-bottom:2px;}
+/* カードを縦に伸ばして、ボタンを下端へ落とす */
+.sec-themes .card.theme{display:flex;flex-direction:column;}
+@media (hover:hover){
+  .theme-survey:hover{color:var(--ink-deep);}
+  .theme-survey:hover > span{border-bottom-color:var(--gold);}
+}
+.theme-survey:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:var(--r-sm);}
+
+/* お申し込みの節。3業種を横に並べる */
+.survey{
+  margin:0 0 26px;padding:22px 24px;
+  border-radius:var(--r-md);
+  background:var(--card-deep);
+  box-shadow:var(--ring);
+}
+.survey-lead{margin:0 0 16px;font-size:15.5px;line-height:1.9;color:var(--paper);}
+.survey-lead strong{color:var(--gold);}
+.survey-btns{display:flex;flex-wrap:wrap;gap:12px;}
+/* .btn の見た目を借りつつ、金の縁の落ち着いた形にする */
+.btn-survey{
+  flex:1 1 220px;
+  gap:.6em;
+  font-size:16px;
+  background:rgba(255,255,255,.06);color:var(--paper);
+  box-shadow:var(--ring-strong);
+}
+@media (hover:hover){
+  .btn-survey:hover{background:var(--gold);color:var(--ink-deep);box-shadow:none;}
+}
+@media (max-width:520px){
+  .survey{padding:18px 16px;}
+  .survey-btns{flex-direction:column;}
+  .btn-survey{flex:1 1 auto;font-size:15px;}
+}
+
 /* 注記 */
 .note{
   margin-top:2.4rem;padding:18px 24px;border-radius:var(--r-sm);
@@ -1781,7 +1844,13 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
    左下なら、右上のメニュー・下中央の追従CTAと役割ごとに隅が分かれる。
    JSが動かないときは #chat に hidden が付いたままなので出ない。
    ============================================================ */
-.chat{position:fixed;left:0;bottom:24px;z-index:60;}
+/* 札は2つ。上に対象診断、下によくあるご質問（依頼主 2026-09-10）。
+   幅は広いほうにそろえる ―― 位置指定の箱は中身の最大幅に縮むので、
+   stretch にすれば狭いほうが引き伸ばされて縦に揃う。 */
+.chat{
+  position:fixed;left:0;bottom:24px;z-index:60;
+  display:flex;flex-direction:column;align-items:stretch;gap:10px;
+}
 /* ヒーローを見ている間は引っ込める。左下に出しっぱなしにすると、
    ヒーローの「プロジェクトを見る」に重なる（1000×760で実測 2026-09-10）。
    画面の高さで本文の位置が動くので、余白の取り合いでは避けきれない。
@@ -1793,6 +1862,7 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 }
 .chat-launch{
   display:flex;align-items:center;gap:10px;
+  width:100%;box-sizing:border-box;text-decoration:none;
   /* 印を画面の端側（左）に、文字をその内側に。右端に貼っていた頃の
      鏡像になる。並びはHTMLのまま、向きだけ反転させる。 */
   flex-direction:row-reverse;
@@ -1813,6 +1883,17 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 .chat-launch-mark svg{width:22px;height:22px;}
 @media (hover:hover){ .chat-launch:hover{transform:translateX(4px);} }
 .chat-launch:focus-visible{outline:3px solid var(--gold);outline-offset:3px;}
+/* 対象診断のほうを主にする。金地で、印は紺に反転させる。 */
+.dock-fit{background:var(--gold);color:var(--ink-deep);}
+.dock-fit .chat-launch-mark{background:var(--ink-deep);color:var(--gold);}
+@media (hover:hover){
+  .dock-fit:hover{background:#E9CE8A;}
+}
+/* 画面の外から入るとき、上の札をわずかに遅らせて順に出す */
+@media (prefers-reduced-motion:no-preference){
+  .chat .dock-fit{transition-delay:.07s;}
+}
+
 /* 開いている間は札を引っ込める。板と重なって二重に見えるため */
 .chat.is-open .chat-launch{display:none;}
 
@@ -2519,7 +2600,10 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
    そこから下へ食み出させる。ボタンもカードも注記も、この帯より上にある。
    値は実測から。1440/1280/1100/810 のどれでも火山の上端が注記の下端より
    下に来ることを確かめてある。 */
-.sec-entry    .b1{--cl:3%; --cb:-160px; --cw:clamp(120px,12vw,180px); --co:.58;}
+/* 熱水噴出孔はフッターに掛けない（依頼主 2026-09-10）。以前は -160px で
+   フッターの中まで伸ばし、金の線より前に出していたが、フッターの上に
+   乗って見えると指摘を受けた。節の下端より上に収める。 */
+.sec-entry    .b1{--cl:3%; --cb:40px; --cw:clamp(120px,12vw,180px); --co:.58;}
 
 /* --- 配置 ---
    置き場所は「カードが無い水域」を狙う。見出しとリード文は左寄せで
@@ -2668,7 +2752,7 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
   .sec-benefit{padding-bottom:250px;}
   .sec-themes   .b1{--cl:2%;  --ct:auto; --cb:14%; --cw:38%;}
   .sec-schedule .b1{--cl:0%; --cb:-64px; --cw:78%;}
-  .sec-entry    .b1{--cl:2%;  --cb:-46px; --cw:46%;}
+  .sec-entry    .b1{--cl:2%;  --cb:30px; --cw:46%;}
 }
 /* ============================================================
    対象診断のポップアップ
