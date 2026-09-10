@@ -188,6 +188,12 @@
    リセット
    ============================================================ */
 *,*::before,*::after{box-sizing:border-box;}
+/* hidden を必ず効かせる。
+   ブラウザ既定の [hidden]{display:none} は「作者が書いた display」に
+   負ける。.card{display:flex} を持つ要素に hidden を付けても消えず、
+   よくあるご質問の隠したはずの8件がページに出ていた（2026-09-10）。
+   同じ罠を .chat-panel でも踏んでいるので、ここで一度だけ強く止める。 */
+[hidden]{display:none !important;}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
 body{
   margin:0;
@@ -1131,23 +1137,36 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 }
 .ext{width:15px;height:15px;flex:none;opacity:.85;}
 
-/* テーマのカードの中。カードの下端にそろえて置く */
+/* テーマのカードの中。カードの下端にそろえて置く。
+
+   下線付きの文字リンクにしていたが、明るいカードの上で細く沈み、
+   押せるものに見えなかった（依頼主 2026-09-10）。地を塗った札にして、
+   カードの幅いっぱいに広げる。 */
 .theme-survey{
   display:flex;align-items:center;justify-content:center;gap:.5em;
-  margin-top:auto;                 /* カードの高さが違っても下端でそろう */
-  padding-top:14px;
-  min-height:44px;
-  font-size:14.5px;font-weight:700;letter-spacing:.02em;
-  color:var(--brand);
+  /* カードの高さが違っても下端でそろう。地を塗るので、本文との隙間は
+     padding ではなく margin で取る（padding だと札が縦に伸びる）。 */
+  margin:18px 0 0;margin-top:auto;
+  width:100%;min-height:48px;
+  padding:12px 16px;
+  border-radius:999px;
+  font-size:15px;font-weight:700;letter-spacing:.02em;
+  text-align:center;
+  background:var(--brand);color:#fff;
+  box-shadow:var(--lift-1);
+  transition:background .18s ease, color .18s ease, box-shadow .18s ease;
 }
-.theme-survey > span{border-bottom:1px solid rgba(var(--gold-rgb),.75);padding-bottom:2px;}
+.theme-survey .ext{opacity:1;}
 /* カードを縦に伸ばして、ボタンを下端へ落とす */
 .sec-themes .card.theme{display:flex;flex-direction:column;}
+/* カードの中身が詰まっていると margin-top:auto は 0 になり、本文に
+   くっついてしまう。直前の一文に下の余白を持たせて隙間を保証する。 */
+.sec-themes .card.theme .arrow{margin-bottom:12px;}
 @media (hover:hover){
-  .theme-survey:hover{color:var(--ink-deep);}
-  .theme-survey:hover > span{border-bottom-color:var(--gold);}
+  /* 押せるものは色が入れ替わる ―― ページ全体で揃えている作法 */
+  .theme-survey:hover{background:#fff;color:var(--brand);box-shadow:inset 0 0 0 2px var(--brand), var(--lift-1);}
 }
-.theme-survey:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:var(--r-sm);}
+.theme-survey:focus-visible{outline:3px solid var(--gold);outline-offset:3px;}
 
 /* お申し込みの節。3業種を横に並べる */
 .survey{
@@ -1839,23 +1858,23 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 /* ============================================================
    よくあるご質問チャット
 
-   画面の**左下**から出す（依頼主 2026-09-10）。右の縦真ん中に置いていたが、
-   ハンバーガー（右上）とも追従CTA（下）とも離れた半端な位置だった。
-   左下なら、右上のメニュー・下中央の追従CTAと役割ごとに隅が分かれる。
+   画面の**右下**に貼る（依頼主 2026-09-10）。左下から移した。
+   ヒーローの絵は左に文字段、右が海と船で空いているので、右下なら
+   絵の見せ場も文字も踏まない。右上のメニューとは高さで分かれる。
    JSが動かないときは #chat に hidden が付いたままなので出ない。
    ============================================================ */
 /* 札は2つ。上に対象診断、下によくあるご質問（依頼主 2026-09-10）。
    幅は広いほうにそろえる ―― 位置指定の箱は中身の最大幅に縮むので、
    stretch にすれば狭いほうが引き伸ばされて縦に揃う。 */
 .chat{
-  position:fixed;left:0;bottom:24px;z-index:60;
+  position:fixed;right:0;left:auto;bottom:24px;z-index:60;
   display:flex;flex-direction:column;align-items:stretch;gap:10px;
 }
-/* ヒーローを見ている間は引っ込める。左下に出しっぱなしにすると、
-   ヒーローの「プロジェクトを見る」に重なる（1000×760で実測 2026-09-10）。
-   画面の高さで本文の位置が動くので、余白の取り合いでは避けきれない。
-   ヒーローを通り過ぎてから、左からすべり出す。 */
-.chat.is-away{opacity:0;visibility:hidden;translate:-100% 0;}
+/* ヒーローの上にも出す。ただし**最初の一枚が出そろってから**。
+   背景→題→船→サブ→ロゴ→ボタン→ナビ の順に 1.80s+0.7s で終わるので、
+   その後に右からすべり込ませる（依頼主 2026-09-10）。
+   最初は is-away を JS が付ける。JSが無ければ札そのものが出ない。 */
+.chat.is-away{opacity:0;visibility:hidden;translate:100% 0;}
 @media (prefers-reduced-motion:no-preference){
   .chat{transition:opacity .25s ease, translate .25s ease;}
   .chat.is-away{transition:opacity .25s ease, translate .25s ease, visibility 0s .25s;}
@@ -1863,13 +1882,16 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 .chat-launch{
   display:flex;align-items:center;gap:10px;
   width:100%;box-sizing:border-box;text-decoration:none;
-  /* 印を画面の端側（左）に、文字をその内側に。右端に貼っていた頃の
-     鏡像になる。並びはHTMLのまま、向きだけ反転させる。 */
-  flex-direction:row-reverse;
-  padding:10px 18px 10px 12px;
+  /* 印を画面の端側（右）に、文字をその内側に。HTMLは「文字→印」の
+     並びなので、そのまま置けば印が右に来る。 */
+  flex-direction:row;
+  /* 幅は広いほうにそろえるので、狭い札には余りが出る。余りは画面側（左）に
+     寄せて、印を2枚とも右端でそろえる。 */
+  justify-content:flex-end;
+  padding:10px 12px 10px 18px;
   border:0;cursor:pointer;
-  /* 左端に貼り付く札。角丸は右側だけ */
-  border-radius:0 999px 999px 0;
+  /* 右端に貼り付く札。角丸は左側だけ */
+  border-radius:999px 0 0 999px;
   background:var(--brand);color:#fff;
   box-shadow:var(--lift-3);
   font-family:var(--serif);font-size:15.5px;font-weight:600;letter-spacing:.04em;
@@ -1881,7 +1903,7 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
   background:var(--gold);color:var(--ink-deep);
 }
 .chat-launch-mark svg{width:22px;height:22px;}
-@media (hover:hover){ .chat-launch:hover{transform:translateX(4px);} }
+@media (hover:hover){ .chat-launch:hover{transform:translateX(-4px);} }
 .chat-launch:focus-visible{outline:3px solid var(--gold);outline-offset:3px;}
 /* 対象診断のほうを主にする。金地で、印は紺に反転させる。 */
 .dock-fit{background:var(--gold);color:var(--ink-deep);}
@@ -1898,7 +1920,7 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 .chat.is-open .chat-launch{display:none;}
 
 .chat-panel{
-  position:fixed;left:14px;bottom:14px;
+  position:fixed;right:14px;left:auto;bottom:14px;
   width:min(380px, calc(100vw - 28px));
   max-height:min(620px, calc(100svh - 28px));
   display:flex;flex-direction:column;
@@ -1911,7 +1933,7 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 @media (prefers-reduced-motion:no-preference){
   .chat-panel{animation:chat-in .24s ease-out both;}
 }
-@keyframes chat-in{ from{opacity:0;translate:-24px 0;} to{opacity:1;translate:0 0;} }
+@keyframes chat-in{ from{opacity:0;translate:24px 0;} to{opacity:1;translate:0 0;} }
 
 .chat-head{
   display:flex;align-items:center;justify-content:space-between;gap:10px;

@@ -340,7 +340,12 @@
   var items = [].slice.call(document.querySelectorAll('.faq-item'));
   if (!box || !items.length) return;
 
-  var launch = box.querySelector('.chat-launch');
+  /* 札は2枚あり、どちらも .chat-launch を持つ。ここで先頭を拾うと
+     上の「自社が対象か診断する」に当たってしまい、診断を押すと
+     チャットまで開いた（依頼主の指摘 2026-09-10）。
+     開く相手は aria-controls で名指しする。 */
+  var launch = box.querySelector('.chat-launch[aria-controls="chat-panel"]');
+  if (!launch) return;
   var panel  = document.getElementById('chat-panel');
   var log    = document.getElementById('chat-log');
   var form   = box.querySelector('.chat-form');
@@ -506,20 +511,40 @@
     if (e.key === 'Escape' && !panel.hidden) close();
   });
 
-  /* ヒーローを見ている間は札を引っ込める。左下に出しっぱなしだと
-     ヒーローのボタンに重なる。IntersectionObserver が無いブラウザでは
-     出しっぱなしにする（隠したまま戻せなくなるほうが困る）。 */
-  if (window.IntersectionObserver) {
-    var heroEl = document.getElementById('hero');
-    if (heroEl) {
-      box.classList.add('is-away');
-      new IntersectionObserver(function (es) {
-        es.forEach(function (e) { box.classList.toggle('is-away', e.isIntersecting); });
-      }, { threshold: 0.25 }).observe(heroEl);
-    }
-  }
-
   /* ここまで来たら操作できる。JSが動かない環境では出さないので、
      押しても何も起きないボタンが残らない。 */
   box.hidden = false;
+
+  /* --- 札の出し方 ---
+
+     広い画面：ヒーローの入りが出そろってから、右からすべり込ませる
+     （依頼主 2026-09-10）。ヒーローは .hero-nav の 1.80s + 0.7s で
+     終わるので、その少し後。絵の右下は海なので、何も踏まない。
+
+     狭い画面：ヒーローの上には出さない。縦積みになると「プロジェクトを
+     見る」がちょうど右下に来て、札と重なる（390×844 で実測 4794px²）。
+     ヒーローを通り過ぎてから出す。 */
+  var mq  = window.matchMedia;
+  var calm   = mq && mq('(prefers-reduced-motion:reduce)').matches;
+  var narrow = mq && mq('(max-width:767px)').matches;
+  var heroEl = document.getElementById('hero');
+
+  if (narrow && heroEl) {
+    /* IntersectionObserver ではなく scroll で見る。観測子は画面が裏に
+       回ると配送が止まり、検証もできない（ブラウザペインでは一度も
+       発火しなかった）。scroll なら必ず届き、測るのは矩形1つだけ。 */
+    var sync = function () {
+      var h = heroEl.getBoundingClientRect();
+      var seen = Math.min(h.bottom, window.innerHeight) - Math.max(h.top, 0);
+      box.classList.toggle('is-away', seen > h.height * 0.25);
+    };
+    sync();
+    window.addEventListener('scroll', sync, { passive: true });
+    window.addEventListener('resize', sync, { passive: true });
+  } else if (!calm) {
+    box.classList.add('is-away');
+    /* rAF は使わない。裏に回った画面では止まるので、戻すきっかけごと
+       失われる。2.6秒あれば is-away の状態は必ず一度描かれている。 */
+    setTimeout(function () { box.classList.remove('is-away'); }, 2600);
+  }
 }());
