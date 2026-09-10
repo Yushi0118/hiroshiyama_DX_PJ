@@ -316,3 +316,26 @@ HTMLに1行足し、CSSに位置を1行足してください。
 - 表示は 1200px 以上でのみ。それ未満は従来の丸アイコン
   `assets/img/icons/flow/hub-*.webp` を `<picture>` の `<img>` 側で使う。
 - 変換はブラウザのエンコーダ（品質0.92）＋ `tools/webp-bridge.js`。
+
+## 原爆ドームを消した（2026-09-10）
+
+利用権利が得られなかったため、**ページのどの絵にも原爆ドームは写っていない**
+（依頼主 2026-09-10）。差し替え・作り直しのときは必ず確認すること。
+鳥居と広島城はそのまま使ってよい。
+
+消したのは次の6枚。周囲の地形（山・木立・海）で塗りつぶしてある。
+
+| ファイル | 元の位置 |
+|---|---|
+| backgrounds/hero-scene-wide.jpg | x 24〜180, y 635〜780 |
+| backgrounds/hero-night-wide.jpg | 同じ |
+| backgrounds/hero-mobile.jpg | x 50〜182, y 1130〜1241 |
+| backgrounds/hero-night-mobile.jpg | x 55〜195, y 1128〜1250 |
+| icons/hub/pref.webp | 絵の全部。庁舎のアイコン（icons/flow/hub-hiroshima.webp）から作り直した |
+| icons/hub/center.webp | x 28〜80, y 104〜134 の小さな構造物 |
+
+元の絵（ドーム入り）は依頼主の手元にある完成イメージのみ。**このリポジトリ
+には残していない。**
+
+書き出しは JPEG 品質0.9（横 331KB / 324KB、縦 304KB / 373KB）。
+`tools/webp-bridge.js` は `.jpg` も受け取れるようにしてある。
