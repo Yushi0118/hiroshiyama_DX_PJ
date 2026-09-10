@@ -229,6 +229,10 @@
     <p class="lead">文章では伝えきれない進め方や雰囲気を、短い動画にまとめてお届けします。お申し込みの前に、まずはこちらをご覧ください。</p>
 
     <div class="video-frame">
+      <!-- 枠の飾り。左右の下からサンゴと海藻が立ち上がり、中央が空く絵
+           （依頼主提供 2026-09-10）。中央が空いているので、文字にも
+           差し替え後の映像にも掛からない。 -->
+      <img class="video-deco" src="assets/img/deco/coral-frame.webp" width="1400" height="788" alt="" loading="lazy" decoding="async" onerror="this.remove()">
       <span class="video-play" aria-hidden="true"></span>
       <p class="video-soon">Coming Soon</p>
       <p class="video-note">事業説明動画は準備中です</p>
@@ -569,7 +573,7 @@
     <p class="lead">「うちにできるだろうか」と迷われる方が多いご質問をまとめました。ここに無いことも、お気軽にご相談ください。</p>
 
     <div class="faq-list">
-      <details class="card faq-item" data-kw="苦手|初心者|わからない|分からない|知識|パソコン|スマホ|不安|できるか|むずかしい|難しい|ついていけ|操作">
+      <details class="card faq-item" data-kw="苦手|初心者|わからない|分からない|知識|パソコン|スマホ|不安|できるか|むずかしい|難しい|ついていけ|操作" data-tentative>
         <summary><h3 class="card-title">ITやデジタルが苦手でも参加できますか？</h3></summary>
         <p>はい。「学ぶ」→「見える化する」→「小さく試す」の順に、段階を踏んで進めます。まずはセミナー・研修で基礎知識を身につけるところから始まりますので、知識ゼロの状態で問題ありません。途中でつまずいても、専門家や仲間がサポートします。</p>
       </details>
@@ -579,17 +583,17 @@
         <p>本プロジェクトへの<strong>参加費は無料</strong>です。実証で使うツールの取り扱いなど、費用に関わる点は事業説明動画と個別のご相談でご案内します。</p>
       </details>
 
-      <details class="card faq-item" data-kw="1社|一社|ひとり|一人|単独|うちだけ|仲間|チーム|グループ|誰かと|複数">
+      <details class="card faq-item" data-kw="1社|一社|ひとり|一人|単独|うちだけ|仲間|チーム|グループ|誰かと|複数" data-tentative>
         <summary><h3 class="card-title">1社だけでも申し込めますか？</h3></summary>
         <p>お申し込みは1社ずつ受け付ける想定です。同じテーマに集まった事業者どうしでチームを組み、共通する困りごとに一緒に取り組みます。知り合いの事業者と一緒に申し込む必要はありません。</p>
       </details>
 
-      <details class="card faq-item" data-kw="期間|時間|どのくらい|どれくらい|何ヶ月|何ヵ月|半年|忙しい|拘束|回数|頻度|スケジュール|いつまで|負担">
+      <details class="card faq-item" data-kw="期間|時間|どのくらい|どれくらい|何ヶ月|何ヵ月|半年|忙しい|拘束|回数|頻度|スケジュール|いつまで|負担" data-tentative>
         <summary><h3 class="card-title">どのくらいの期間、どのくらい関わることになりますか？</h3></summary>
         <p>2026年9月頃の募集開始から2027年3月頃の成果発信まで、およそ半年間を想定しています。セミナー・研修、ワークショップ、実証といった節目ごとにご参加いただく形で、日々の業務を止めていただくものではありません。</p>
       </details>
 
-      <details class="card faq-item" data-kw="辞退|やめ|途中|抜け|中断|キャンセル|取り消|続けられ|離脱">
+      <details class="card faq-item" data-kw="辞退|やめ|途中|抜け|中断|キャンセル|取り消|続けられ|離脱" data-tentative>
         <summary><h3 class="card-title">途中で辞退することはできますか？</h3></summary>
         <p>事情が変わった場合は、遠慮なくご相談ください。無理なく続けられることを大切にしています。</p>
       </details>
@@ -599,13 +603,53 @@
         <p>今年度は理美容・飲食・バックオフィスの3テーマで募集しており、その他の業種は対象外です。ただし業務の一部がバックオフィス寄りであるなど、線引きに迷う場合はお問い合わせください。対象になるかどうかを一緒に確認します。</p>
       </details>
 
-      <details class="card faq-item" data-kw="準備|用意|必要なもの|資料|申し込み前|事前|持ち物|何をすれば">
+      <details class="card faq-item" data-kw="準備|用意|必要なもの|資料|申し込み前|事前|持ち物|何をすれば" data-tentative>
         <summary><h3 class="card-title">申し込む前に何を準備すればよいですか？</h3></summary>
         <p>事前の準備は不要です。まずは日々の困りごとを持ち寄っていただければ、専門家や仲間と一緒に整理するところから始めます。</p>
       </details>
+
+      <details class="card faq-item" data-kw="小規模事業者等|等とは|定義|どこまで|範囲|該当する|あてはまる|20人|二十人">
+        <summary><h3 class="card-title">「小規模事業者等」とは、どこまでが対象ですか？</h3></summary>
+        <p>広島県の「小規模事業者」の定義は制度によって複数あり、本プロジェクトとしてひとつに集約することが難しいため、<strong>従業員20人以下</strong>という一律の目安を設けています。「等」は、この目安に当てはまる事業者を幅広くお迎えする意図です。判断に迷う場合はお問い合わせください。</p>
+      </details>
+
+      <details class="card faq-item" data-kw="経営者|社長|本人|自分|含む|数え方|カウント|人数">
+        <summary><h3 class="card-title">従業員数には、経営者本人も含みますか？</h3></summary>
+        <p>含みます。ページ内の対象診断でも「経営者を含む人数」でお伺いしています。</p>
+      </details>
+
+      <details class="card faq-item" data-kw="店舗|事業所|複数|支店|拠点|全体|会社全体|グループ" data-tentative>
+        <summary><h3 class="card-title">店舗や事業所が複数ある場合、人数はどう数えますか？</h3></summary>
+        <p>会社全体では20人を超える場合でも、事業所・店舗の単位では20人以下にあたることがあります。線引きに迷う場合は、対象になるかどうかを一緒に確認しますのでお問い合わせください。</p>
+      </details>
+
+      <details class="card faq-item" data-kw="県外|本社|県内|広島県内|所在地|エリア|地域|場所" data-tentative>
+        <summary><h3 class="card-title">本社が県外でも、広島県内に店舗があれば対象ですか？</h3></summary>
+        <p>対象の条件は「事業所が広島県内にあること」です。県内に事業所・店舗がある場合は、まずご相談ください。</p>
+      </details>
+
+      <details class="card faq-item" data-kw="誰が|主催|運営|実施|事務局|会社|lts|エル・ティー・エス|広島県が">
+        <summary><h3 class="card-title">誰が実施しているプロジェクトですか？</h3></summary>
+        <p>広島県が実施し、株式会社エル・ティー・エスが運営しています。</p>
+      </details>
+
+      <details class="card faq-item" data-kw="診断|確かめ|調べ|対象か|チェック|判定|自分は|うちは">
+        <summary><h3 class="card-title">自分が対象かどうか、その場で確かめられますか？</h3></summary>
+        <p>ページ内の「自社が対象か診断する」から、5つの質問にお答えいただくと目安が分かります。最終的な対象可否は個別のご相談で確認します。</p>
+      </details>
+
+      <details class="card faq-item" data-kw="動画|いつ公開|映像|ビデオ|説明動画|coming soon|見られ">
+        <summary><h3 class="card-title">事業説明動画はいつ公開されますか？</h3></summary>
+        <p>現在準備中です。公開時期が決まりましたら、ページの「事業説明」の欄でご案内します。</p>
+      </details>
+
+      <details class="card faq-item" data-kw="問い合わせ|連絡先|電話|メール|窓口|申し込み方法|どこに|フォーム">
+        <summary><h3 class="card-title">お問い合わせ先はどこですか？</h3></summary>
+        <p>お問い合わせ先・お申し込みフォームは現在準備中です。確定次第、「お申し込み」の欄でご案内します。</p>
+      </details>
     </div>
 
-    <p class="note">※ 上記は現時点で想定している内容です。詳細は事業説明動画と個別のご相談でご案内します。</p>
+    <p class="note">※ 「想定」と記した内容は現時点の見込みです。詳細は事業説明動画と個別のご相談でご案内します。</p>
   </div>
 </section>
 

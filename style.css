@@ -1030,6 +1030,18 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
   box-shadow:var(--ring), var(--lift-2);
   overflow:hidden;
 }
+/* 枠の飾り。透過ではなく紺（--card-deep と同じ #0A2648）に焼き込んである。
+   透過のままだと336KB、焼き込むと104KB。--card-deep は昼夜で変わらないので
+   焼き込んでも night と食い違わない（変えるときは絵も作り直すこと）。
+
+   絵の中身は左右の下だけで中央は空。文字と重ならないので幕は要らない。 */
+.video-deco{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;pointer-events:none;
+}
+/* 印と文字は飾りより前に出す */
+.video-play,.video-soon,.video-note{position:relative;z-index:1;}
+
 /* 差し替え後もそのまま収まるように、中に入る映像は枠いっぱいにする */
 .video-frame > iframe,
 .video-frame > video{position:absolute;inset:0;width:100%;height:100%;border:0;}
@@ -2500,7 +2512,12 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 .sec-schedule .s3{--cr:18%; --ct:34%;   --cw:clamp(70px,8vw,130px);   --co:.76;}
 .sec-schedule .s4{--cl:1%; --cb:30%;   --cw:clamp(110px,13vw,200px); --co:.72;}
 
-.sec-faq .s1{--cr:2%;  --ct:5%;    --cw:clamp(80px,10vw,160px);  --co:.88;}
+/* **ここは % ではなく px で置くこと。** 上端からの % で置くと、FAQ の件数が
+   増えて節が高くなったときに一緒に下がり、リード文に掛かる。実際 7件→15件で
+   節が 1160px → 1934px になり、834px 幅でクラゲがリード文に乗って 2.89:1 まで
+   落ちた（2026-09-10）。見出しの脇に置きたいのだから、基準は節の高さではなく
+   上端からの距離。 */
+.sec-faq .s1{--cr:2%;  --ct:60px;  --cw:clamp(80px,10vw,160px);  --co:.88;}
 .sec-faq .s2{--cr:14%; --cb:2px; --cw:clamp(70px,8vw,130px);   --co:.76;}
 .sec-faq .s3{--cr:3%;  --ct:34%;   --cw:clamp(100px,12vw,180px); --co:.72;}
 

@@ -355,6 +355,10 @@
       q: t ? t.textContent.trim() : '',
       a: a ? a.textContent.trim() : '',
       kw: (el.getAttribute('data-kw') || '').split('|').filter(Boolean),
+      /* 「まだ想定」の項目にだけ印が付いている。確定した事実（参加費無料、
+         運営者、対象条件の由来など）に「想定です」と添えるのは誤りなので、
+         注記はこの印がある項目に限る。 */
+      tentative: el.hasAttribute('data-tentative'),
       el: el
     };
   }).filter(function (f) { return f.q && f.a; });
@@ -407,10 +411,10 @@
   /* 答えるときは、必ず「どの質問に当てたか」を先に出す。
      取り違えていても読み手がすぐ気づける。 */
   function answer(faq) {
-    /* FAQ は「現時点で想定している内容」。会話の形で返すと確定情報のように
-       読まれやすいので、1件ごとに断りを添える（依頼主と合意 2026-09-09）。 */
+    /* 想定の項目は、会話の形だと確定情報のように読まれやすいので断りを添える
+       （依頼主と合意 2026-09-09）。確定している項目には添えない。 */
     say('bot', '<span class="chat-src">' + esc(faq.q) + '</span>' + esc(faq.a)
-      + '<span class="chat-note">※ 現時点の想定です</span>');
+      + (faq.tentative ? '<span class="chat-note">※ 現時点の想定です</span>' : ''));
   }
 
   function chips(list, lead) {
