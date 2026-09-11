@@ -318,6 +318,14 @@ body::after{
   background:rgba(var(--gold-rgb),.22);
   border-radius:999px;padding:.15em .9em;
 }
+/* 「無料」に添える但し書き。同じ札の中に入れて、無料の文字だけが
+   単独で読まれないようにする。小さくするが、読めない大きさにはしない
+   ―― 参加を決める前に知っておくべきことなので（2026-09-11）。 */
+.terms-except{
+  font-size:13px;font-weight:600;margin-left:.5em;
+  color:var(--ink);opacity:.92;
+}
+.terms-except::before{content:'※ ';}
 
 .tier-deep{color:var(--paper);}
 
@@ -823,6 +831,12 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
   display:inline-block;margin-left:.4em;
   color:var(--ink-deep);background:var(--gold);
   padding:.12em .7em;border-radius:999px;font-size:.92em;font-weight:700;
+}
+/* その但し書き。金の札と同じ行に続けて置く。小さくはするが、
+   目立たせた「無料」の直後から離さない（2026-09-11）。 */
+.lead-except{
+  display:block;margin-top:.6em;
+  font-size:.86em;line-height:1.8;color:var(--paper-soft);
 }
 
 
