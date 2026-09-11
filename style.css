@@ -627,6 +627,22 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
   flex-direction:row;flex-wrap:wrap;align-items:flex-start;
   row-gap:.5em;column-gap:18px;
 }
+/* メリットの1枚目だけ2列ぶんに広げる（2026-09-11）。
+
+   困りごと・できること・メリット・募集テーマ・進め方 と、3列の角丸カードが
+   5節つづく。どの節も同じ景色なので、全体が量産品に見える ―― AIの作った
+   ページの見分け方として、まさにこれが挙げられていた。
+   1か所だけ崩すと、ページ全体のリズムが変わる。
+
+   ついでに、5枚を3列に流すと右下が1つ空く（3＋2）。1枚目を2列にすれば
+   3×2＝6コマがちょうど埋まる。崩したほうが整う形になっている。 */
+@media (min-width:1000px){
+  .sec-benefit .grid > li:first-child{grid-column:span 2;}
+  /* 広い枠では絵が間延びするので、絵を右に寄せて文と横並びにする */
+  .sec-benefit .grid > li:first-child > .card-head{flex:0 0 100%;}
+  .sec-benefit .grid > li:first-child > p{flex:1 1 16em;font-size:17.5px;}
+  .sec-benefit .grid > li:first-child .vignette{margin-left:auto;}
+}
 /* 見出し類は横幅いっぱい。番号とタイトルを1行に並べたいので、
    本文と同じ列に閉じ込めない。 */
 .sec-pain .card > .card-head,
@@ -993,11 +1009,15 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
   display:flex;flex-direction:column;justify-content:center;gap:.45em;
   padding:22px 20px;color:var(--ink-deep);background:var(--gold);
 }
+/* 「STEP 1」と書いていたが、AIの作った資料でよく見る型なのでやめた
+   （2026-09-11）。日付が見出しとして働くので、番号だけを丸い印にする。
+   1文字なので letter-spacing は入れない（右にだけ余白が付いて中心がずれる）。 */
 .timeline .tl-step{
   align-self:flex-start;
-  padding:.2em .9em;border-radius:999px;
-  font-family:var(--serif);font-size:13.5px;font-weight:700;letter-spacing:.1em;
-  color:var(--gold);background:var(--ink-deep);white-space:nowrap;
+  display:flex;align-items:center;justify-content:center;
+  width:27px;height:27px;flex:none;border-radius:50%;
+  font-family:var(--serif);font-size:15px;font-weight:700;
+  color:var(--gold);background:var(--ink-deep);
 }
 .timeline .tl-date{
   font-family:var(--serif);font-size:21px;font-weight:600;line-height:1.35;
