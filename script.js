@@ -9,6 +9,40 @@
 
    判定の内容は現時点の想定です。最終的な対象可否は県・事務局の
    確認が前提で、結果画面にもその旨を明記しています。 */
+/* ============================================================
+   ヒーロー下端のもや
+
+   最初に下へスクロールしたことを合図に、あとはスクロールと関係なく
+   1.1秒で出しきる（依頼主 2026-09-11）。動かし方は style.css の
+   .is-smoke-ready / .is-smoked。
+
+   以前は CSS の scroll() の時間軸に繋いでいた。出る速さがスクロール量に
+   そのまま連動するので、指を止めるともやも止まり、戻すと引っ込んだ。
+   ここでするのはクラスを1つ付けることだけで、合図を受けたら二度と
+   外さない ―― 上へ戻ってももやは消えない。
+   ============================================================ */
+(function () {
+  'use strict';
+
+  var root = document.documentElement;
+  if (!document.querySelector('.hero-art')) return;
+  /* 動きを減らす設定のときは触らない＝もやが最初から出ている状態 */
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+
+  root.classList.add('is-smoke-ready');
+
+  /* 途中まで進んだ位置で開き直したとき（再読み込みなど）は、
+     合図を待たずに最初から出しておく。 */
+  if (window.pageYOffset > 4) { root.classList.add('is-smoked'); return; }
+
+  var fire = function () {
+    if (window.pageYOffset <= 4) return;
+    root.classList.add('is-smoked');
+    window.removeEventListener('scroll', fire);
+  };
+  window.addEventListener('scroll', fire, { passive: true });
+}());
+
 (function () {
   'use strict';
 

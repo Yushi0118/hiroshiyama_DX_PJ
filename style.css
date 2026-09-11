@@ -1443,19 +1443,12 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 }
 
 /* 最初の一画面では、絵を下端まで見せる。
-   もや（次の水面へ溶かすための帯）は、スクロールし始めてから出す
+   もや（次の水面へ溶かすための帯）は、下へスクロールしてから出す
    （依頼主 2026-09-07「初回表示のときは白いスモークが無い状態に」）。
+   出し方は下の .is-smoke-ready / .is-smoked を参照。
 
    動かすのはマスクの位置だけ。絵にも本文にも触らないので、
-   紙の位置を測っている tools/onpaper.js の前提は変わらない。
-
-   scroll() が使えないブラウザ（いまの Safari / Firefox）では、この塊が
-   まるごと無視されて上の指定＝もやが最初から出ている状態になる。
-   絵の下端が次のセクションで硬く切れることは無い。 */
-@keyframes hero-smoke{
-  from{-webkit-mask-position:0 0;    mask-position:0 0;}
-  to  {-webkit-mask-position:0 100%; mask-position:0 100%;}
-}
+   紙の位置を測っている tools/onpaper.js の前提は変わらない。 */
 /* ── ファーストビューの入り ──────────────────────────
    ページを開いた瞬間、絵 → 見出し → ロゴ → 説明 → ボタン → ナビ の順に
    浮かび上がる（依頼主 2026-09-07）。港を出ていく順に見せて情緒を出す。
@@ -1489,18 +1482,25 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
   .menu-btn  {animation:hero-rise .7s 1.95s  ease-out both;}
 }
 
-@supports (animation-timeline: scroll()){
-  @media (prefers-reduced-motion:no-preference){
-    .hero-art{
-      -webkit-mask-position:0 0; mask-position:0 0;
-      /* 入りのフェードと、スクロールで出るもやの2本。時間軸と範囲も
-         同じ順で並べること。1本目は普通の時計、2本目はスクロール。 */
-      animation:hero-in .9s ease-out both, hero-smoke linear both;
-      animation-timeline:auto, scroll(root block);
-      /* 出しきるまで320px。ヒーローはどの画面でも620px以上あるので、
-         もやが出そろう頃にはまだヒーローの中にいる。 */
-      animation-range:normal, 0px 320px;
-    }
+/* もやは「最初に下へスクロールしたこと」を合図に、時間で出しきる
+   （依頼主 2026-09-11）。
+
+   以前は scroll() の時間軸に繋いでいた。出る速さがスクロール量に
+   そのまま連動するので、指を止めるともやも途中で止まり、少し戻すと
+   引っ込む ―― 画面に手を引きずられているように見えた。
+   いまは合図を受け取ったら、あとはスクロールと関係なく1.1秒で出しきる。
+
+   合図は script.js が付ける .is-smoked。その前に .is-smoke-ready で
+   「もやの無い状態」に置く。この2つが付かないとき（JSが動かない、
+   動きを減らす設定）は、もやが最初から出ている状態になる ―― 絵の下端が
+   次の節で硬く切れるよりはよい。 */
+@media (prefers-reduced-motion:no-preference){
+  .is-smoke-ready .hero-art{
+    -webkit-mask-position:0 0; mask-position:0 0;
+    transition:-webkit-mask-position 1.1s ease-out, mask-position 1.1s ease-out;
+  }
+  .is-smoked .hero-art{
+    -webkit-mask-position:0 100%; mask-position:0 100%;
   }
 }
 
