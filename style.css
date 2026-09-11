@@ -475,6 +475,18 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 .grid-3{grid-template-columns:repeat(3,1fr);}
 .grid-5{grid-template-columns:repeat(5,1fr);}
 
+/* 角丸は「箱の格」で決める（2026-09-11）。
+
+   トークンは 20/16/12px と3段あるのに、.card が全部 --r-md だったため、
+   ページ上の四角い箱50枚がすべて16pxで出ていた。AIの作ったページの
+   見分け方として「どこも同じ16pxの角丸」がそのまま挙げられている。
+
+     大きな器（動画枠・支援体制の図・アンケートの帯・年表の帯・
+              こんな方におすすめ）  20px  --r-lg
+     ふつうのカード                 16px  --r-md
+     一覧の行・注記・小さな札        12px  --r-sm
+
+   丸みの大きさが面積に連れて変わると、箱に上下の関係が生まれる。 */
 .card{
   position:relative;
   border-radius:var(--r-md);
@@ -656,6 +668,21 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 .sec-what .card > p,
 .sec-flow .card > p,
 .sec-benefit .card > p{flex:1 1 8em;min-width:7.5em;}
+
+/* カードの中の文字に段をつける（2026-09-11）。
+
+   .card の中の説明文が43個そろって17pxだった。粒がそろいすぎていると
+   どのカードも同じ重さに見え、ページ全体が平らになる。節の役割に合わせて
+   3段に分ける ―― 読ませたい一文は大きく、列挙は締める。
+
+     17.5px  そこが主役の説明（できること）
+     17px    ふつうの説明（よくあるご質問の答えなど、据え置き）
+     16.5px  列挙・短い断定（困りごと、メリット）
+     16px    ひとことの補足（進め方） */
+.sec-pain .card > p{font-size:16.5px;}
+.sec-what .card > p{font-size:17.5px;}
+.sec-benefit .card > p{font-size:16.5px;}
+.sec-flow .card > p{font-size:16px;}
 /* 進め方はHTMLの並びが 絵 → 本文 なので、そのままだと絵が左に来る。
    他のカードは本文が左なので、見た目の順だけ入れ替えて揃える。
    HTMLの並びは変えない ―― 番号・見出し・説明の順で読めるほうが、
@@ -741,6 +768,12 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 .label{
   font-size:15px;font-weight:700;letter-spacing:.06em;color:var(--gold-deep);
 }
+/* 募集テーマのカードは「悩み → 取り組むこと」の2段。同じ大きさで
+   並べると、どちらが結論か分からない。悩みは引用のように締め、
+   取り組むことを一段大きく置く（2026-09-11）。 */
+.sec-themes .card.theme > p{font-size:16px;}
+.sec-themes .card.theme > .label{font-size:15px;}   /* 見出しの札。本文より小さいまま */
+.sec-themes .card.theme > .arrow{font-size:17.5px;font-weight:600;}
 .arrow{position:relative;padding-left:1.4em;margin-top:.4em;}
 .arrow::before{
   content:'';position:absolute;left:0;top:.62em;
@@ -753,7 +786,9 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
    キーボード操作とスクリーンリーダーにそのまま対応できる。
    ============================================================ */
 .faq-list{display:grid;gap:12px;}
-.faq-item{padding:0;}
+/* 一覧の行なので、カードより丸みを締める。15行が並ぶので、
+   16pxだと行どうしの隙間より丸みのほうが目立つ。 */
+.faq-item{padding:0;border-radius:var(--r-sm);}
 .faq-item summary{
   display:flex;align-items:flex-start;gap:12px;
   padding:20px 22px;cursor:pointer;
@@ -953,6 +988,7 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
    金の枠を太くし、左に金の帯を立て、内側に淡い光を入れて浮かせる。 */
 .checklist{
   margin-top:34px;padding:30px;
+  border-radius:var(--r-lg);   /* 1枚で器いっぱいを占めるので大きい丸みの側 */
   /* 地も枠も .tier-deep .card がまとめて持っている（枠は1px・濃さ.45）。
      ここで background や box-shadow を書いても、詳細度で .tier-deep .card に
      負けて効かない。左だけ5pxの金の帯を立てていたが、同じ箱の中で線の
@@ -1001,6 +1037,7 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 .timeline .card{
   display:grid;grid-template-columns:minmax(176px,23%) 1fr;
   align-items:stretch;padding:0;overflow:hidden;text-align:left;
+  border-radius:var(--r-lg);   /* 器いっぱいの帯なので、大きい丸みの側 */
 }
 /* 左の帯。金の濃さを1→6で深くして、進行を色でも見せる（下の .s1〜.s6）。
    文字は必ず紺。金地に水色だと読めない（.tier-deep .card p に負けるので、
@@ -1048,7 +1085,7 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
   aspect-ratio:16 / 9;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:.15em;
-  border-radius:var(--r-md);
+  border-radius:var(--r-lg);
   /* 動画が乗る面なので暗く。中層の明るいカードと同じ地にすると、
      あとで動画を入れたときに枠だけ白く残って浮く。 */
   background:var(--card-deep);
@@ -1070,7 +1107,7 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 .video-deco{
   position:absolute;inset:0;width:100%;height:100%;
   max-width:none;object-fit:cover;
-  border-radius:var(--r-md);
+  border-radius:var(--r-lg);   /* 枠と同じにする。ずれると縁が二重に見える */
   /* 枠の地より前、文字より後ろ。枠には z-index を持たせない（持たせると
      重なりの箱ができて、中の文字を飾りより前に出せなくなる）。 */
   z-index:1;pointer-events:none;
@@ -1191,7 +1228,7 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
 /* お申し込みの節。3業種を横に並べる */
 .survey{
   margin:0 0 26px;padding:22px 24px;
-  border-radius:var(--r-md);
+  border-radius:var(--r-lg);   /* 器いっぱいの帯 */
   background:var(--card-deep);
   box-shadow:var(--ring);
 }
@@ -2221,6 +2258,12 @@ html.rule-anim h2.is-ruled .h-rule{background-size:100% var(--rule-w);}
   h2 .h-rule{--rule-w:4px;}
   .lead{font-size:17px;line-height:1.9;margin-bottom:1.8rem;}
   .card p{font-size:16.5px;}
+  /* カード内の段（上のほうで節ごとに分けたぶん）は、狭い画面では
+     いちばん下の段だけ 16.5px へ戻す。幅が無いところで文字を
+     小さくしても、階層は伝わらず読みにくさだけが残る。
+     詳細度をそろえないと、外に書いた節ごとの指定に負ける。 */
+  .sec-flow .card > p,
+  .sec-themes .card.theme > p{font-size:16.5px;}
   .card-title{font-size:21px;}
   .eyebrow{font-size:13.5px;padding:.45em 1.1em;}
 
