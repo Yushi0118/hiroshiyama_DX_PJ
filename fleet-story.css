@@ -1,0 +1,54 @@
+/* Fleet narrative: isolated from the existing hero, creatures and night switch. */
+.fleet-story{position:relative;margin:0;padding:48px 0;color:#102f4d}
+.fleet-layout{display:grid;grid-template-columns:1fr 1.12fr;gap:40px;align-items:center}
+.fleet-copy h2{margin:20px 0 28px}
+.fleet-chapters{list-style:none;padding:0;margin:0;display:grid;gap:20px}
+.fleet-chapters li{display:flex;gap:16px;align-items:flex-start}
+.fleet-chapters li>span{font-family:var(--serif);color:#836025;font-size:16px;padding-top:3px}
+.fleet-chapters h3{font-size:20px;line-height:1.6;margin:0 0 8px}
+.fleet-chapters p{font-size:16px;line-height:1.9;margin:0}
+.fleet-skip{display:inline-block;margin-top:28px;font-size:14px;text-underline-offset:6px;color:inherit}
+.fleet-skip:focus-visible{outline:3px solid #8b662e;outline-offset:6px}
+.fleet-ocean{position:relative;aspect-ratio:1.18;min-width:0;overflow:hidden;border-radius:48% 48% 38% 38%;background:radial-gradient(ellipse at 55% 35%,#e9f8fa 0%,#c4e5ec 52%,#95c7d7 100%);box-shadow:inset 0 0 60px #ffffff60}
+.fleet-watermark{position:absolute;left:10%;top:12%;font-size:clamp(32px,5vw,68px);letter-spacing:.13em;color:#174d6319;font-weight:700}
+.fleet-route{position:absolute;left:24%;right:12%;top:61%;height:1px;border-top:2px dashed #62899480;transform:rotate(-12deg);opacity:.5}
+.fleet-boat{position:absolute;left:var(--x);top:var(--y);width:64px;transform:translate(-50%,-50%);color:#153b56;text-align:center;will-change:auto}
+.fleet-boat svg{display:block;width:100%;height:auto;padding:6px}
+.fleet-boat-0{--x:46%;--y:42%}
+.fleet-boat-1{--x:31%;--y:61%}
+.fleet-boat-2{--x:57%;--y:65%}
+.fleet-boat-3{--x:73%;--y:44%;color:#78521b}
+.fleet-label{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);white-space:nowrap;background:#fffdf6;border:1px solid #cdbb91;border-radius:999px;padding:6px 10px;font-size:14px;color:#153b56;box-shadow:0 5px 18px #244f6010}
+.fleet-destination{position:absolute;bottom:10%;left:8%;right:8%;text-align:center;font-size:16px;font-weight:700;color:#173b51}
+.fleet-destination span{margin-left:8px}
+.fleet-progress{display:none}
+.fleet-story.is-enhanced .fleet-chapters{display:grid}
+.fleet-story.is-enhanced .fleet-chapters li{grid-area:1/1;opacity:0;visibility:hidden;pointer-events:none}
+.fleet-story.is-enhanced .fleet-chapters li.is-current{opacity:1;visibility:visible}
+.fleet-story.is-enhanced .fleet-progress{display:block;grid-column:1/-1;height:2px;background:#173b5120}
+.fleet-progress>span{display:block;width:100%;height:100%;background:#967137;transform:scaleX(var(--fleet-p,0));transform-origin:left}
+.fleet-story.is-pinned{height:235svh;padding:0}
+.fleet-story.is-pinned .fleet-stage{position:sticky;top:0;min-height:100svh;display:flex;align-items:center;padding:48px 0}
+.fleet-story.is-pinned .fleet-layout{width:min(100% - 48px,var(--wrap))}
+.is-night .fleet-story{color:#edf6fb}
+.is-night .fleet-chapters li>span{color:#e1c687}
+.is-night .fleet-ocean{background:radial-gradient(ellipse at 55% 35%,#244e64,#112e46);box-shadow:inset 0 0 60px #081d3630}
+.is-night .fleet-boat{color:#d9edf5}
+.is-night .fleet-boat-3{color:#e7c786}
+.is-night .fleet-watermark{color:#d4eef01a}
+.is-night .fleet-destination{color:#eaf5fb}
+@media(max-width:767px){
+ .fleet-story{padding:36px 0}
+ .fleet-layout{grid-template-columns:1fr;gap:24px}
+ .fleet-copy h2{font-size:28px;margin:16px 0 24px}
+ .fleet-chapters h3{font-size:18px}
+ .fleet-ocean{aspect-ratio:1.3;max-width:520px;width:100%;margin:auto}
+ .fleet-boat{width:48px}
+ .fleet-label{font-size:14px;padding:4px 7px}
+ .fleet-destination{font-size:14px;bottom:7%}
+ .fleet-watermark{font-size:36px}
+ .fleet-story.is-enhanced .fleet-chapters{min-height:160px}
+}
+@media(prefers-reduced-motion:reduce){
+ .fleet-story .fleet-boat{will-change:auto}
+}
