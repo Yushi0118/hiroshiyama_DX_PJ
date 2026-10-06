@@ -25,17 +25,17 @@ http://localhost:3000/ を開き、ADMIN_TOKENでログイン。投稿ID（数�
 1. RenderでこのGitHubリポジトリと実装のブランチを接続。
 2. Blueprintのパスを `instagram-dm/render.yaml` に指定。サービス名は `butai-instagram-dm`。Blueprintパス指定に対応しない操作ではWeb Serviceを作り、Root Directory `instagram-dm`、Build `npm install --ignore-scripts`、Start `npm start`、Node 24、Health `/healthz` を設定。
 3. 永続ディスクを `/var/data` に付け、DATA_DIRも `/var/data` に設定。Starterとディスクは有料構成です。料金を確認してから作成。無料・一時ディスクでは再起動時に設定と重複防止記録を失うので本番運用しないでください。
-4. `.env.example` 相当の環境変数を設定。ADMIN_TOKENとMETA_VERIFY_TOKENはRender生成値を使用できます。認証情報はサーバー環境変数だけに保存。
+4. `.env.example` 相当の環境変数を設定。ADMIN_TOKENとMETA_VERIFY_TOKENはRender生成値を使用できます。認証情報は管理画面から設定できます。DBには暗号化して保存します。環境変数からの初期設定にも対応します。
 5. 公開URL `/` が管理画面、`/webhook` がMetaコールバック。GitHub PagesのURLではありません。単一インスタンスで運用してください。
 
 ## Instagram接続：Instagram Login方式
 
 1. 対象はBUTAIが管理するInstagramプロアカウント（BusinessまたはCreator）。個人アカウントは対象外。Meta for DevelopersでアプリとInstagram APIのInstagram Loginを設定。
 2. `instagram_business_basic` と `instagram_business_manage_comments` を含む適切な権限でアカウントを認証し、Instagram User Access TokenとアカウントIDを取得。Metaの設定・審査が追加権限やAdvanced Accessを求める場合は案内に従う。アプリ役割/テスト利用と本番利用で条件が異なるため、本番権限を確認する。
-3. META_APP_SECRET、IG_ACCOUNT_ID、IG_ACCESS_TOKENをRenderに登録。この実装にはOAuth認可画面は含まれないため、Metaのセットアップ画面でトークンを取得する。期限・更新・失効を管理してください。管理画面の「認証設定あり」は配送成功や権限審査の完了を意味しません。
+3. 管理画面の「Instagramの接続設定」でアカウントID・アクセストークン・アプリシークレット・Webhook検証用トークンを入力して保存。この実装にはOAuth認可画面は含まれないため、Metaのセットアップ画面でトークンを取得する。期限・更新・失効を管理してください。管理画面の「認証設定あり」は配送成功や権限審査の完了を意味しません。
 4. MetaでWebhookのCallback URLを `https://公開ドメイン/webhook`、Verify TokenをMETA_VERIFY_TOKENに設定し、Instagramの `comments` を購読する。対象プロアカウントにも `POST https://graph.instagram.com/v24.0/{IG_ACCOUNT_ID}/subscribed_apps` に `subscribed_fields=comments` を設定し、アプリ購読を有効化する。リクエストにはBearerトークンを使用する。
-5. 管理画面で投稿を読み込み、動画ごとにキーワードとDM文章を設定、投稿ONと全体ONを設定。DRY_RUN=trueのまま新しいテストコメントをして「確認のみ」の履歴が出ることを確認。
-6. 正しいアカウントとLINE URLを確認後、DRY_RUN=falseで再起動。別の新しいテストコメントで本人同意のもとDMを確認。確認モードの既存コメントは再送しません。
+5. 管理画面で投稿を読み込み、動画ごとにキーワードとDM文章を設定、投稿ONと全体ONを設定。管理画面の確認モードをONのまま新しいテストコメントをして「確認のみ」の履歴が出ることを確認。
+6. 正しいアカウントとLINE URLを確認後、管理画面の確認モードをOFFにして保存。別の新しいテストコメントで本人同意のもとDMを確認。確認モードの既存コメントは再送しません。
 7. 未登録投稿、非該当キーワード、投稿OFF、全体OFFでは送信されないことも確認。
 
 ## 送信と重複防止
@@ -60,3 +60,13 @@ http://localhost:3000/ を開き、ADMIN_TOKENでログイン。投稿ID（数�
 - Render永続ディスク: https://render.com/docs/disks
 
 実装はMeta公式サンプルのInstagram Login方式を基準にしています。APIバージョンは環境変数で変更可能。本番接続時にMetaの対応バージョン・権限・アカウント設定を確認してください。
+
+## 管理画面から接続先を設定・変更
+
+- Instagramアカウント名、数字のアカウントID、APIバージョン、アクセストークン、Metaアプリシークレット、Webhook検証用トークン、確認モード/実送信モードを設定可能です。サーバー再起動は不要。アカウント名だけで認証はできません。
+- 1台のサーバーで一度に1アカウントを接続します。同時に複数アカウントを運用する機能ではありません。
+- 認証情報はAES-256-GCMで暗号化し永続DBに保存。設定APIは秘密値を返さず、設定済みかどうかだけを返します。空欄の秘密項目は既存値を維持します。アカウント変更時はすべて再入力します。
+- `SETTINGS_KEY` を暗号化鍵として使用します。Render Blueprintは自動生成。ローカルで未指定ならADMIN_TOKENを使用。保存後に鍵を変更すると復号できなくなるので、鍵を安全に保管・バックアップしてください。ADMIN_TOKENを変更する場合もSETTINGS_KEYは維持します。
+- 接続設定の保存は全体OFF・待機ジョブ取消を伴います。アカウントID変更時は登録投稿設定も解除します。送信中は保存を拒否するため、数秒後に再度保存してください。
+- 「接続を確認」はアカウント情報取得の疎通確認だけです。Meta側の権限・Webhook購読・実DM配送は個別に確認が必要です。認証情報取得用のOAuthログイン画面は含みません。
+- Renderの初回登録、料金確認、サーバー公開は管理画面からは行えません。GitHubはコード保存先で、実行先はRender等のNodeサーバーです。

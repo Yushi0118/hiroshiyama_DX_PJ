@@ -18,14 +18,10 @@ services:
         value: /var/data
       - key: ADMIN_TOKEN
         generateValue: true
+      - key: SETTINGS_KEY
+        generateValue: true
       - key: META_VERIFY_TOKEN
         generateValue: true
-      - key: META_APP_SECRET
-        sync: false
-      - key: IG_ACCOUNT_ID
-        sync: false
-      - key: IG_ACCESS_TOKEN
-        sync: false
       - key: GRAPH_API_VERSION
         value: v24.0
       - key: DRY_RUN

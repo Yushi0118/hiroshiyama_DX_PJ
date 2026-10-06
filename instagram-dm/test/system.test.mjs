@@ -43,3 +43,21 @@ test('uncertain delivery does not retry; explicit throttling retries; restart is
  s.ingest(payload('778'),'999',1000,false);s.save(campaign({...base,enabled:false}));await processOne(s,cfg,async()=>{throw Error('must not send');},2000);assert.equal(s.logs().find(x=>x.id==='778').state,'cancelled');s.close();
  const dir=mkdtempSync(join(tmpdir(),'butai-restart-'));const file=join(dir,'db');const a=new Store(file);a.save(campaign(base));a.enabled(true);a.ingest(payload(),'999',1000,false);a.db.exec("UPDATE jobs SET state='sending'");a.close();const b=new Store(file);assert.equal(b.logs()[0].state,'uncertain');b.close();rmSync(dir,{recursive:true});
 });
+test('connection settings are encrypted, redacted, persisted and safely isolate account changes',async()=>{
+ const dir=mkdtempSync(join(tmpdir(),'butai-settings-'));const env={ADMIN_TOKEN:'a'.repeat(40),SETTINGS_KEY:'stable-key',DATA_DIR:dir};
+ const app=createApp(env,async()=>Response.json({id:'999',username:'butai'}));await new Promise(r=>app.server.listen(0,'127.0.0.1',r));const url=`http://127.0.0.1:${app.server.address().port}`;
+ const auth={Authorization:`Bearer ${env.ADMIN_TOKEN}`};const api=async(path,body)=>{const r=await fetch(url+'/api/'+path,{method:body===undefined?'GET':'POST',headers:{...auth,...(body===undefined?{}:{'Content-Type':'application/json'})},...(body===undefined?{}:{body:JSON.stringify(body)})});return {status:r.status,data:await r.json()};};
+ try{
+ assert.equal((await fetch(url+'/api/connection')).status,401);
+ let r=await api('connection',{account:'999',username:'@butai',token:'PRIVATE_TOKEN',secret:'PRIVATE_SECRET',verify:'PRIVATE_VERIFY',version:'v24.0',dryRun:true});assert.equal(r.status,200);assert.equal(JSON.stringify(r.data).includes('PRIVATE'),false);
+ assert.equal((await api('connection/check',{})).data.ok,true);
+ const sealed=app.store.db.prepare('SELECT sealed FROM connection').get().sealed;assert.equal(sealed.includes('PRIVATE'),false);
+ await api('campaigns',base);await api('enabled',{enabled:true});
+ const p=payload();const sig='sha256='+createHmac('sha256','PRIVATE_SECRET').update(JSON.stringify(p)).digest('hex');const wr=await fetch(url+'/webhook',{method:'POST',headers:{'Content-Type':'application/json','x-hub-signature-256':sig},body:JSON.stringify(p)});assert.equal((await wr.json()).queued,1);
+ r=await api('connection',{account:'999',dryRun:false});assert.equal(r.status,200);assert.equal((await api('state')).data.enabled,false);assert.equal((await api('connection')).data.hasToken,true);
+ app.store.enabled(true);app.store.ingest(payload('777'),'999',Date.now(),false);
+ assert.equal((await api('connection',{account:'888',dryRun:false})).status,400);
+ r=await api('connection',{account:'888',username:'next',token:'NEXT_TOKEN',secret:'NEXT_SECRET',verify:'NEXT_VERIFY',dryRun:true});assert.equal(r.status,200);assert.equal(app.store.campaigns().length,0);assert.equal(app.store.logs().find(x=>x.id==='777').state,'cancelled');
+ }finally{await app.close();}
+ const restored=createApp(env);assert.equal(restored.store.enabled(),false);await new Promise(r=>restored.server.listen(0,'127.0.0.1',r));const r=await fetch(`http://127.0.0.1:${restored.server.address().port}/api/connection`,{headers:auth});const b=await r.json();assert.equal(b.account,'888');assert.equal(b.hasToken,true);assert.equal(JSON.stringify(b).includes('NEXT_TOKEN'),false);await restored.close();rmSync(dir,{recursive:true});
+});
