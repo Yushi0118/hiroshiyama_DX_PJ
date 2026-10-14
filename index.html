@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ひろしま協働DXプロジェクト｜小さな船も、船団になれば、越えられる潮がある。</title>
+<title>ひろしま協働DXプロジェクト｜小さな船も、船団になれば、越えられる波がある。</title>
 <meta name="description" content="広島県の小規模事業者等のための、協働型DX実証プロジェクト。同じ悩みを持つ事業者が集まり、困りごとを見える化し、AIやデジタル技術で小さく試します。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,7 +22,7 @@
       media="(max-aspect-ratio:13/10) and (max-width:1099px), (max-width:767px)">
 <link rel="icon" href="assets/img/icons/logo-mark.png" type="image/png">
 <meta property="og:type" content="website">
-<meta property="og:title" content="ひろしま協働DXプロジェクト｜小さな船も、船団になれば、越えられる潮がある。">
+<meta property="og:title" content="ひろしま協働DXプロジェクト｜小さな船も、船団になれば、越えられる波がある。">
 <meta property="og:description" content="広島県の小規模事業者等のための、協働型DX実証プロジェクト。同じ悩みを持つ事業者が集まり、困りごとを見える化し、AIやデジタル技術で小さく試します。">
 <meta property="og:image" content="assets/img/backgrounds/hero-scene-wide.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -41,7 +41,8 @@
   <summary class="menu-btn" aria-label="メニュー"><span class="menu-bars" aria-hidden="true"></span></summary>
   <nav class="menu-panel" aria-label="メニュー">
     <a href="#what">できること</a>
-    <a href="#video">事業説明動画</a>
+    <!-- 事業説明動画は一時非表示（依頼主 2026-10-14：募集向けの動画を収録し直すまで一時非表示。動画ができたら hidden を外す） -->
+    <a href="#video" hidden>事業説明動画</a>
     <a href="#benefit">メリット</a>
     <a href="#themes">募集テーマ</a>
     <a href="#flow">進め方</a>
@@ -60,7 +61,7 @@
 
   <div class="wrap hero-inner">
     <div class="hero-panel">
-      <h1 class="hero-title"><span class="brush brush-gold">小さな</span>船も、<br>船団になれば、<br>越えられる<span class="brush brush-blue">潮がある</span>。</h1>
+      <h1 class="hero-title"><span class="brush brush-gold">小さな</span>船も、<br>船団になれば、<br>越えられる<span class="brush brush-blue">波がある</span>。</h1>
 
       <!-- 名前に3秒マウスを乗せると、ページ全体が夜の海に切り替わる
            （script.js）。もう一度3秒乗せると昼へ戻る。隠し要素だが、
@@ -91,11 +92,28 @@
       </p>
     </div>
 
-    <nav class="hero-nav" aria-label="ページ内リンク">
-      <a href="#what">プロジェクトについて<span class="chev" aria-hidden="true"></span></a>
-      <a href="#themes">募集テーマ<span class="chev" aria-hidden="true"></span></a>
-      <a href="#schedule">スケジュール<span class="chev" aria-hidden="true"></span></a>
-    </nav>
+    <div class="hero-side">
+      <nav class="hero-nav" aria-label="ページ内リンク">
+        <a href="#what">プロジェクトについて<span class="chev" aria-hidden="true"></span></a>
+        <a href="#themes">募集テーマ<span class="chev" aria-hidden="true"></span></a>
+        <a href="#schedule">スケジュール<span class="chev" aria-hidden="true"></span></a>
+      </nav>
+
+      <!-- 応募受付のワッペン（依頼主 2026-10-14）。全体が参加申込フォームへのリンク。
+           主メッセージ（左の紙の上の見出し）に重ねないよう、横長の絵では右上の
+           ページ内ナビの下（空の部分）、縦長の絵では見出しの右（スマホでは見出しの上）に置く。
+           位置と大きさは style.css の .hero-side / .hero-badge。
+           締切を過ぎたら script.js が data-until を見て外す（JSが無いときは残る）。 -->
+      <a class="hero-badge" href="https://docs.google.com/forms/d/e/1FAIpQLSd_0BeNJjT1DIdxzaHhst62Ks7Ligf4glMgqb99WQL2FpvFLA/viewform?usp=header" target="_blank" rel="noopener noreferrer"
+         data-until="2026-10-31T23:59:59+09:00">
+        <span class="hb-in">
+          <span class="hb-date">10月31日<span class="hb-dow">（土）</span></span>
+          <span class="hb-until">まで</span>
+          <span class="hb-main">応募<br>受付中！</span>
+        </span>
+        <span class="sr-only">（参加申込フォームが新しいタブで開きます）</span>
+      </a>
+    </div>
   </div>
 </section>
 
@@ -115,7 +133,7 @@
     <span class="terms-label">対象</span>
     <span class="terms-item">広島県内の事業者</span>
     <span class="terms-item">従業員20人以下</span>
-    <span class="terms-item">理美容・飲食・バックオフィス</span>
+    <span class="terms-item">飲食・理美容・バックオフィス</span>
     <!-- 「無料」だけを大きく置いて、あとで生成AIの月額負担を知らせるのは
          順番が逆になる。帯の中に但し書きを添える（依頼主 2026-09-11）。 -->
     <span class="terms-free">参加費無料<span class="terms-except">生成AIの利用料を除く</span></span>
@@ -207,8 +225,14 @@
      動画が用意できたら、.video-frame の中身（.video-soon 以下）を
      そのまま <iframe> か <video> に差し替えるだけでよい。枠は 16:9 で
      固定してあるので、差し替えてもページの高さは変わらない。
+
+     ** 2026-10-14 から一時非表示（hidden）。** 依頼主の指示で、募集向けの
+     動画を改めて収録するまで出さない。削除せずに残してあるので、再掲する
+     ときは下の section の hidden を外し、あわせて次の hidden も外すこと：
+       メニューとフッター目次の「事業説明動画」、お申込みの「事業説明動画を見る」、
+       FAQ「事業説明動画はいつ公開されますか？」。
      ============================================================ -->
-<section id="video" class="section sec-video tier-mid" aria-labelledby="video-h">
+<section id="video" class="section sec-video tier-mid" aria-labelledby="video-h" hidden>
   <div class="wrap">
     <p class="eyebrow">事業説明</p>
     <h2 id="video-h"><span class="h-rule">動画で、事業の全体像を<br>ご覧いただけます</span></h2>
@@ -274,19 +298,9 @@
   <div class="wrap">
     <p class="eyebrow">募集テーマ</p>
     <h2 id="themes-h"><span class="h-rule">今年度は、3つのテーマで<br>参加事業者を募集します</span></h2>
-    <p class="lead">理美容、飲食、バックオフィス。テーマごとにチームをつくり、その業種で共通している課題から手をつけます。</p>
+    <p class="lead">飲食、理美容、バックオフィス。テーマごとにチームをつくり、その業種で共通している課題から手をつけます。</p>
 
     <ul class="grid grid-3">
-      <li class="card theme">
-        <div class="theme-head">
-          <p class="theme-name">理美容</p>
-          <img class="theme-icon" src="assets/img/themes/beauty.webp" alt="" width="320" height="283" loading="lazy" decoding="async" onerror="this.remove()">
-        </div>
-        <p class="label">こんな悩み</p>
-        <p>施術履歴や薬剤配合、顧客情報が紙のカルテと担当者の記憶に依存し、再来店の状況も見えづらい。</p>
-        <p class="arrow">紙のカルテをデジタルに移し、担当者が変わっても同じ情報にたどり着ける状態をつくります。</p>
-        <a class="theme-survey" href="https://forms.gle/CrJjjcNJ1uPHw9Nv9" target="_blank" rel="noopener noreferrer"><span>理美容の課題を伝える</span><svg class="ext" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-ext"></use></svg><span class="sr-only">（アンケート・新しいタブで開きます）</span></a>
-      </li>
       <li class="card theme">
         <div class="theme-head">
           <p class="theme-name">飲食</p>
@@ -296,6 +310,16 @@
         <p>予約や注文情報が電話・紙・複数サイトに分散し、仕入れや仕込みの量は経験と勘に頼りがち。</p>
         <p class="arrow">売上と注文の数字を1か所に集めて、仕入れの量を勘ではなく記録から決められるところまで。</p>
         <a class="theme-survey" href="https://forms.gle/Qwr9Q81c6xFHMToP7" target="_blank" rel="noopener noreferrer"><span>飲食の課題を伝える</span><svg class="ext" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-ext"></use></svg><span class="sr-only">（アンケート・新しいタブで開きます）</span></a>
+      </li>
+      <li class="card theme">
+        <div class="theme-head">
+          <p class="theme-name">理美容</p>
+          <img class="theme-icon" src="assets/img/themes/beauty.webp" alt="" width="320" height="283" loading="lazy" decoding="async" onerror="this.remove()">
+        </div>
+        <p class="label">こんな悩み</p>
+        <p>施術履歴や薬剤配合、顧客情報が紙のカルテと担当者の記憶に依存し、再来店の状況も見えづらい。</p>
+        <p class="arrow">紙のカルテをデジタルに移し、担当者が変わっても同じ情報にたどり着ける状態をつくります。</p>
+        <a class="theme-survey" href="https://forms.gle/CrJjjcNJ1uPHw9Nv9" target="_blank" rel="noopener noreferrer"><span>理美容の課題を伝える</span><svg class="ext" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-ext"></use></svg><span class="sr-only">（アンケート・新しいタブで開きます）</span></a>
       </li>
       <li class="card theme">
         <div class="theme-head">
@@ -310,7 +334,7 @@
     </ul>
 
     <p class="note">※ 上記は現時点で想定している取組内容です。実際の課題・進め方は、参加事業者どうしのワークショップを経て決定します。対象業種が迷う場合は、お気軽にお問い合わせください。<br>
-      ※ 各テーマの「課題を伝える」は<strong>アンケート（3〜5分）</strong>です。回答期限はありません。<strong>参加のお申込みではありません。</strong></p>
+      ※ 各テーマの「課題を伝える」は<strong>アンケート（10分程度）</strong>です。回答期限はありません。<strong>参加のお申込みではありません。</strong></p>
 
     <p class="section-cta"><a class="btn btn-accent btn-ic" href="#entry" data-fitcheck>
         <svg class="btn-mark" viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-compass"></use></svg>
@@ -329,23 +353,24 @@
   <div class="wrap">
     <p class="eyebrow">進め方</p>
     <h2 id="flow-h"><span class="h-rule">専門知識がなくても、<br>無理なく進められます</span></h2>
-    <p class="lead">セミナー・研修で学び、ワークショップで困りごとを洗い出し、実証で小さく試す。この順に進みます。途中でつまずいても、専門家や仲間がそばにいます。</p>
+    <!-- 3ステップの文言は県の意向を反映した確定文案（依頼主 2026-10-14）。勝手に言い換えないこと。 -->
+    <p class="lead">基礎を学び、専門家とともに課題に合ったツールを検証し、実際の業務へ。学びから実装まで、段階的に進めながら専門家が伴走します。</p>
 
     <ol class="grid grid-3 steps">
       <li class="card">
-        <div class="card-head"><span class="num">1</span><h3 class="card-title">セミナー・研修で学ぶ</h3></div>
+        <div class="card-head"><span class="num">1</span><h3 class="card-title">学ぶ</h3></div>
         <img class="vignette vignette-center" src="assets/img/icons/flow/illus-1.webp" width="253" height="200" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-        <p>AIやデジタルの基礎を、セミナー・研修で</p>
+        <p>DXの意義やAIの基礎を、セミナー・研修で学びます。</p>
       </li>
       <li class="card">
-        <div class="card-head"><span class="num">2</span><h3 class="card-title">ワークショップで整理</h3></div>
+        <div class="card-head"><span class="num">2</span><h3 class="card-title">検証する</h3></div>
         <img class="vignette vignette-center" src="assets/img/icons/flow/illus-2.webp" width="298" height="206" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-        <p>困りごとを仲間と一緒に整理</p>
+        <p>専門家と課題を整理し、ツールを作成・試用します。</p>
       </li>
       <li class="card">
-        <div class="card-head"><span class="num">3</span><h3 class="card-title">実証で試す</h3></div>
+        <div class="card-head"><span class="num">3</span><h3 class="card-title">実装する</h3></div>
         <img class="vignette vignette-center" src="assets/img/icons/flow/illus-3.webp" width="283" height="206" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-        <p>小さな範囲・短い期間でAI・デジタルを試行</p>
+        <p>ツールを業務に取り入れ、データを分析・改善に活かします。</p>
       </li>
     </ol>
 
@@ -431,7 +456,7 @@
       <div class="card checklist">
         <h3 class="card-title">こんな方におすすめです</h3>
         <ul>
-          <li>広島県内で理美容・飲食・バックオフィス関連の業務を行っている<span class="sub">（目安：従業員20人以下の小規模事業者等）</span></li>
+          <li>広島県内で飲食・理美容・バックオフィス関連の業務を行っている<span class="sub">（目安：従業員20人以下の小規模事業者等）</span></li>
           <li>経営者ご自身が現場の業務も担っている</li>
           <li>ITやデジタルは得意ではないが、まずは「学ぶ」ことから始めたい</li>
           <li>同じ悩みを持つ他の事業者と一緒に取り組んでみたい</li>
@@ -452,52 +477,67 @@
   <div class="wrap">
     <p class="eyebrow">スケジュール</p>
     <h2 id="schedule-h"><span class="h-rule">実施スケジュール（予定）</span></h2>
-    <p class="lead">募集から成果発信まで、およそ半年を見込んでいます。</p>
+    <p class="sched-asof">2026年10月時点の予定</p>
+    <p class="lead">募集から成果発表会まで、およそ半年を見込んでいます。</p>
 
+    <!-- 2026-10-14 の修正指示書で差し替え。11月以降の工程は募集チラシに合わせる。
+         各行の data-start / data-end（日本時間の日付）を script.js が読んで、
+         終わった工程に is-done（灰色）、いま進んでいる工程に is-now（強調）を付ける。
+         JSが動かないときのために、公開時点の状態（募集中）をHTMLにも書いてある。 -->
     <ol class="timeline">
-      <li class="card">
+      <li class="card is-now" data-start="2026-10-13" data-end="2026-10-31">
         <div class="tl-when">
           <span class="tl-step">1</span>
-          <span class="tl-date">2026年9月頃〜</span>
+          <span class="tl-date">2026年10月13日〜31日</span>
+          <span class="tl-badge">募集中</span>
         </div>
         <div class="tl-body">
-          <h3 class="card-title">参加募集</h3>
+          <h3 class="card-title">参加事業者募集</h3>
           <p>支援機関・本ウェブサイト・SNS等を通じて参加事業者を募集</p>
         </div>
       </li>
-      <li class="card">
+      <li class="card" data-start="2026-11-04" data-end="2026-11-04">
         <div class="tl-when">
           <span class="tl-step">2</span>
-          <span class="tl-date">2026年9月頃</span>
+          <span class="tl-date">2026年11月4日（水）頃</span>
         </div>
         <div class="tl-body">
-          <h3 class="card-title">事業説明動画の公開・個別相談</h3>
-          <p>事業の内容や進め方をご説明し、疑問や不安にお答えします</p>
+          <h3 class="card-title">応募結果の通知</h3>
         </div>
       </li>
-      <li class="card">
+      <li class="card" data-start="2026-11-16" data-end="2026-11-20">
         <div class="tl-when">
           <span class="tl-step">3</span>
-          <span class="tl-date">2026年10月頃〜</span>
+          <span class="tl-date">2026年11月16日（月）の週の平日</span>
         </div>
         <div class="tl-body">
-          <h3 class="card-title">課題整理ワークショップ</h3>
-          <p>同じテーマの事業者どうしで、共通する困りごとを整理</p>
+          <h3 class="card-title">キックオフセミナー（全テーマ共通）</h3>
+          <p>事業趣旨、AI・DXの基礎、今後の進め方を案内</p>
         </div>
       </li>
-      <li class="card">
+      <li class="card" data-start="2026-11-23" data-end="2026-11-27">
         <div class="tl-when">
           <span class="tl-step">4</span>
-          <span class="tl-date">〜2026年12月頃</span>
+          <span class="tl-date">2026年11月23日（月）の週の平日</span>
+        </div>
+        <div class="tl-body">
+          <h3 class="card-title">テーマ別ワークショップ</h3>
+          <p>取組内容の説明、AI・DXツールの体験</p>
+        </div>
+      </li>
+      <li class="card" data-start="2026-11-28" data-end="2027-01-31">
+        <div class="tl-when">
+          <span class="tl-step">5</span>
+          <span class="tl-date">〜2027年1月頃</span>
         </div>
         <div class="tl-body">
           <h3 class="card-title">小さく試す（実証）</h3>
           <p>AI・デジタルツールを使って、低コスト・短期間で試行</p>
         </div>
       </li>
-      <li class="card">
+      <li class="card" data-start="2027-02-01" data-end="2027-02-28">
         <div class="tl-when">
-          <span class="tl-step">5</span>
+          <span class="tl-step">6</span>
           <span class="tl-date">〜2027年2月頃</span>
         </div>
         <div class="tl-body">
@@ -505,19 +545,19 @@
           <p>一部の事業者で本格的に運用し、効果を数値で確認</p>
         </div>
       </li>
-      <li class="card">
+      <li class="card" data-start="2027-03-01" data-end="2027-03-31">
         <div class="tl-when">
-          <span class="tl-step">6</span>
+          <span class="tl-step">7</span>
           <span class="tl-date">2027年3月頃</span>
         </div>
         <div class="tl-body">
-          <h3 class="card-title">成果発信</h3>
+          <h3 class="card-title">成果発表会</h3>
           <p>取組の成果を事例として地域に発信</p>
         </div>
       </li>
     </ol>
 
-    <p class="note">※ 上記は現時点（2026年8月）の想定スケジュールです。契約内容の確定にあわせて前後する可能性があります。詳細は事業説明動画と個別のご相談でご案内します。</p>
+    <p class="note">※ 上記は2026年10月時点の予定です。今後の調整により前後する可能性があります。詳細は個別のご相談でご案内します。</p>
 
     <p class="section-cta"><a class="btn btn-accent" href="#entry">参加を相談する</a></p>
   </div>
@@ -555,7 +595,7 @@
 
       <details class="card faq-item" data-kw="期間|時間|どのくらい|どれくらい|何ヶ月|何ヵ月|半年|忙しい|拘束|回数|頻度|スケジュール|いつまで|負担" data-tentative>
         <summary><h3 class="card-title">どのくらいの期間、どのくらい関わることになりますか？</h3></summary>
-        <p>2026年9月頃の募集開始から2027年3月頃の成果発信まで、およそ半年間を想定しています。セミナー・研修、ワークショップ、実証といった節目ごとにご参加いただく形で、日々の業務を止めていただくものではありません。</p>
+        <p>2026年10月の募集開始から2027年3月頃の成果発表会まで、およそ半年間を想定しています。セミナー・研修、ワークショップ、実証といった節目ごとにご参加いただく形で、日々の業務を止めていただくものではありません。</p>
       </details>
 
       <!-- 「途中で辞退することはできますか？」は設問ごと削除した
@@ -566,7 +606,7 @@
 
       <details class="card faq-item" data-kw="業種|テーマ|対象|製造|小売|建設|農業|以外|該当|当てはま|うちの業種|理美容|飲食|バックオフィス">
         <summary><h3 class="card-title">募集テーマ以外の業種でも相談できますか？</h3></summary>
-        <p>今年度は理美容・飲食・バックオフィスの3テーマで募集しており、その他の業種は対象外です。ただし業務の一部がバックオフィス寄りであるなど、線引きに迷う場合はお問い合わせください。対象になるかどうかを一緒に確認します。</p>
+        <p>今年度は飲食・理美容・バックオフィスの3テーマで募集しており、その他の業種は対象外です。ただし業務の一部がバックオフィス寄りであるなど、線引きに迷う場合はお問い合わせください。対象になるかどうかを一緒に確認します。</p>
       </details>
 
       <details class="card faq-item" data-kw="準備|用意|必要なもの|資料|申込み前|申し込み前|事前|持ち物|何をすれば" data-tentative>
@@ -604,18 +644,21 @@
         <p>ページ内の「自社が対象か診断する」から、5つの質問にお答えいただくと目安が分かります。最終的な対象可否は個別のご相談で確認します。</p>
       </details>
 
-      <details class="card faq-item" data-kw="動画|いつ公開|映像|ビデオ|説明動画|coming soon|見られ" hidden>
+      <!-- 事業説明動画の一時非表示（2026-10-14）にあわせて、チャットからも外す。
+           チャットは .faq-item を拾うので、クラスを faq-item-off に替えてある。
+           動画を再掲するときは faq-item に戻し、答えを公開後の内容に書き換える。 -->
+      <details class="card faq-item-off" data-kw="動画|いつ公開|映像|ビデオ|説明動画|coming soon|見られ" hidden>
         <summary><h3 class="card-title">事業説明動画はいつ公開されますか？</h3></summary>
         <p>現在準備中です。公開時期が決まりましたら、ページの「事業説明」の欄でご案内します。</p>
       </details>
 
       <details class="card faq-item" data-kw="問い合わせ|連絡先|電話|メール|窓口|申込み方法|申し込み方法|どこに|フォーム" hidden>
         <summary><h3 class="card-title">お問い合わせ先はどこですか？</h3></summary>
-        <p>お問い合わせ先・お申込みフォームは現在準備中です。確定次第、「お申込み」の欄でご案内します。</p>
+        <p>広島県商工労働局 経営革新課／「令和8年度広島県DX協働モデル事例創出プロジェクト」事務局です。業務委託先の株式会社エル・ティー・エス（担当：丸尾）が窓口となります。メール：pj_hiroshima-dx@lt-s.jp、電話：080-4807-7970。参加のお申込みは、ページ下部「お申込み」の参加申込フォームからお願いします。</p>
       </details>
     </div>
 
-    <p class="note">※ 「想定」と記した内容は現時点の見込みです。詳細は事業説明動画と個別のご相談でご案内します。<br>
+    <p class="note">※ 「想定」と記した内容は現時点の見込みです。詳細は個別のご相談でご案内します。<br>
       ※ ここに無いご質問は、画面左下の<strong>「よくあるご質問」</strong>からもお尋ねいただけます（対象の範囲・人数の数え方・お問い合わせ先など）。</p>
   </div>
 </section>
@@ -627,28 +670,25 @@
 <section id="entry" class="section sec-entry tier-deep" aria-labelledby="entry-h">
   <div class="wrap entry-inner">
     <p class="eyebrow">まずは一歩、踏み出してみませんか</p>
-    <h2 id="entry-h"><span class="h-rule">小さな船も、船団になれば、越えられる潮がある。</span></h2>
+    <h2 id="entry-h"><span class="h-rule">小さな船も、船団になれば、越えられる波がある。</span></h2>
     <p class="lead">「難しそう」「うちには関係ない」と思う前に、まずはお気軽にご相談ください。<strong class="free-mark">参加費は無料です。</strong><span class="lead-except">ただし、生成AI（Claude・ChatGPT等）の有料プラン（月3,000円程度）のみ、各社でご負担いただきます。</span></p>
 
-    <!-- 注記はカードの「前」に置くこと。以前は後ろにあったので、読者は
-         先に押せないカードを見て「壊れている」と受け取っていた
-         （第三者レビューの指摘 2026-09-07）。先に事情を伝えてから並べる。 -->
-    <p class="note note-lead">※ お申込みフォーム・お問い合わせ先、事業説明動画は現在準備中です。下の「準備中」は、確定次第この場所でご案内します。</p>
-
-    <!-- アンケート。お申込みフォームが準備中のあいだ、このページで実際に
-         押せる唯一の導線なので、行動の集まるこの節にも置いてある。
-         テーマの節にある同じリンクを、業種を選べる形でまとめたもの。 -->
+    <!-- アンケート。テーマの節にある同じリンクを、業種を選べる形でまとめたもの。
+         参加申込（下のカード）とは別物なので、「申込みではない」と明記している。 -->
     <div class="survey">
-      <p class="survey-lead"><strong>まずは、困りごとをお聞かせください。</strong>業種ごとのアンケート（3〜5分）にお答えいただくと、共通する課題の整理に役立てます。回答期限はありません。<strong>参加のお申込みではありません。</strong></p>
+      <p class="survey-lead"><strong>まずは、困りごとをお聞かせください。</strong>業種ごとのアンケート（10分程度）にお答えいただくと、共通する課題の整理に役立てます。回答期限はありません。<strong>参加のお申込みではありません。</strong></p>
       <div class="survey-btns">
-        <a class="btn btn-survey" href="https://forms.gle/CrJjjcNJ1uPHw9Nv9" target="_blank" rel="noopener noreferrer"><span>理美容の課題を伝える</span><svg class="ext" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-ext"></use></svg><span class="sr-only">（アンケート・新しいタブで開きます）</span></a>
         <a class="btn btn-survey" href="https://forms.gle/Qwr9Q81c6xFHMToP7" target="_blank" rel="noopener noreferrer"><span>飲食の課題を伝える</span><svg class="ext" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-ext"></use></svg><span class="sr-only">（アンケート・新しいタブで開きます）</span></a>
+        <a class="btn btn-survey" href="https://forms.gle/CrJjjcNJ1uPHw9Nv9" target="_blank" rel="noopener noreferrer"><span>理美容の課題を伝える</span><svg class="ext" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-ext"></use></svg><span class="sr-only">（アンケート・新しいタブで開きます）</span></a>
         <a class="btn btn-survey" href="https://forms.gle/EZCiQaTS5U3YpT3E7" target="_blank" rel="noopener noreferrer"><span>バックオフィスの課題を伝える</span><svg class="ext" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-ext"></use></svg><span class="sr-only">（アンケート・新しいタブで開きます）</span></a>
       </div>
     </div>
 
-    <ul class="grid grid-3 cta-grid">
-      <li>
+    <!-- 2026-10-14 から「事業説明動画を見る」は一時非表示（動画の再収録待ち）。
+         残る2枚は .cta-grid の2列で並べる。再掲するときは li の hidden を外し、
+         ul の cta-grid-2 を外すと元の3列に戻る。 -->
+    <ul class="grid grid-3 cta-grid cta-grid-2">
+      <li hidden>
         <a class="card cta" href="#video">
           <h3 class="card-title">事業説明動画を見る</h3>
           <span class="cta-sub">公開の準備中です</span>
@@ -656,11 +696,12 @@
         </a>
       </li>
       <li>
-        <div class="card cta is-pending">
+        <a class="card cta cta-apply" href="https://docs.google.com/forms/d/e/1FAIpQLSd_0BeNJjT1DIdxzaHhst62Ks7Ligf4glMgqb99WQL2FpvFLA/viewform?usp=header" target="_blank" rel="noopener noreferrer">
           <h3 class="card-title">参加を相談する</h3>
-          <span class="cta-sub">個別相談も受け付けています</span>
-          <span class="cta-badge">準備中</span>
-        </div>
+          <span class="cta-sub">参加申込フォーム（Googleフォーム）へ</span>
+          <svg class="ext cta-ext" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-ext"></use></svg>
+          <span class="sr-only">（新しいタブで開きます）</span>
+        </a>
       </li>
       <li>
         <a class="card cta" href="#themes">
@@ -670,6 +711,18 @@
         </a>
       </li>
     </ul>
+
+    <!-- お問い合わせ先（依頼主 2026-10-14 確定）。
+         電話・メールはそのまま押せるようにする。 -->
+    <div class="contact" aria-labelledby="contact-h">
+      <h3 class="contact-h" id="contact-h">お問い合わせ先</h3>
+      <p class="contact-org">広島県商工労働局 経営革新課<br>「令和8年度広島県DX協働モデル事例創出プロジェクト」事務局</p>
+      <p class="contact-agent">業務委託先：株式会社エル・ティー・エス（担当：丸尾）</p>
+      <ul class="contact-ways">
+        <li><span class="contact-k">メール</span><a href="mailto:pj_hiroshima-dx@lt-s.jp">pj_hiroshima-dx@lt-s.jp</a></li>
+        <li><span class="contact-k">電話</span><a href="tel:08048077970">080-4807-7970</a></li>
+      </ul>
+    </div>
 
   </div>
 </section>
@@ -777,7 +830,8 @@
     <nav class="foot-nav" aria-label="ページ内リンク">
       <a href="#pain">困りごと</a>
       <a href="#what">できること</a>
-      <a href="#video">事業説明動画</a>
+      <!-- 事業説明動画は一時非表示（依頼主 2026-10-14：募集向けの動画を収録し直すまで一時非表示。動画ができたら hidden を外す） -->
+      <a href="#video" hidden>事業説明動画</a>
       <a href="#benefit">メリット</a>
       <a href="#themes">募集テーマ</a>
       <a href="#flow">進め方</a>
@@ -894,8 +948,8 @@
 
       <fieldset class="fc-step" data-step="3" hidden>
         <legend class="fc-q">主な業務に、いちばん近いものはどれですか？</legend>
-        <label class="fc-opt"><input type="radio" name="q3" data-score="2"><span>理美容（美容室・理容室・エステなど）</span></label>
         <label class="fc-opt"><input type="radio" name="q3" data-score="2"><span>飲食（飲食店・食品の製造販売など）</span></label>
+        <label class="fc-opt"><input type="radio" name="q3" data-score="2"><span>理美容（美容室・理容室・エステなど）</span></label>
         <label class="fc-opt"><input type="radio" name="q3" data-score="2"><span>事務・経理・総務などのバックオフィス業務の比重が大きい</span></label>
         <label class="fc-opt"><input type="radio" name="q3" data-score="0" data-verdict="industry"><span>上記以外の業種</span></label>
       </fieldset>
@@ -919,7 +973,7 @@
       <div class="fc-res" data-res="fit" hidden>
         <span class="fc-badge fc-badge-fit"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-ship"></use></svg></span>
         <p class="fc-verdict">対象に当てはまりそうです</p>
-        <p class="fc-detail">本プロジェクトが想定している事業者像とよく重なっています。まずは事業説明動画で、実際の進め方をご確認ください。</p>
+        <p class="fc-detail">本プロジェクトが想定している事業者像とよく重なっています。下のボタンから、お申込み・お問い合わせへお進みください。</p>
       </div>
       <div class="fc-res" data-res="maybe" hidden>
         <span class="fc-badge fc-badge-maybe"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-lighthouse"></use></svg></span>
@@ -933,7 +987,7 @@
       </div>
       <div class="fc-res" data-res="industry" hidden>
         <span class="fc-badge fc-badge-far"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-lighthouse"></use></svg></span>
-        <p class="fc-verdict">今回の募集は、理美容・飲食・バックオフィスが対象です</p>
+        <p class="fc-verdict">今回の募集は、飲食・理美容・バックオフィスが対象です</p>
         <p class="fc-detail">今年度はこの3つのテーマで参加事業者を募集しているため、その他の業種は対象外となります。業務の一部がバックオフィス寄りである場合など、判断に迷うときはお問い合わせください。</p>
       </div>
       <div class="fc-res" data-res="outside" hidden>

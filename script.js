@@ -63,7 +63,7 @@
   var lastStep = 0;        /* 結果へ進む直前に見せていた質問 */
 
   /* 対象の条件は3つ。県内であること、従業員20名以下であること、業種が
-     理美容・飲食・バックオフィスのいずれかであること。どれかを外したら
+     飲食・理美容・バックオフィスのいずれかであること。どれかを外したら
      その時点で結論が出るので、選んだ選択肢に data-verdict を持たせて
      残りを聞かずに結果へ進む（答えても結論が変わらない質問を続けさせない）。
 
@@ -506,8 +506,8 @@
       chips(near, 'こちらのことでしょうか。近いものをお選びください。');
     } else {
       say('bot', 'そのご質問には、このページの内容ではお答えできませんでした。'
-        + '個別のご相談でご案内しますので、お申込み・お問い合わせ先が'
-        + '整いましたらご連絡ください（現在準備中です）。'
+        + '個別にご案内しますので、ページ下部「お申込み」にある'
+        + 'お問い合わせ先（メール・電話）までご連絡ください。'
         + '下の一覧からもお選びいただけます。');
       chips(faqs.slice(0, 3), null);
     }
@@ -580,5 +580,42 @@
     /* rAF は使わない。裏に回った画面では止まるので、戻すきっかけごと
        失われる。2.6秒あれば is-away の状態は必ず一度描かれている。 */
     setTimeout(function () { box.classList.remove('is-away'); }, 2600);
+  }
+}());
+
+/* ============================================================
+   日付で変わる表示（依頼主 2026-10-14）
+
+   1. スケジュールの各工程に、終わったもの is-done（灰色）と
+      いま進んでいるもの is-now（強調）を付ける。日付は各 <li> の
+      data-start / data-end（日本時間の日付）。
+   2. 応募受付のワッペンは、data-until を過ぎたら外す。
+      締切後も「受付中」と出ていると誤った案内になるため。
+
+   どちらもHTMLには公開時点（2026年10月・募集中）の状態を書いてあるので、
+   JSが動かなくても表示は成立する。日付は利用者の端末の時計ではなく
+   日本時間で比べる（海外から見ても締切は日本の 10/31 で切れる）。
+
+   動作確認用：URL に ?today=2026-11-20 を付けると、その日として表示する。
+   ============================================================ */
+(function () {
+  'use strict';
+
+  var override = (location.search.match(/[?&]today=(\d{4}-\d{2}-\d{2})/) || [])[1];
+  /* 「日本時間の今日」を YYYY-MM-DD で得る。文字列で比べれば時差の計算が要らない */
+  var now = override ? new Date(override + 'T12:00:00+09:00') : new Date();
+  var jst = new Date(now.getTime() + 9 * 3600 * 1000).toISOString().slice(0, 10);
+
+  var rows = document.querySelectorAll('.timeline > li[data-start][data-end]');
+  Array.prototype.forEach.call(rows, function (li) {
+    var a = li.getAttribute('data-start'), b = li.getAttribute('data-end');
+    li.classList.toggle('is-done', jst > b);
+    li.classList.toggle('is-now', jst >= a && jst <= b);
+  });
+
+  var badge = document.querySelector('.hero-badge[data-until]');
+  if (badge) {
+    var until = new Date(badge.getAttribute('data-until'));
+    if (!isNaN(until) && now > until) badge.remove();
   }
 }());
